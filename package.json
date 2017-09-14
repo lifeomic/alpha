@@ -2,23 +2,42 @@
   "name": "@lifeomic/alpha",
   "version": "1.0.0",
   "description": "Unified client for HTTP services.",
-  "main": "src/Alpha",
+  "main": "lib/Alpha",
   "author": "LifeOmic <development@lifeomic.com>",
   "license": "UNLICENSED",
   "scripts": {
-    "pretest": "eslint .",
-    "test": "nyc ava"
+    "lint": "eslint .",
+    "prepublish": "yarn run transpile",
+    "pretest": "yarn run lint",
+    "test": "nyc ava",
+    "transpile": "babel src --out-dir lib"
   },
   "ava": {
     "files": [
       "test/**/*.test.js"
+    ],
+    "require": [
+      "babel-register"
+    ]
+  },
+  "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "targets": {
+            "node": 6
+          }
+        }
+      ]
     ]
   },
   "eslintConfig": {
     "extends": "semistandard"
   },
   "eslintIgnore": [
-    "node_modules"
+    "/lib/",
+    "node_modules/"
   ],
   "nyc": {
     "check-coverage": true,
@@ -31,6 +50,9 @@
     "@lifeomic/dev-tools": "^3.2.1",
     "ava": "^0.22.0",
     "aws-sdk-mock": "^1.7.0",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.0",
+    "babel-register": "^6.26.0",
     "eslint": "^4.6.1",
     "eslint-config-semistandard": "^11.0.0",
     "eslint-config-standard": "^10.2.1",

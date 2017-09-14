@@ -1,14 +1,14 @@
 const AWS = require('aws-sdk');
 const lambdaEvent = require('./helpers/lambdaEvent');
 const lambdaResponse = require('./helpers/lambdaResponse');
-const { URL } = require('url');
+const url = require('url');
 
 async function lambdaInvocationAdapter (config) {
   const lambda = new AWS.Lambda();
-  const url = new URL(config.url);
+  const parts = url.parse(config.url);
 
   const request = {
-    FunctionName: url.hostname,
+    FunctionName: parts.hostname,
     InvocationType: 'RequestResponse',
     Payload: JSON.stringify(lambdaEvent(config))
   };

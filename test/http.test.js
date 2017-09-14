@@ -1,4 +1,4 @@
-const Alpha = require('..');
+const Alpha = require('../src/Alpha');
 const nock = require('nock');
 const test = require('ava');
 

@@ -1,10 +1,8 @@
+const isAbsoluteURL = require('./helpers/isAbsoluteURL');
 const lambdaEvent = require('./helpers/lambdaEvent');
 const lambdaResponse = require('./helpers/lambdaResponse');
-const util = require('util');
-
-function isAbsoluteURL (url) {
-  return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
-}
+const promisify = require('./helpers/promisify');
+const RequestError = require('./helpers/RequestError');
 
 async function lambdaHandlerAdapter (config) {
   const request = {
@@ -12,8 +10,14 @@ async function lambdaHandlerAdapter (config) {
     event: lambdaEvent(config)
   };
 
-  const handler = util.promisify(config.lambda);
-  const result = await handler(request.event, request.context);
+  const handler = promisify(config.lambda);
+  let result = null;
+
+  try {
+    result = await handler(request.event, request.context);
+  } catch (error) {
+    throw new RequestError(error.message, config, request);
+  }
 
   return lambdaResponse(config, request, result);
 }
