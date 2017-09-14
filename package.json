@@ -6,6 +6,7 @@
   "author": "LifeOmic <development@lifeomic.com>",
   "license": "UNLICENSED",
   "scripts": {
+    "deploy": "yarn run lifeomic-publish",
     "lint": "eslint .",
     "prepublish": "yarn run transpile",
     "pretest": "yarn run lint",
