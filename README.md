@@ -1,0 +1,61 @@
+alpha
+=====
+
+Alpha provides a single client interface for interacting with HTTP microservices
+regardless of whether they are implemented as Lambda functions or real HTTP
+servers.
+
+## API
+
+`Alpha` instances are [`axios`][axios] clients at their core. This means that they
+support the full `axios` API. The difference is how `Alpha` instances are
+instantiated. Regardless of how an `Alpha` instance is instantiated, requests
+to fully qualified HTTP URLs will _always_ perform a real HTTP request.
+
+### `new Alpha(target)`
+
+Creates a new `Alpha` instances. All `Alpha` instances support the full
+[`axios`][axios] API.
+
+#### HTTP Targets
+
+When an `Alpha` instance is created with an HTTP(S) base URL target, requests to
+unqualified URLs will be relative to the base URL. For example, the following
+code will dispatch the request to `http://example.com/some/path`.
+
+```javascript
+const alpha = new Alpha('http://example.com');
+const response = await alpha.get('/some/path');
+```
+
+#### Lambda Function Targets
+
+When an `Alpha` instance is created with a base URL using the `lambda` scheme,
+requests to unqualified URLs will cause the specified [Lambda function][lambda]
+to be invoked with a synthetic [API Gateway][api-gateway] event. For example,
+the following code will invoke the `test-function` Lambda function.
+
+```javascript
+const alpha = new Alpha('lambda://test-function');
+const response = await alpha.get('/some/path');
+```
+
+The `lambda` URL scheme is interpreted according to the following pattern:
+
+    lambda://<function name>
+
+#### Lambda Handler Targets
+
+When an `Alpha` instance is created with a handler function target, requests to
+unqualified URLs will be transformed into synthetic [API Gateway][api-gateway]
+events that will be passed directly to the handler function. This is primarily
+used for unit testing Lambda handlers.
+
+```javascript
+const alpha = new Alphan(handlerFunction);
+const response = await alpha.get('/some/path');
+```
+
+[api-gateway]: https://aws.amazon.com/documentation/apigateway/ "AWS API Gateway"
+[axios]: https://github.com/mzabriskie/axios "Axios"
+[lambda]: https://aws.amazon.com/documentation/lambda/ "AWS Lambda"

@@ -1,0 +1,48 @@
+{
+  "name": "@lifeomic/alpha",
+  "version": "1.0.0",
+  "description": "Unified client for HTTP services.",
+  "main": "src/Alpha",
+  "author": "LifeOmic <development@lifeomic.com>",
+  "license": "UNLICENSED",
+  "scripts": {
+    "pretest": "eslint .",
+    "test": "nyc ava"
+  },
+  "ava": {
+    "files": [
+      "test/**/*.test.js"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "semistandard"
+  },
+  "eslintIgnore": [
+    "node_modules"
+  ],
+  "nyc": {
+    "check-coverage": true,
+    "lines": 100,
+    "statements": 100,
+    "functions": 100,
+    "branches": 100
+  },
+  "devDependencies": {
+    "@lifeomic/dev-tools": "^3.2.1",
+    "ava": "^0.22.0",
+    "aws-sdk-mock": "^1.7.0",
+    "eslint": "^4.6.1",
+    "eslint-config-semistandard": "^11.0.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-node": "^5.1.1",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "nock": "^9.0.14",
+    "nyc": "^11.2.1",
+    "sinon": "^3.2.1"
+  },
+  "dependencies": {
+    "axios": "^0.16.2"
+  }
+}
