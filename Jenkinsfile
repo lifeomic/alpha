@@ -15,7 +15,8 @@ nodejsBuilder {
 
   if (env.BRANCH_NAME == "master") {
     stage('Publish') {
-      sh 'yarn run deploy'
+      // Yarn seems to fail to authenticate ???
+      sh 'npm run deploy'
     }
   }
 }
