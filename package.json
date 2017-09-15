@@ -1,6 +1,6 @@
 {
   "name": "@lifeomic/alpha",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Unified client for HTTP services.",
   "main": "lib/Alpha",
   "author": "LifeOmic <development@lifeomic.com>",
@@ -18,7 +18,8 @@
       "test/**/*.test.js"
     ],
     "require": [
-      "babel-register"
+      "babel-register",
+      "./test/setup.js"
     ]
   },
   "babel": {
@@ -66,6 +67,7 @@
     "sinon": "^3.2.1"
   },
   "dependencies": {
+    "aws-sdk": "^2.116.0",
     "axios": "^0.16.2"
   }
 }
