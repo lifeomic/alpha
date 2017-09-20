@@ -89,3 +89,19 @@ test.serial('When a lambda function returns an error code an error is thrown', a
   test.false(Object.keys(error).includes('code'));
   test.true(test.context.invoke.called);
 });
+
+test.serial('When status validation is disabled errors are not thrown', async (test) => {
+  test.context.invoke.callsArgWith(1, null, {
+    StatusCode: 200,
+    Payload: JSON.stringify({
+      body: 'error!',
+      statusCode: 400
+    })
+  });
+
+  const alpha = new Alpha('lambda://test-function');
+  const response = await alpha.get('/some/path', { validateStatus: false });
+
+  test.is(response.status, 400);
+  test.is(response.data, 'error!');
+});
