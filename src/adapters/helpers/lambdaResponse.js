@@ -11,7 +11,7 @@ module.exports = (config, request, payload) => {
     statusText: http.STATUS_CODES[payload.statusCode]
   };
 
-  if (!config.validateStatus(response.status)) {
+  if (typeof config.validateStatus === 'function' && !config.validateStatus(response.status)) {
     throw new RequestError(`Request failed with status code ${response.status}`, config, request, response);
   }
 

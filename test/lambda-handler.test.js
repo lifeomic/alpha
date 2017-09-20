@@ -66,3 +66,16 @@ test('When a local handler returns an error the request fails', async (test) => 
   test.false(Object.keys(error).includes('code'));
   test.true(test.context.handler.called);
 });
+
+test('When status validation is disable errors are not thrown', async (test) => {
+  const response = {
+    body: 'error!',
+    statusCode: 400
+  };
+
+  test.context.handler.callsArgWith(2, null, response);
+  const result = await test.context.client.get('/some/path', { validateStatus: false });
+
+  test.is(result.status, response.statusCode);
+  test.is(result.data, response.body);
+});
