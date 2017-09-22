@@ -21,6 +21,26 @@ class Alpha extends Axios {
     super(options);
     adapters.forEach((adapter) => adapter(this));
   }
+
+  static dockerLambda (options, clientOptions) {
+    const dockerLambda = require('docker-lambda');
+
+    options = Object.assign(
+      {
+        taskDir: false
+      },
+      options
+    );
+
+    delete options.event;
+
+    function handler (event, context, callback) {
+      const requestOptions = Object.assign({ event }, options);
+      callback(null, dockerLambda(requestOptions));
+    }
+
+    return new Alpha(handler, clientOptions);
+  }
 }
 
 module.exports = Alpha;

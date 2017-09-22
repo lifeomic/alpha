@@ -56,6 +56,15 @@ const alpha = new Alphan(handlerFunction);
 const response = await alpha.get('/some/path');
 ```
 
+### `Alpha.dockerLambda(options, clientOptions)`
+
+Creates an `Alpha` client instance that dispatches requests to
+[`docker-lambda`][docker-lambda]. This facilitates testing Lambda services in a
+full mock Lambda environment running in a docker container. The `options` are
+passed to the [`docker-lambda`][docker-lambda] library and the `clientOptions`
+configure the `Alpha` client instance that is created.
+
 [api-gateway]: https://aws.amazon.com/documentation/apigateway/ "AWS API Gateway"
 [axios]: https://github.com/mzabriskie/axios "Axios"
+[docker-lambda]: https://github.com/lambci/docker-lambda "docker-lambda"
 [lambda]: https://aws.amazon.com/documentation/lambda/ "AWS Lambda"
