@@ -1,6 +1,6 @@
 {
   "name": "@lifeomic/alpha",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Unified client for HTTP services.",
   "main": "lib/Alpha",
   "author": "LifeOmic <development@lifeomic.com>",
@@ -8,7 +8,7 @@
   "scripts": {
     "deploy": "lifeomic-publish --tags-only",
     "lint": "eslint .",
-    "prepublish": "yarn run transpile",
+    "prepare": "yarn run transpile",
     "pretest": "yarn run lint",
     "test": "nyc ava",
     "transpile": "babel src --out-dir lib"
@@ -64,10 +64,12 @@
     "eslint-plugin-standard": "^3.0.1",
     "nock": "^9.0.14",
     "nyc": "^11.2.1",
+    "proxyquire": "^1.8.0",
     "sinon": "^3.2.1"
   },
   "dependencies": {
     "aws-sdk": "^2.116.0",
-    "axios": "^0.16.2"
+    "axios": "^0.16.2",
+    "docker-lambda": "^0.13.4"
   }
 }
