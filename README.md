@@ -56,6 +56,12 @@ const alpha = new Alphan(handlerFunction);
 const response = await alpha.get('/some/path');
 ```
 
+#### Mocking Lambda
+
+To redirect the Lambda requests to a mocked implementation, set the
+`LAMBDA_ENDPOINT` environment variable.  The value of this environment variable
+will be used when creating the AWS Lambda client.
+
 ### `Alpha.dockerLambda(options, clientOptions)`
 
 Creates an `Alpha` client instance that dispatches requests to

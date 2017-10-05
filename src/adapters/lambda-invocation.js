@@ -4,7 +4,9 @@ const lambdaResponse = require('./helpers/lambdaResponse');
 const url = require('url');
 
 async function lambdaInvocationAdapter (config) {
-  const lambda = new AWS.Lambda();
+  const lambda = new AWS.Lambda({
+    endpoint: process.env.LAMBDA_ENDPOINT
+  });
   const parts = url.parse(config.url);
 
   const request = {
