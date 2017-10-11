@@ -1,6 +1,6 @@
 {
   "name": "@lifeomic/alpha",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Unified client for HTTP services.",
   "main": "lib/Alpha",
   "author": "LifeOmic <development@lifeomic.com>",
@@ -35,7 +35,13 @@
     ]
   },
   "eslintConfig": {
-    "extends": "semistandard"
+    "extends": "semistandard",
+    "plugins": [
+      "import"
+    ],
+    "rules": {
+      "import/no-extraneous-dependencies": "error"
+    }
   },
   "eslintIgnore": [
     "/lib/",
@@ -70,6 +76,8 @@
   "dependencies": {
     "aws-sdk": "^2.116.0",
     "axios": "^0.16.2",
-    "docker-lambda": "^0.13.4"
+    "docker-lambda": "^0.13.4",
+    "glob": "^7.1.2",
+    "lodash": "^4.17.4"
   }
 }
