@@ -35,13 +35,7 @@
     ]
   },
   "eslintConfig": {
-    "extends": "semistandard",
-    "plugins": [
-      "import"
-    ],
-    "rules": {
-      "import/no-extraneous-dependencies": "error"
-    }
+    "extends": "@lifeomic/node"
   },
   "eslintIgnore": [
     "/lib/",
@@ -56,6 +50,7 @@
   },
   "devDependencies": {
     "@lifeomic/dev-tools": "^3.2.1",
+    "@lifeomic/eslint-config-node": "^1.0.1",
     "ava": "^0.22.0",
     "aws-sdk-mock": "^1.7.0",
     "babel-cli": "^6.26.0",

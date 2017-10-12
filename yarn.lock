@@ -84,6 +84,10 @@
     update-notifier "^2.2.0"
     yargs "^8.0.2"
 
+"@lifeomic/eslint-config-node@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@lifeomic/eslint-config-node/-/eslint-config-node-1.0.1.tgz#252a707155e77b21bc0939b9e4d2d6b2ff0fb6fe"
+
 abbrev@1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.0.tgz#d0554c2256636e2f56e7c2e5ad183f859428d81f"
