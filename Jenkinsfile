@@ -1,22 +1,33 @@
 #!groovy
 
-nodejsBuilder {
-  stage ('Git clone') {
-    checkout scm
+pipeline {
+  agent {
+    node { label 'ecs-builder' }
   }
 
-  stage ('setup') {
-    sh 'yarn install'
-  }
+  stages {
+    stage('prepare') {
+      steps {
+        buildNpmrc()
+      }
+    }
 
-  stage ('test') {
-    sh 'yarn test'
-  }
+    stage('unit tests') {
+      steps {
+        withCredentials([
+          string(credentialsId: 'SNYK_AUTH_TOKEN', variable: 'SNYK_TOKEN')
+        ]) {
+          sh 'yarn install'
+          sh 'yarn test'
+        }
+      }
+    }
 
-  if (env.BRANCH_NAME == "master") {
-    stage('Publish') {
-      // Yarn seems to fail to authenticate ???
-      sh 'npm run deploy'
+    stage('deploy') {
+      when { branch 'master' }
+      steps {
+        sh 'npm run deploy'
+      }
     }
   }
 }
