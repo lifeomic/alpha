@@ -8,8 +8,10 @@
   "scripts": {
     "deploy": "lifeomic-publish --tags-only",
     "lint": "eslint .",
+    "posttest": "yarn security",
     "prepare": "yarn run transpile",
-    "pretest": "yarn run lint",
+    "pretest": "yarn lint",
+    "security": "snyk test",
     "test": "nyc ava",
     "transpile": "babel src --out-dir lib"
   },
@@ -66,7 +68,8 @@
     "nock": "^9.0.14",
     "nyc": "^11.2.1",
     "proxyquire": "^1.8.0",
-    "sinon": "^3.2.1"
+    "sinon": "^3.2.1",
+    "snyk": "^1.42.7"
   },
   "dependencies": {
     "aws-sdk": "^2.116.0",
