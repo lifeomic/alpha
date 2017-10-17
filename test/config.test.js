@@ -84,3 +84,19 @@ test.serial('Creating a client with a target and configuration options binds the
   test.is(response.status, 200);
   test.true(server.isDone());
 });
+
+test.serial('A custom status validator can be used with the client', async (test) => {
+  const server = nock('http://example.com')
+    .get('/')
+    .reply(302, { location: '/redirect' });
+
+  const options = {
+    validateStatus: (status) => status >= 200 && status < 300
+  };
+
+  const client = new Alpha('http://example.com', options);
+  const error = await test.throws(client.get('/'));
+
+  test.is(error.message, 'Request failed with status code 302');
+  test.true(server.isDone());
+});
