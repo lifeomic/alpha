@@ -13,6 +13,7 @@ test.after(() => {
 });
 
 test.beforeEach((test) => {
+  test.context.alpha = new Alpha('lambda://test-function');
   test.context.invoke = sinon.stub();
   AWS.mock('Lambda', 'invoke', test.context.invoke);
 });
@@ -31,8 +32,7 @@ test.serial('Making a GET request with the lambda protocol invokes the lambda fu
     })
   });
 
-  const alpha = new Alpha('lambda://test-function');
-  const response = await alpha.get('/some/path');
+  const response = await test.context.alpha.get('/some/path');
 
   test.is(response.data, 'hello!');
   test.is(response.status, 200);
@@ -63,8 +63,7 @@ test.serial('When a lambda function returns an error code an error is thrown', a
     })
   });
 
-  const alpha = new Alpha('lambda://test-function');
-  const error = await test.throws(alpha.get('/some/path'));
+  const error = await test.throws(test.context.alpha.get('/some/path'));
 
   test.is(error.message, 'Request failed with status code 400');
   test.truthy(error.config);
@@ -99,9 +98,110 @@ test.serial('When status validation is disabled errors are not thrown', async (t
     })
   });
 
-  const alpha = new Alpha('lambda://test-function');
-  const response = await alpha.get('/some/path', { validateStatus: false });
+  const response = await test.context.alpha.get('/some/path', { validateStatus: false });
 
   test.is(response.status, 400);
   test.is(response.data, 'error!');
+});
+
+test.serial('Redirects are automatically followed (301)', async (test) => {
+  test.context.invoke.onFirstCall().callsArgWith(1, null, {
+    StatusCode: 200,
+    Payload: JSON.stringify({
+      headers: { location: '/redirect' },
+      statusCode: 301
+    })
+  });
+
+  test.context.invoke.onSecondCall().callsArgWith(1, null, {
+    StatusCode: 200,
+    Payload: JSON.stringify({
+      body: 'we made it alive!',
+      statusCode: 200
+    })
+  });
+
+  const response = await test.context.alpha.get('/some/path');
+
+  test.is(response.status, 200);
+  test.is(response.data, 'we made it alive!');
+
+  test.true(test.context.invoke.firstCall.calledWith({
+    FunctionName: 'test-function',
+    InvocationType: 'RequestResponse',
+    Payload: sinon.match.string
+  }));
+
+  let payload = JSON.parse(test.context.invoke.firstCall.args[0].Payload);
+
+  test.is(payload.body, '');
+  test.truthy(payload.headers);
+  test.is(payload.httpMethod, 'GET');
+  test.is(payload.path, '/some/path');
+  test.deepEqual(payload.queryStringParameters, {});
+
+  test.true(test.context.invoke.secondCall.calledWith({
+    FunctionName: 'test-function',
+    InvocationType: 'RequestResponse',
+    Payload: sinon.match.string
+  }));
+
+  payload = JSON.parse(test.context.invoke.secondCall.args[0].Payload);
+
+  test.is(payload.body, '');
+  test.truthy(payload.headers);
+  test.is(payload.httpMethod, 'GET');
+  test.is(payload.path, '/redirect');
+  test.deepEqual(payload.queryStringParameters, {});
+});
+
+test.serial('Redirects are automatically followed (302)', async (test) => {
+  test.context.invoke.onFirstCall().callsArgWith(1, null, {
+    StatusCode: 200,
+    Payload: JSON.stringify({
+      headers: { location: '/redirect' },
+      statusCode: 302
+    })
+  });
+
+  test.context.invoke.onSecondCall().callsArgWith(1, null, {
+    StatusCode: 200,
+    Payload: JSON.stringify({
+      body: 'we made it alive!',
+      statusCode: 200
+    })
+  });
+
+  const response = await test.context.alpha.get('/some/path');
+
+  test.is(response.status, 200);
+  test.is(response.data, 'we made it alive!');
+
+  test.true(test.context.invoke.firstCall.calledWith({
+    FunctionName: 'test-function',
+    InvocationType: 'RequestResponse',
+    Payload: sinon.match.string
+  }));
+
+  let payload = JSON.parse(test.context.invoke.firstCall.args[0].Payload);
+
+  test.is(payload.body, '');
+  test.truthy(payload.headers);
+  test.is(payload.httpMethod, 'GET');
+  test.is(payload.path, '/some/path');
+  test.deepEqual(payload.queryStringParameters, {});
+
+  test.true(test.context.invoke.secondCall.calledWith({
+    FunctionName: 'test-function',
+    InvocationType: 'RequestResponse',
+    Payload: sinon.match.string
+  }));
+
+  payload = JSON.parse(test.context.invoke.secondCall.args[0].Payload);
+
+  test.is(payload.body, '');
+  test.truthy(payload.headers);
+  test.is(payload.httpMethod, 'GET');
+  test.is(payload.path, '/redirect');
+  test.deepEqual(payload.queryStringParameters, {});
 });

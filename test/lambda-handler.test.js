@@ -79,3 +79,91 @@ test('When status validation is disable errors are not thrown', async (test) => 
   test.is(result.status, response.statusCode);
   test.is(result.data, response.body);
 });
+
+test('Redirects are automaticaly followed (301)', async (test) => {
+  const redirect = {
+    headers: { location: '/other/path' },
+    statusCode: 301
+  };
+
+  const response = {
+    body: 'hello!',
+    statusCode: 200
+  };
+
+  test.context.handler.onFirstCall().callsArgWith(2, null, redirect);
+  test.context.handler.onSecondCall().callsArgWith(2, null, response);
+
+  const result = await test.context.client.get('/some/path');
+
+  test.is(result.status, 200);
+  test.is(result.data, response.body);
+
+  test.true(test.context.handler.firstCall.calledWith(
+    {
+      body: '',
+      headers: sinon.match.object,
+      httpMethod: 'GET',
+      path: '/some/path',
+      queryStringParameters: {}
+    },
+    {},
+    sinon.match.func
+  ));
+
+  test.true(test.context.handler.secondCall.calledWith(
+    {
+      body: '',
+      headers: sinon.match.object,
+      httpMethod: 'GET',
+      path: '/other/path',
+      queryStringParameters: {}
+    },
+    {},
+    sinon.match.func
+  ));
+});
+
+test('Redirects are automaticaly followed (302)', async (test) => {
+  const redirect = {
+    headers: { location: '/other/path' },
+    statusCode: 302
+  };
+
+  const response = {
+    body: 'hello!',
+    statusCode: 200
+  };
+
+  test.context.handler.onFirstCall().callsArgWith(2, null, redirect);
+  test.context.handler.onSecondCall().callsArgWith(2, null, response);
+
+  const result = await test.context.client.get('/some/path');
+
+  test.is(result.status, 200);
+  test.is(result.data, response.body);
+
+  test.true(test.context.handler.firstCall.calledWith(
+    {
+      body: '',
+      headers: sinon.match.object,
+      httpMethod: 'GET',
+      path: '/some/path',
+      queryStringParameters: {}
+    },
+    {},
+    sinon.match.func
+  ));
+
+  test.true(test.context.handler.secondCall.calledWith(
+    {
+      body: '',
+      headers: sinon.match.object,
+      httpMethod: 'GET',
+      path: '/other/path',
+      queryStringParameters: {}
+    },
+    {},
+    sinon.match.func
+  ));
+});
