@@ -100,8 +100,8 @@
     js-yaml "^3.8.1"
 
 "@lifeomic/dev-tools@^3.2.1":
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/@lifeomic/dev-tools/-/dev-tools-3.3.0.tgz#031830db30a5101fa7e62731b34e391270613d22"
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/@lifeomic/dev-tools/-/dev-tools-3.3.2.tgz#dc60169db476cb631019f1b213ed420f0f7873c1"
   dependencies:
     "@lifeomic/continuous-delivery-aws" "^1.0.70"
     "@lifeomic/continuous-delivery-docker" "^1.0.54"
@@ -117,8 +117,8 @@
     yargs "^8.0.2"
 
 "@lifeomic/eslint-config-node@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@lifeomic/eslint-config-node/-/eslint-config-node-1.0.1.tgz#252a707155e77b21bc0939b9e4d2d6b2ff0fb6fe"
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@lifeomic/eslint-config-node/-/eslint-config-node-1.1.0.tgz#43ba5b26d3a2d7b59857d66962c84df022f34dae"
 
 abbrev@1, abbrev@^1.0.7:
   version "1.1.1"
@@ -439,7 +439,22 @@ aws-sdk-mock@^1.7.0:
     sinon "^1.17.3"
     traverse "^0.6.6"
 
-aws-sdk@^2.116.0, aws-sdk@^2.3.0, aws-sdk@^2.49.0:
+aws-sdk@^2.116.0:
+  version "2.134.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.134.0.tgz#acc0c989900cae632a0a4cfc3609b0a406169da9"
+  dependencies:
+    buffer "4.9.1"
+    crypto-browserify "1.0.9"
+    events "^1.1.1"
+    jmespath "0.15.0"
+    querystring "0.2.0"
+    sax "1.2.1"
+    url "0.10.3"
+    uuid "3.1.0"
+    xml2js "0.4.17"
+    xmlbuilder "4.2.1"
+
+aws-sdk@^2.3.0, aws-sdk@^2.49.0:
   version "2.133.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.133.0.tgz#6a6d8988bd35928c11bbd3db677ad5b3eae7107a"
   dependencies:
@@ -878,8 +893,8 @@ babel-polyfill@^6.26.0:
     regenerator-runtime "^0.10.5"
 
 babel-preset-env@^1.6.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/babel-preset-env/-/babel-preset-env-1.6.0.tgz#2de1c782a780a0a5d605d199c957596da43c44e4"
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/babel-preset-env/-/babel-preset-env-1.6.1.tgz#a18b564cc9b9afdf4aae57ae3c1b0d99188e6f48"
   dependencies:
     babel-plugin-check-es2015-constants "^6.22.0"
     babel-plugin-syntax-trailing-function-commas "^6.22.0"
@@ -1745,6 +1760,12 @@ eslint-plugin-promise@^3.5.0:
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/eslint-plugin-promise/-/eslint-plugin-promise-3.6.0.tgz#54b7658c8f454813dc2a870aff8152ec4969ba75"
 
+eslint-plugin-security@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-security/-/eslint-plugin-security-1.4.0.tgz#d4f314484a80b1b613b8c8886e84f52efe1526c2"
+  dependencies:
+    safe-regex "^1.1.0"
+
 eslint-plugin-standard@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/eslint-plugin-standard/-/eslint-plugin-standard-3.0.1.tgz#34d0c915b45edc6f010393c7eef3823b08565cf2"
@@ -1757,8 +1778,8 @@ eslint-scope@^3.7.1:
     estraverse "^4.1.1"
 
 eslint@^4.6.1:
-  version "4.8.0"
-  resolved "https://registry.yarnpkg.com/eslint/-/eslint-4.8.0.tgz#229ef0e354e0e61d837c7a80fdfba825e199815e"
+  version "4.9.0"
+  resolved "https://registry.yarnpkg.com/eslint/-/eslint-4.9.0.tgz#76879d274068261b191fe0f2f56c74c2f4208e8b"
   dependencies:
     ajv "^5.2.0"
     babel-code-frame "^6.22.0"
@@ -4118,6 +4139,10 @@ restore-cursor@^2.0.0:
     onetime "^2.0.0"
     signal-exit "^3.0.2"
 
+ret@~0.1.10:
+  version "0.1.15"
+  resolved "https://registry.yarnpkg.com/ret/-/ret-0.1.15.tgz#b8a4825d5bdb1fc3f6f53c2bc33f81388681c7bc"
+
 right-align@^0.1.1:
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/right-align/-/right-align-0.1.3.tgz#61339b722fe6a3515689210d24e14c96148613ef"
@@ -4159,6 +4184,12 @@ rxjs@^5.0.0-beta.11, rxjs@^5.0.0-beta.9:
 safe-buffer@^5.0.1, safe-buffer@^5.1.1, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/safe-buffer/-/safe-buffer-5.1.1.tgz#893312af69b2123def71f57889001671eeb2c853"
+
+safe-regex@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/safe-regex/-/safe-regex-1.1.0.tgz#40a3669f3b077d1e943d44629e157dd48023bf2e"
+  dependencies:
+    ret "~0.1.10"
 
 samsam@1.1.2:
   version "1.1.2"
@@ -4377,8 +4408,8 @@ snyk-try-require@^1.1.1, snyk-try-require@^1.2.0:
     then-fs "^2.0.0"
 
 snyk@^1.42.7:
-  version "1.42.7"
-  resolved "https://registry.yarnpkg.com/snyk/-/snyk-1.42.7.tgz#a9c5f80abdf29c9070c33fc8a57783de74b61050"
+  version "1.43.0"
+  resolved "https://registry.yarnpkg.com/snyk/-/snyk-1.43.0.tgz#2ad5de4144cffdd9901b8ed753b15c9ca6b3c385"
   dependencies:
     abbrev "^1.0.7"
     ansi-escapes "^1.3.0"
