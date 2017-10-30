@@ -1,0 +1,62 @@
+'use strict';
+
+const _ = require('lodash');
+
+const DEFAULTS = {
+  attempts: 3,
+  factor: 2,
+  maxTimeout: 10000
+};
+
+function isRetryableError (error) {
+  return error.code !== 'ECONNABORTED' &&
+    (!error.response || (error.response.status >= 500 && error.response.status <= 599));
+}
+
+function setDefaults (config) {
+  config.__retryCount = config.__retryCount || 0;
+
+  if (_.isBoolean(config.retry)) {
+    config.retry = {};
+  }
+  config.retry = _.defaults(config.retry, DEFAULTS);
+}
+
+async function exponentialTimeout (config) {
+  // Get random between 1 and 1000
+  const random = Math.random() * 1000;
+  const delay = Math.min(Math.pow(config.retry.factor, config.__retryCount) * random,
+    config.retry.maxTimeout);
+
+  return new Promise((resolve) => {
+    setTimeout(() => { resolve(); }, delay);
+  });
+}
+
+/**
+ * Attempts to retry a failed request a configurable number of times.
+ */
+module.exports = (client) => {
+  client.interceptors.response.use(
+    undefined,
+    async err => {
+      const config = err.config;
+      if (!config || !config.retry || !isRetryableError(err)) {
+        return Promise.reject(err);
+      }
+
+      setDefaults(config);
+
+      if (config.__retryCount >= config.retry.attempts) {
+        return Promise.reject(err);
+      }
+
+      config.__retryCount += 1;
+
+      await exponentialTimeout(config);
+
+      // Send another request after delay
+      return client.request(config);
+    }
+  );
+};
