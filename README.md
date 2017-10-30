@@ -56,6 +56,26 @@ const alpha = new Alphan(handlerFunction);
 const response = await alpha.get('/some/path');
 ```
 
+### Request Retries
+
+An `Alpha` client can be configured to retry a failed attempt. A retryable failure
+currently means a request that failed from a network error or had a 5xx status
+code.
+
+```javascript
+// Retry failed requests using default settings
+const alpha = new Alpha('http://example.com', { retry: true });
+```
+
+```javascript
+// Retry failed requests using custom settings
+const alpha = new Alpha('http://example.com', { retry: {
+    attempts: 3,        // The number of attempts to make (default 3)
+    factor: 2,          // The factor to use for the exponential backoff delay (default 2)
+    maxTimeout: 10000   // The max timeout in milliseconds to delay before the next attempt (default 10000)
+ });
+```
+
 #### Mocking Lambda
 
 To redirect the Lambda requests to a mocked implementation, set the
