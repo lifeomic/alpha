@@ -5,7 +5,8 @@ const _ = require('lodash');
 const DEFAULTS = {
   attempts: 3,
   factor: 2,
-  maxTimeout: 10000
+  maxTimeout: 10000,
+  retryCondition: isRetryableError
 };
 
 function isRetryableError (error) {
@@ -45,13 +46,14 @@ module.exports = (client) => {
     undefined,
     async err => {
       const config = err.config;
-      if (!config || !config.retry || !isRetryableError(err)) {
+      if (!config || !config.retry) {
         return Promise.reject(err);
       }
 
       setDefaults(config);
 
-      if (config.__retryCount >= config.retry.attempts) {
+      if (!config.retry.retryCondition(err) ||
+          config.__retryCount >= config.retry.attempts) {
         return Promise.reject(err);
       }
 

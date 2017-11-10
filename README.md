@@ -72,8 +72,9 @@ const alpha = new Alpha('http://example.com', { retry: true });
 const alpha = new Alpha('http://example.com', { retry: {
     attempts: 3,        // The number of attempts to make (default 3)
     factor: 2,          // The factor to use for the exponential backoff delay (default 2)
-    maxTimeout: 10000   // The max timeout in milliseconds to delay before the next attempt (default 10000)
- });
+    maxTimeout: 10000,  // The max timeout in milliseconds to delay before the next attempt (default 10000)
+    retryCondition: function (error) { } // If function result is truthy, the error will be retried (default is retry network and 5xx errors)
+  });
 ```
 
 #### Mocking Lambda
