@@ -54,6 +54,24 @@ test.serial('Making a request with retries enabled and a custom retry condition 
   test.true(server.isDone());
 });
 
+test.serial('Making a request with retries enabled and a custom retry condition should fail for an error that is not retryable', async (test) => {
+  const server = nock('http://example.com')
+    .get('/some/path')
+    .reply(403);
+
+  const alpha = new Alpha('http://example.com', {
+    retry: {
+      retryCondition: function (error) {
+        return error.response.status === 404;
+      }
+    }
+  });
+  const err = await test.throws(alpha.get('/some/path'));
+  test.is(err.response.status, 403);
+
+  test.true(server.isDone());
+});
+
 test.serial('Making a request with retries enabled should fail for an error that is not retryable', async (test) => {
   const server = nock('http://example.com')
     .get('/some/path')
