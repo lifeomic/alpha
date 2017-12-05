@@ -1,13 +1,10 @@
 const { Axios } = require('axios');
-const glob = require('glob');
 const isAbsoluteURL = require('./adapters/helpers/isAbsoluteURL');
-const path = require('path');
 const RequestError = require('./adapters/helpers/RequestError');
 const url = require('url');
 const { URL } = require('whatwg-url');
 const _ = require('lodash');
-
-const adapters = glob.sync(path.join(__dirname, 'adapters/*.js')).map(require);
+const adapters = require('./adapters');
 
 class Alpha extends Axios {
   static dockerLambda (options, clientOptions) {

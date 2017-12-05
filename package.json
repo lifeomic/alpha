@@ -76,7 +76,6 @@
     "aws-sdk": "^2.116.0",
     "axios": "^0.16.2",
     "docker-lambda": "^0.13.4",
-    "glob": "^7.1.2",
     "lodash": "^4.17.4",
     "whatwg-url": "^6.3.0"
   }
