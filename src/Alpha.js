@@ -3,7 +3,8 @@ const isAbsoluteURL = require('./adapters/helpers/isAbsoluteURL');
 const RequestError = require('./adapters/helpers/RequestError');
 const url = require('url');
 const { URL } = require('whatwg-url');
-const _ = require('lodash');
+const cloneDeep = require('lodash/cloneDeep');
+const isString = require('lodash/isString');
 const adapters = require('./adapters');
 
 class Alpha extends Axios {
@@ -28,14 +29,14 @@ class Alpha extends Axios {
   }
 
   constructor (target, options) {
-    options = options ? _.cloneDeep(options) : {};
+    options = options ? cloneDeep(options) : {};
 
     if (typeof target === 'function') {
       options.lambda = target;
-    } else if (_.isString(target)) {
+    } else if (isString(target)) {
       options.baseURL = target;
     } else if (target) {
-      options = _.cloneDeep(target);
+      options = cloneDeep(target);
       target = null;
     }
 
@@ -54,7 +55,7 @@ class Alpha extends Axios {
     const maxRedirects = 'maxRedirects' in config ? config.maxRedirects : 5;
     // Need to override the default redirect logic to allow different adapters
     // to interact.
-    config = _.cloneDeep(config);
+    config = cloneDeep(config);
     config.maxRedirects = 0;
 
     // Babel does not correctly handle the super keyword in async methods
@@ -65,7 +66,7 @@ class Alpha extends Axios {
         throw new RequestError('Exceeded maximum number of redirects.', response.config, response.request, response);
       }
 
-      const redirect = _.cloneDeep(config);
+      const redirect = cloneDeep(config);
       redirect.maxRedirects = maxRedirects - 1;
 
       // Node's url.resolve does not correctly handle non-http schemes
