@@ -1,6 +1,7 @@
 'use strict';
 
-const _ = require('lodash');
+const isBoolean = require('lodash/isBoolean');
+const defaults = require('lodash/defaults');
 
 const DEFAULTS = {
   attempts: 3,
@@ -17,10 +18,10 @@ function isRetryableError (error) {
 function setDefaults (config) {
   config.__retryCount = config.__retryCount || 0;
 
-  if (_.isBoolean(config.retry)) {
+  if (isBoolean(config.retry)) {
     config.retry = {};
   }
-  config.retry = _.defaults(config.retry, DEFAULTS);
+  config.retry = defaults(config.retry, DEFAULTS);
 }
 
 async function exponentialBackoff (config) {
