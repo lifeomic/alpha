@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.8.1] - 2017-12-19
+### Changed
+- Upgraded dependencies to pickup security fixes
+
 ## [0.8.0] - 2017-12-19
 ### Added
 - The ability to execute a qualified Lambda call with a URL like lambda://function-name:3/some/path
