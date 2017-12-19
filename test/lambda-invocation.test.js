@@ -53,6 +53,41 @@ test.serial('Making a GET request with the lambda protocol invokes the lambda fu
   test.deepEqual(payload.queryStringParameters, {});
 });
 
+test.serial('Making a GET request with the lambda protocol with a qualifier invokes the lambda function using a qualifier', async (test) => {
+  // Override the shared alpha client to include a qualifier
+  test.context.alpha = new Alpha('lambda://test-function:2');
+
+  test.context.invoke.callsArgWith(1, null, {
+    StatusCode: 200,
+    Payload: JSON.stringify({
+      body: 'hello!',
+      headers: { 'test-header': 'some value' },
+      statusCode: 200
+    })
+  });
+
+  const response = await test.context.alpha.get('/some/path');
+
+  test.is(response.data, 'hello!');
+  test.is(response.status, 200);
+  test.deepEqual(response.headers, { 'test-header': 'some value' });
+
+  test.true(test.context.invoke.calledWith({
+    FunctionName: 'test-function',
+    InvocationType: 'RequestResponse',
+    Qualifier: '2',
+    Payload: sinon.match.string
+  }));
+
+  const payload = JSON.parse(test.context.invoke.firstCall.args[0].Payload);
+
+  test.is(payload.body, '');
+  test.truthy(payload.headers);
+  test.is(payload.httpMethod, 'GET');
+  test.is(payload.path, '/some/path');
+  test.deepEqual(payload.queryStringParameters, {});
+});
+
 test.serial('When a lambda function returns an error code an error is thrown', async (test) => {
   test.context.invoke.callsArgWith(1, null, {
     StatusCode: 200,
