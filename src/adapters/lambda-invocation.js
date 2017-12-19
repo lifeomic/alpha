@@ -15,6 +15,10 @@ async function lambdaInvocationAdapter (config) {
     Payload: JSON.stringify(lambdaEvent(config))
   };
 
+  if (parts.port) {
+    request.Qualifier = parts.port;
+  }
+
   const result = await lambda.invoke(request).promise();
   const payload = JSON.parse(result.Payload);
 
