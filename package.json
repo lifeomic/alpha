@@ -74,7 +74,7 @@
     "snyk": "^1.42.7"
   },
   "dependencies": {
-    "aws-sdk": "^2.116.0",
+    "aws-sdk": "^2.184.0",
     "axios": "^0.16.2",
     "docker-lambda": "^0.13.4",
     "lodash": "^4.17.4",

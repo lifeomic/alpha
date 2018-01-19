@@ -2,6 +2,8 @@ const AWS = require('aws-sdk');
 const lambdaEvent = require('./helpers/lambdaEvent');
 const lambdaResponse = require('./helpers/lambdaResponse');
 const url = require('url');
+const RequestError = require('./helpers/RequestError');
+const toLower = require('lodash/toLower');
 
 async function lambdaInvocationAdapter (config) {
   const lambda = new AWS.Lambda({
@@ -21,6 +23,12 @@ async function lambdaInvocationAdapter (config) {
 
   const result = await lambda.invoke(request).promise();
   const payload = JSON.parse(result.Payload);
+
+  if (toLower(result.FunctionError) === 'unhandled') {
+    // With Unhandled FunctionErrors, AWS will provide an errorMessage attribute
+    // in the payload with details
+    throw new RequestError(payload.errorMessage, config, request);
+  }
 
   return lambdaResponse(config, request, payload);
 }
