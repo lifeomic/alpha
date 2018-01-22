@@ -11,5 +11,10 @@ module.exports = (config) => {
     queryStringParameters: parts.query
   };
 
+  if (Buffer.isBuffer(event.body)) {
+    event.body = event.body.toString('base64');
+    event.isBase64Encoded = true;
+  }
+
   return event;
 };

@@ -10,7 +10,9 @@ servers.
 `Alpha` instances are [`axios`][axios] clients at their core. This means that they
 support the full `axios` API. The difference is how `Alpha` instances are
 instantiated. Regardless of how an `Alpha` instance is instantiated, requests
-to fully qualified HTTP URLs will _always_ perform a real HTTP request.
+to fully qualified HTTP URLs will _always_ perform a real HTTP request. Requests
+made to Lambda functions with a `Buffer` payload will automatically encode the
+request body using the base64 encoding.
 
 ### `new Alpha(target)`
 

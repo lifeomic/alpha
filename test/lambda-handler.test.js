@@ -167,3 +167,27 @@ test('Redirects are automaticaly followed (302)', async (test) => {
     sinon.match.func
   ));
 });
+
+test('Binary content is base64 encoded', async (test) => {
+  const content = Buffer.from('hello!');
+
+  const response = {
+    statusCode: 204
+  };
+
+  test.context.handler.callsArgWith(2, null, response);
+  const result = await test.context.client.put('/some/path', content);
+
+  test.is(result.status, 204);
+
+  const event = {
+    body: content.toString('base64'),
+    headers: sinon.match.object,
+    httpMethod: 'PUT',
+    isBase64Encoded: true,
+    path: '/some/path',
+    queryStringParameters: {}
+  };
+
+  sinon.assert.calledWithExactly(test.context.handler, event, {}, sinon.match.func);
+});
