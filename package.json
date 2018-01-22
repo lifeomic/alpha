@@ -6,7 +6,7 @@
   "author": "LifeOmic <development@lifeomic.com>",
   "license": "UNLICENSED",
   "scripts": {
-    "deploy": "lifeomic-publish --tags-only",
+    "deploy": "lifeomic-publish-npm-package --publish-tagged-commits-only",
     "lint": "eslint .",
     "posttest": "yarn security",
     "prepare": "yarn run transpile",

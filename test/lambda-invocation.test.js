@@ -270,3 +270,34 @@ test.serial('Redirects are automatically followed (302)', async (test) => {
   test.is(payload.path, '/redirect');
   test.deepEqual(payload.queryStringParameters, {});
 });
+
+test.serial('Binary content is base64 encoded', async (test) => {
+  test.context.invoke.callsArgWith(1, null, {
+    StatusCode: 200,
+    Payload: JSON.stringify({ statusCode: 200 })
+  });
+
+  const content = Buffer.from('hello!');
+  const response = await test.context.alpha.put('/some/path', content);
+
+  test.is(response.status, 200);
+
+  sinon.assert.calledWithExactly(
+    test.context.invoke,
+    {
+      FunctionName: 'test-function',
+      InvocationType: 'RequestResponse',
+      Payload: sinon.match.string
+    },
+    sinon.match.func
+  );
+
+  const payload = JSON.parse(test.context.invoke.firstCall.args[0].Payload);
+
+  test.is(payload.body, content.toString('base64'));
+  test.truthy(payload.headers);
+  test.is(payload.httpMethod, 'PUT');
+  test.true(payload.isBase64Encoded);
+  test.is(payload.path, '/some/path');
+  test.deepEqual(payload.queryStringParameters, {});
+});
