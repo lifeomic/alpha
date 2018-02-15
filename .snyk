@@ -1,0 +1,150 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.10.1
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  'npm:debug:20170905':
+    - ava > chokidar > fsevents > node-pre-gyp > tar-pack > debug:
+        reason: Dev dependency
+        expires: '2018-03-17T13:20:05.193Z'
+    - babel-cli > chokidar > fsevents > node-pre-gyp > tar-pack > debug:
+        reason: Dev dependency
+        expires: '2018-03-17T13:20:05.194Z'
+  'npm:tough-cookie:20170905':
+    - ava > chokidar > fsevents > node-pre-gyp > request > tough-cookie:
+        reason: Dev dependency
+        expires: '2018-03-17T13:20:05.193Z'
+    - babel-cli > chokidar > fsevents > node-pre-gyp > request > tough-cookie:
+        reason: Dev dependency
+        expires: '2018-03-17T13:20:05.193Z'
+  'npm:lodash:20180130':
+    - nyc > istanbul-lib-instrument > babel-generator > babel-types > lodash:
+        reason: Dev dependency
+        expires: '2018-03-17T13:20:05.194Z'
+    - nyc > istanbul-lib-instrument > babel-traverse > lodash:
+        reason: Dev dependency
+        expires: '2018-03-17T13:20:05.194Z'
+    - nyc > istanbul-lib-instrument > babel-generator > lodash:
+        reason: Dev dependency
+        expires: '2018-03-17T13:20:05.194Z'
+    - nyc > istanbul-lib-instrument > babel-template > lodash:
+        reason: Dev dependency
+        expires: '2018-03-17T13:20:05.194Z'
+    - nyc > istanbul-lib-instrument > babel-template > babel-types > lodash:
+        reason: Dev dependency
+        expires: '2018-03-17T13:20:05.194Z'
+    - nyc > istanbul-lib-instrument > babel-template > babel-traverse > lodash:
+        reason: Dev dependency
+        expires: '2018-03-17T13:20:05.194Z'
+    - nyc > istanbul-lib-instrument > babel-template > babel-traverse > babel-types > lodash:
+        reason: Dev dependency
+        expires: '2018-03-17T13:20:05.194Z'
+    - nyc > istanbul-lib-instrument > babel-types > lodash:
+        reason: Dev dependency
+        expires: '2018-03-17T13:20:05.194Z'
+    - nyc > istanbul-lib-instrument > babel-traverse > babel-types > lodash:
+        reason: Dev dependency
+        expires: '2018-03-17T13:20:05.194Z'
+  'npm:hoek:20180212':
+    - boom > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.194Z'
+    - cryptiles > boom > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.194Z'
+    - hawk > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.194Z'
+    - hawk > boom > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.194Z'
+    - hawk > sntp > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.194Z'
+    - hawk > cryptiles > boom > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.194Z'
+    - node-pre-gyp > hawk > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.194Z'
+    - node-pre-gyp > hawk > boom > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.194Z'
+    - node-pre-gyp > hawk > sntp > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.194Z'
+    - node-pre-gyp > hawk > cryptiles > boom > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.194Z'
+    - node-pre-gyp > request > hawk > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.194Z'
+    - node-pre-gyp > request > hawk > boom > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.194Z'
+    - node-pre-gyp > request > hawk > sntp > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.194Z'
+    - node-pre-gyp > request > hawk > cryptiles > boom > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.194Z'
+    - ava > chokidar > fsevents > node-pre-gyp > hawk > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.194Z'
+    - ava > chokidar > fsevents > node-pre-gyp > hawk > boom > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.194Z'
+    - ava > chokidar > fsevents > node-pre-gyp > hawk > sntp > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.195Z'
+    - ava > chokidar > fsevents > node-pre-gyp > hawk > cryptiles > boom > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.195Z'
+    - ava > chokidar > fsevents > node-pre-gyp > request > hawk > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.195Z'
+    - ava > chokidar > fsevents > node-pre-gyp > request > hawk > boom > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.195Z'
+    - ava > chokidar > fsevents > node-pre-gyp > request > hawk > sntp > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.195Z'
+    - ava > chokidar > fsevents > node-pre-gyp > request > hawk > cryptiles > boom > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.195Z'
+    - babel-cli > chokidar > fsevents > node-pre-gyp > hawk > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.195Z'
+    - babel-cli > chokidar > fsevents > node-pre-gyp > hawk > boom > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.195Z'
+    - babel-cli > chokidar > fsevents > node-pre-gyp > hawk > sntp > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.195Z'
+    - babel-cli > chokidar > fsevents > node-pre-gyp > hawk > cryptiles > boom > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.195Z'
+    - babel-cli > chokidar > fsevents > node-pre-gyp > request > hawk > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.195Z'
+    - babel-cli > chokidar > fsevents > node-pre-gyp > request > hawk > boom > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.195Z'
+    - babel-cli > chokidar > fsevents > node-pre-gyp > request > hawk > sntp > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.195Z'
+    - babel-cli > chokidar > fsevents > node-pre-gyp > request > hawk > cryptiles > boom > hoek:
+        reason: No other option
+        expires: '2018-03-17T13:20:05.196Z'
+    - '@lifeomic/dev-tools > request > hawk > hoek':
+        reason: No other option
+        expires: '2018-03-17T13:20:05.196Z'
+    - '@lifeomic/dev-tools > request > hawk > boom > hoek':
+        reason: No other option
+        expires: '2018-03-17T13:20:05.196Z'
+    - '@lifeomic/dev-tools > request > hawk > sntp > hoek':
+        reason: No other option
+        expires: '2018-03-17T13:20:05.196Z'
+    - '@lifeomic/dev-tools > request > hawk > cryptiles > boom > hoek':
+        reason: No other option
+        expires: '2018-03-17T13:20:05.196Z'
+patch: {}
