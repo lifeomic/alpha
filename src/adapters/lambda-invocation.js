@@ -6,7 +6,8 @@ const RequestError = require('./helpers/RequestError');
 const toLower = require('lodash/toLower');
 
 async function lambdaInvocationAdapter (config) {
-  const lambda = new AWS.Lambda({
+  const Lambda = config.Lambda || AWS.Lambda;
+  const lambda = new Lambda({
     endpoint: process.env.LAMBDA_ENDPOINT
   });
   const parts = url.parse(config.url);
@@ -21,7 +22,34 @@ async function lambdaInvocationAdapter (config) {
     request.Qualifier = parts.port;
   }
 
-  const result = await lambda.invoke(request).promise();
+  const awsRequest = lambda.invoke(request);
+  const result = await new Promise(async (resolve, reject) => {
+    try {
+      let requestCompleted = false;
+
+      if (config.timeout) {
+        setTimeout(() => {
+          if (requestCompleted) {
+            return;
+          }
+          const requestError = new RequestError(`Timeout after ${config.timeout}ms`, config, request);
+          // ECONNABORTED is the code axios uses for HTTP timeout errors, so this gives
+          // a code to consumers which is consistent across HTTP and lambda requests.
+          requestError.code = 'ECONNABORTED';
+          reject(requestError);
+
+          awsRequest.abort();
+        }, config.timeout);
+      }
+
+      const result = await awsRequest.promise();
+      requestCompleted = true;
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    }
+  });
+
   const payload = JSON.parse(result.Payload);
 
   if (toLower(result.FunctionError) === 'unhandled') {

@@ -147,4 +147,24 @@ ignore:
     - '@lifeomic/dev-tools > request > hawk > cryptiles > boom > hoek':
         reason: No other option
         expires: '2018-03-17T13:20:05.196Z'
+  'npm:braces:20180219':
+    - nyc > test-exclude > micromatch > braces:
+        reason: Dev dependency
+        expires: '2018-04-07T18:26:50.682Z'
+    - test-exclude > micromatch > braces:
+        reason: No other option
+        expires: '2018-04-07T18:26:50.682Z'
+    - nyc > micromatch > braces:
+        reason: No other option
+        expires: '2018-04-07T18:26:50.682Z'
+    - babel-cli > chokidar > anymatch > micromatch > braces:
+        reason: No other option
+        expires: '2018-04-07T18:26:50.682Z'
+    - ava > chokidar > anymatch > micromatch > braces:
+        reason: No other option
+        expires: '2018-04-07T18:26:50.682Z'
+  'npm:diff:20180305':
+    - sinon > diff:
+        reason: Dev dependency
+        expires: '2018-04-07T18:26:50.682Z'
 patch: {}

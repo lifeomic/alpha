@@ -13,6 +13,7 @@
     "pretest": "yarn lint",
     "security": "snyk test",
     "test": "nyc ava",
+    "coverage": "nyc report --reporter=html",
     "transpile": "babel src --out-dir lib"
   },
   "ava": {
@@ -41,7 +42,8 @@
   },
   "eslintIgnore": [
     "/lib/",
-    "node_modules/"
+    "node_modules/",
+    "coverage/"
   ],
   "nyc": {
     "check-coverage": true,
