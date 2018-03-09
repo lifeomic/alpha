@@ -332,7 +332,7 @@ function delayedLambda (test, delay, errorToThrow) {
 
 test.serial('A timeout can be configured for the invoked lambda function', async (test) => {
   const error = await test.throws(test.context.alpha.get('/some/path', {
-    Lambda: delayedLambda(test, 1000), // lambda will take 500 ms
+    Lambda: delayedLambda(test, 1000), // lambda will take 1000 ms
     timeout: 5 // timeout at 5 ms
   }));
 
@@ -359,16 +359,6 @@ test.serial.cb('A configured timeout does not hinder normal lambda function invo
 });
 
 test.serial('A configured timeout does not eat lambda function invocation errors', async (test, done) => {
-  const error = await test.throws(test.context.alpha.get('/some/path', {
-    Lambda: delayedLambda(test, 1, new Error('Other error')),
-    timeout: 1000
-  }));
-
-  test.is(error.message, 'Other error');
-  test.is(test.context.abort.callCount, 0);
-});
-
-test.serial('A configured timeout does not eat lambda function invocation errors', async (test) => {
   const error = await test.throws(test.context.alpha.get('/some/path', {
     Lambda: delayedLambda(test, 1, new Error('Other error')),
     timeout: 1000
