@@ -16,6 +16,7 @@ test.beforeEach((test) => {
   test.context.alpha = new Alpha('lambda://test-function');
   test.context.invoke = sinon.stub();
   AWS.mock('Lambda', 'invoke', test.context.invoke);
+  test.context.abort = sinon.stub();
 });
 
 test.always.afterEach(() => {
@@ -300,4 +301,69 @@ test.serial('Binary content is base64 encoded', async (test) => {
   test.true(payload.isBase64Encoded);
   test.is(payload.path, '/some/path');
   test.deepEqual(payload.queryStringParameters, {});
+});
+
+function delayedLambda (test, delay, errorToThrow) {
+  return class OneSecondAWSLambda {
+    invoke () {
+      return {
+        abort: test.context.abort,
+        promise: async () => {
+          return new Promise((resolve, reject) => {
+            if (errorToThrow) {
+              return reject(errorToThrow);
+            }
+            setTimeout(() => {
+              resolve({
+                StatusCode: 200,
+                Payload: JSON.stringify({
+                  body: 'hello!',
+                  headers: { 'test-header': 'some value' },
+                  statusCode: 200
+                })
+              });
+            }, delay);
+          });
+        }
+      };
+    }
+  };
+}
+
+test.serial('A timeout can be configured for the invoked lambda function', async (test) => {
+  const error = await test.throws(test.context.alpha.get('/some/path', {
+    Lambda: delayedLambda(test, 1000), // lambda will take 1000 ms
+    timeout: 5 // timeout at 5 ms
+  }));
+
+  test.is(error.code, 'ECONNABORTED');
+  test.is(test.context.abort.callCount, 1);
+});
+
+test.serial.cb('A configured timeout does not hinder normal lambda function invocation behavior', (test) => {
+  test.context.alpha.get('/some/path', {
+    Lambda: delayedLambda(test, 1),
+    timeout: 10
+  }).then(response => {
+    test.is(response.data, 'hello!');
+    test.is(response.status, 200);
+    test.deepEqual(response.headers, { 'test-header': 'some value' });
+
+    // By ending the test 10ms after the timeout, we ensure that the internal setTimeout firing doesn't
+    // cause any negative side effects, such as attempting to abort after the lambda finished.
+    setTimeout(() => {
+      test.is(test.context.abort.callCount, 0);
+      test.end();
+    }, 20);
+  });
+});
+
+test.serial('A configured timeout does not eat lambda function invocation errors', async (test, done) => {
+  const error = await test.throws(test.context.alpha.get('/some/path', {
+    Lambda: delayedLambda(test, 1, new Error('Other error')),
+    timeout: 1000
+  }));
+
+  test.is(error.message, 'Other error');
+  test.is(test.context.abort.callCount, 0);
 });
