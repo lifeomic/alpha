@@ -1,7 +1,7 @@
 const url = require('url');
 
-module.exports = (config) => {
-  const parts = url.parse(config.url, true);
+module.exports = (config, relativeUrl) => {
+  const parts = url.parse(relativeUrl || config.url, true);
 
   const event = {
     body: config.data || '',
