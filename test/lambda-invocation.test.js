@@ -54,9 +54,24 @@ test.serial('Making a GET request with the lambda protocol invokes the lambda fu
   test.deepEqual(payload.queryStringParameters, {});
 });
 
-test.serial('Making a GET request with the lambda protocol with a qualifier invokes the lambda function using a qualifier', async (test) => {
+async function assertInvalidUrl (test, url) {
   // Override the shared alpha client to include a qualifier
-  test.context.alpha = new Alpha('lambda://test-function:2');
+  test.context.alpha = new Alpha(url);
+  const response = test.context.alpha.get('/some/path');
+  await test.throws(response, `The config.url, '${url}/some/path' does not appear to be a Lambda Function URL`);
+}
+
+test('Invalid URLs cause Errors to be thrown', async (test) => {
+  await assertInvalidUrl(test, 'lambda://test-function.test');
+  await assertInvalidUrl(test, 'lambda://test-function.test/test');
+  await assertInvalidUrl(test, 'lambda://test-function.test:2345');
+  await assertInvalidUrl(test, 'lambda://test-function.test:2345:another');
+  await assertInvalidUrl(test, 'lambda://test-function.test:2345:another/test');
+});
+
+async function testLambdaWithQualifier (test, qualifier) {
+  // Override the shared alpha client to include a qualifier
+  test.context.alpha = new Alpha(`lambda://test-function:${qualifier}`);
 
   test.context.invoke.callsArgWith(1, null, {
     StatusCode: 200,
@@ -73,12 +88,12 @@ test.serial('Making a GET request with the lambda protocol with a qualifier invo
   test.is(response.status, 200);
   test.deepEqual(response.headers, { 'test-header': 'some value' });
 
-  test.true(test.context.invoke.calledWith({
+  sinon.assert.calledWithMatch(test.context.invoke, {
     FunctionName: 'test-function',
     InvocationType: 'RequestResponse',
-    Qualifier: '2',
+    Qualifier: qualifier,
     Payload: sinon.match.string
-  }));
+  }, sinon.match.func);
 
   const payload = JSON.parse(test.context.invoke.firstCall.args[0].Payload);
 
@@ -87,6 +102,14 @@ test.serial('Making a GET request with the lambda protocol with a qualifier invo
   test.is(payload.httpMethod, 'GET');
   test.is(payload.path, '/some/path');
   test.deepEqual(payload.queryStringParameters, {});
+}
+
+test.serial('Making a GET request with the lambda protocol with a numeric qualifier invokes the lambda function using a qualifier', async (test) => {
+  await testLambdaWithQualifier(test, '2');
+});
+
+test.serial('Making a GET request with the lambda protocol with a non-numeric qualifier invokes the lambda function using a qualifier', async (test) => {
+  await testLambdaWithQualifier(test, 'deployed');
 });
 
 test.serial('When a lambda function returns an error code an error is thrown', async (test) => {

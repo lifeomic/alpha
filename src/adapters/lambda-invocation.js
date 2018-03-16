@@ -1,25 +1,35 @@
 const AWS = require('aws-sdk');
 const lambdaEvent = require('./helpers/lambdaEvent');
 const lambdaResponse = require('./helpers/lambdaResponse');
-const url = require('url');
 const RequestError = require('./helpers/RequestError');
 const toLower = require('lodash/toLower');
+const assert = require('assert');
+
+// This expression for the funtion name and qualfier was taken from:
+// https://docs.aws.amazon.com/lambda/latest/dg/API_CreateFunction.html#SSS-CreateFunction-request-FunctionName
+// eslint-disable-next-line security/detect-unsafe-regex
+const LAMBDA_URL_PATTERN = new RegExp('^lambda://([a-zA-Z0-9-_]+)(:($LATEST|[a-zA-Z0-9-_]+))?(/.*|$)');
 
 async function lambdaInvocationAdapter (config) {
   const Lambda = config.Lambda || AWS.Lambda;
   const lambda = new Lambda({
     endpoint: process.env.LAMBDA_ENDPOINT
   });
-  const parts = url.parse(config.url);
+  const parts = LAMBDA_URL_PATTERN.exec(config.url);
+  assert(parts, `The config.url, '${config.url}' does not appear to be a Lambda Function URL`);
+
+  const functionName = parts[1];
+  const functionQualifier = parts[3];
+  const path = parts[4];
 
   const request = {
-    FunctionName: parts.hostname,
+    FunctionName: functionName,
     InvocationType: 'RequestResponse',
-    Payload: JSON.stringify(lambdaEvent(config))
+    Payload: JSON.stringify(lambdaEvent(config, path))
   };
 
-  if (parts.port) {
-    request.Qualifier = parts.port;
+  if (functionQualifier) {
+    request.Qualifier = functionQualifier;
   }
 
   const awsRequest = lambda.invoke(request);
