@@ -54,6 +54,21 @@ test.serial('Making a GET request with the lambda protocol invokes the lambda fu
   test.deepEqual(payload.queryStringParameters, {});
 });
 
+async function assertInvalidUrl (test, url) {
+  // Override the shared alpha client to include a qualifier
+  test.context.alpha = new Alpha(url);
+  const response = test.context.alpha.get('/some/path');
+  await test.throws(response, `The config.url, '${url}/some/path' does not appear to be a Lambda Function URL`);
+}
+
+test('Invalid URLs cause Errors to be thrown', async (test) => {
+  await assertInvalidUrl(test, 'lambda://test-function.test');
+  await assertInvalidUrl(test, 'lambda://test-function.test/test');
+  await assertInvalidUrl(test, 'lambda://test-function.test:2345');
+  await assertInvalidUrl(test, 'lambda://test-function.test:2345:another');
+  await assertInvalidUrl(test, 'lambda://test-function.test:2345:another/test');
+});
+
 async function testLambdaWithQualifier (test, qualifier) {
   // Override the shared alpha client to include a qualifier
   test.context.alpha = new Alpha(`lambda://test-function:${qualifier}`);
