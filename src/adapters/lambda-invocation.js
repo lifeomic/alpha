@@ -2,7 +2,6 @@ const AWS = require('aws-sdk');
 const lambdaEvent = require('./helpers/lambdaEvent');
 const lambdaResponse = require('./helpers/lambdaResponse');
 const RequestError = require('./helpers/RequestError');
-const toLower = require('lodash/toLower');
 const assert = require('assert');
 
 // This expression for the funtion name and qualfier was taken from:
@@ -62,9 +61,14 @@ async function lambdaInvocationAdapter (config) {
 
   const payload = JSON.parse(result.Payload);
 
-  if (toLower(result.FunctionError) === 'unhandled') {
-    // With Unhandled FunctionErrors, AWS will provide an errorMessage attribute
-    // in the payload with details
+  if (result.FunctionError) {
+    // With Unhandled errors, AWS will provide an errorMessage attribute
+    // in the payload with details.
+    //
+    // With `Handled` errors the thrown expection will be converted into a
+    // payload for each langage. Each language seems to provide a `errorMessage`
+    // attribute. The details of the Node.js behavior can be found at:
+    // https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-mode-exceptions.html
     throw new RequestError(payload.errorMessage, config, request);
   }
 
