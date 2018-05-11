@@ -223,6 +223,36 @@ test.serial('When a lambda function returns a Handled FunctionError an error is 
   test.true(test.context.invoke.called);
 });
 
+test.serial('When the Payload attribute is null an error is thrown', async (test) => {
+  const response = {
+    StatusCode: 500,
+    Payload: null
+  };
+  test.context.invoke.callsArgWith(1, null, response);
+
+  const error = await test.throws(test.context.alpha.get('/some/path'));
+
+  test.is(error.message, `Unexpected Payload shape from lambda://test-function/some/path. The full response was\n${JSON.stringify(response, null, '  ')}`);
+
+  test.truthy(error.config);
+  test.is(error.config.url, 'lambda://test-function/some/path');
+
+  test.is(error.request.FunctionName, 'test-function');
+  test.is(error.request.InvocationType, 'RequestResponse');
+  test.true(error.request.Payload.length > 0);
+
+  const payload = JSON.parse(error.request.Payload);
+
+  test.is(payload.body, '');
+  test.truthy(payload.headers);
+  test.is(payload.httpMethod, 'GET');
+  test.is(payload.path, '/some/path');
+  test.deepEqual(payload.queryStringParameters, {});
+
+  test.false(Object.keys(error).includes('code'));
+  test.true(test.context.invoke.called);
+});
+
 test.serial('Redirects are automatically followed (301)', async (test) => {
   test.context.invoke.onFirstCall().callsArgWith(1, null, {
     StatusCode: 200,
