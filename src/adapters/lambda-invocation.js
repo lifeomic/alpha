@@ -60,6 +60,10 @@ async function lambdaInvocationAdapter (config) {
   });
 
   const payload = JSON.parse(result.Payload);
+  if (!payload) {
+    const message = `Unexpected Payload shape from ${config.url}. The full response was\n${JSON.stringify(result, null, '  ')}`;
+    throw new RequestError(message, config, request);
+  }
 
   if (result.FunctionError) {
     // With Unhandled errors, AWS will provide an errorMessage attribute
