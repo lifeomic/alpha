@@ -112,6 +112,10 @@ test.serial('Making a GET request with the lambda protocol with a non-numeric qu
   await testLambdaWithQualifier(test, 'deployed');
 });
 
+test.serial('Making a GET request with the lambda protocol with a non-numeric qualifier invokes the lambda function using a qualifier', async (test) => {
+  await testLambdaWithQualifier(test, '$LATEST');
+});
+
 test.serial('When a lambda function returns an error code an error is thrown', async (test) => {
   test.context.invoke.callsArgWith(1, null, {
     StatusCode: 200,

@@ -1,5 +1,5 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.10.1
+version: v1.12.0
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
   'npm:debug:20170905':
@@ -167,4 +167,8 @@ ignore:
     - sinon > diff:
         reason: Dev dependency
         expires: '2018-04-07T18:26:50.682Z'
+  'npm:stringstream:20180511':
+    - '*':
+        reason: Dev dependency. No remediation currently available.
+        expires: 2018-06-13T13:15:46.699Z
 patch: {}
