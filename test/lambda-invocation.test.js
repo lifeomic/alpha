@@ -112,7 +112,7 @@ test.serial('Making a GET request with the lambda protocol with a non-numeric qu
   await testLambdaWithQualifier(test, 'deployed');
 });
 
-test.serial('Making a GET request with the lambda protocol with a non-numeric qualifier invokes the lambda function using a qualifier', async (test) => {
+test.serial('Making a GET request with the lambda protocol with an explicit $LATEST qualifier invokes the lambda function using a qualifier', async (test) => {
   await testLambdaWithQualifier(test, '$LATEST');
 });
 
