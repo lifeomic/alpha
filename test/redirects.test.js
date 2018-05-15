@@ -38,6 +38,54 @@ test.serial('A Lambda can redirect to HTTP', async (test) => {
   test.true(server.isDone());
 });
 
+test.serial('A Lambda can redirect to a relative URL', async (test) => {
+  test.context.invoke.onFirstCall().callsArgWith(1, null, {
+    StatusCode: 200,
+    Payload: JSON.stringify({
+      headers: { location: '/some/path' },
+      statusCode: 302
+    })
+  });
+
+  test.context.invoke.onSecondCall().callsArgWith(1, null, {
+    StatusCode: 200,
+    Payload: JSON.stringify({
+      body: 'we made it alive!',
+      statusCode: 200
+    })
+  });
+
+  const response = await test.context.alpha.get('lambda://test');
+
+  test.is(response.status, 200);
+  test.is(response.data, 'we made it alive!');
+  test.true(test.context.invoke.calledTwice);
+});
+
+test.serial('A Lambda can redirect to a qualified Lambda URL', async (test) => {
+  test.context.invoke.onFirstCall().callsArgWith(1, null, {
+    StatusCode: 200,
+    Payload: JSON.stringify({
+      headers: { location: 'lambda://test:deployed/some/path' },
+      statusCode: 302
+    })
+  });
+
+  test.context.invoke.onSecondCall().callsArgWith(1, null, {
+    StatusCode: 200,
+    Payload: JSON.stringify({
+      body: 'we made it alive!',
+      statusCode: 200
+    })
+  });
+
+  const response = await test.context.alpha.get('lambda://test');
+
+  test.is(response.status, 200);
+  test.is(response.data, 'we made it alive!');
+  test.true(test.context.invoke.calledTwice);
+});
+
 test.serial('An HTTP endpoint can redirect to a Lambda', async (test) => {
   const server = nock('http://example.com')
     .get('/')
