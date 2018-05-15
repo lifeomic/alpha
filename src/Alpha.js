@@ -1,11 +1,13 @@
-const { Axios } = require('axios');
-const isAbsoluteURL = require('./adapters/helpers/isAbsoluteURL');
-const RequestError = require('./adapters/helpers/RequestError');
-const url = require('url');
-const { URL } = require('whatwg-url');
-const cloneDeep = require('lodash/cloneDeep');
-const isString = require('lodash/isString');
 const adapters = require('./adapters');
+const cloneDeep = require('lodash/cloneDeep');
+const isAbsoluteURL = require('./adapters/helpers/isAbsoluteURL');
+const isString = require('lodash/isString');
+const parseLambdaUrl = require('./adapters/helpers/parseLambdaUrl');
+const RequestError = require('./adapters/helpers/RequestError');
+
+const { Axios } = require('axios');
+const { resolve } = require('url');
+const { URL } = require('whatwg-url');
 
 class Alpha extends Axios {
   static dockerLambda (options, clientOptions) {
@@ -26,6 +28,31 @@ class Alpha extends Axios {
     }
 
     return new Alpha(handler, clientOptions);
+  }
+
+  // whatwg-url does not accept non-numeric port values. Alpha uses the port
+  // value as the lambda qualifier. However, URL resolution can have tricky
+  // edge cases. We remove the lambda qualifier to allow whatwg-url to handle
+  // the URL resolution nuances and then reinsert the lambda qualifier (if
+  // present).
+  static resolve (url, base) {
+    if (isAbsoluteURL(url)) {
+      return url;
+    }
+
+    let lambdaParts = parseLambdaUrl(base);
+
+    if (!lambdaParts) {
+      // whatwg-url doesn't like simple paths
+      return resolve(base, url);
+    }
+
+    const qualifier = lambdaParts.qualifier ? `:${lambdaParts.qualifier}` : '';
+    const sanitizedBase = `lambda://${lambdaParts.name}:0${lambdaParts.path}`;
+    const resolved = new URL(url, sanitizedBase).toString();
+
+    lambdaParts = parseLambdaUrl(resolved);
+    return `lambda://${lambdaParts.name}${qualifier}${lambdaParts.path}`;
   }
 
   constructor (target, options) {
@@ -68,14 +95,7 @@ class Alpha extends Axios {
 
       const redirect = cloneDeep(config);
       redirect.maxRedirects = maxRedirects - 1;
-
-      // Node's url.resolve does not correctly handle non-http schemes
-      if (isAbsoluteURL(response.config.url)) {
-        redirect.url = new URL(response.headers['location'], response.config.url).toString();
-      } else {
-        redirect.url = url.resolve(response.config.url, response.headers['location']);
-      }
-
+      redirect.url = this.constructor.resolve(response.headers['location'], response.config.url);
       return this.request(redirect);
     }
 

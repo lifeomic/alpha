@@ -1,25 +1,21 @@
+const assert = require('assert');
 const AWS = require('aws-sdk');
 const lambdaEvent = require('./helpers/lambdaEvent');
 const lambdaResponse = require('./helpers/lambdaResponse');
+const parseLambdaUrl = require('./helpers/parseLambdaUrl');
 const RequestError = require('./helpers/RequestError');
-const assert = require('assert');
-
-// This expression for the funtion name and qualfier was taken from:
-// https://docs.aws.amazon.com/lambda/latest/dg/API_CreateFunction.html#SSS-CreateFunction-request-FunctionName
-// eslint-disable-next-line security/detect-unsafe-regex
-const LAMBDA_URL_PATTERN = new RegExp('^lambda://([a-zA-Z0-9-_]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?(/.*|$)');
 
 async function lambdaInvocationAdapter (config) {
   const Lambda = config.Lambda || AWS.Lambda;
   const lambda = new Lambda({
     endpoint: process.env.LAMBDA_ENDPOINT
   });
-  const parts = LAMBDA_URL_PATTERN.exec(config.url);
+  const parts = parseLambdaUrl(config.url);
   assert(parts, `The config.url, '${config.url}' does not appear to be a Lambda Function URL`);
 
-  const functionName = parts[1];
-  const functionQualifier = parts[3];
-  const path = parts[4];
+  const functionName = parts.name;
+  const functionQualifier = parts.qualifier;
+  const path = parts.path;
 
   const request = {
     FunctionName: functionName,
