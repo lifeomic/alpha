@@ -52,7 +52,6 @@
     "branches": 100
   },
   "devDependencies": {
-    "@lifeomic/dev-tools": "^4.2.0",
     "@lifeomic/eslint-plugin-node": "^1.1.1",
     "ava": "^0.24.0",
     "aws-sdk-mock": "^1.7.0",
