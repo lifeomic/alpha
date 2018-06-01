@@ -1,6 +1,9 @@
 alpha
 =====
 
+[![Build Status](https://travis-ci.org/lifeomic/alpha.svg?branch=master)](https://travis-ci.org/lifeomic/alpha)
+[![Coverage Status](https://coveralls.io/repos/github/lifeomic/alpha/badge.svg?branch=master)](https://coveralls.io/github/lifeomic/alpha?branch=master)
+
 Alpha provides a single client interface for interacting with HTTP microservices
 regardless of whether they are implemented as Lambda functions or real HTTP
 servers.

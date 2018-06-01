@@ -10,11 +10,11 @@
     "url": "https://github.com/lifeomic/alpha.git"
   },
   "scripts": {
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint .",
     "prepare": "yarn run transpile",
     "pretest": "yarn lint",
     "test": "nyc ava",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
     "transpile": "babel src --out-dir lib"
   },
   "ava": {
@@ -42,8 +42,7 @@
     "extends": "plugin:@lifeomic/node/recommended"
   },
   "eslintIgnore": [
-    "/lib/",
-    "coverage/"
+    "/lib/"
   ],
   "nyc": {
     "check-coverage": true,
@@ -73,5 +72,8 @@
     "docker-lambda": "^0.13.4",
     "lodash": "^4.17.4",
     "whatwg-url": "^6.3.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
