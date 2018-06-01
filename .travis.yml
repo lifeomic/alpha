@@ -13,6 +13,7 @@ deploy:
   provider: npm
   email: $NPM_EMAIL
   api_key: $NPM_KEY
+  skip_cleanup: true
   on:
     tags: true
     repo: lifeomic/alpha
