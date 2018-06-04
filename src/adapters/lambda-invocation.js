@@ -1,5 +1,6 @@
 const assert = require('assert');
 const AWS = require('aws-sdk');
+const chainAdapters = require('./helpers/chainAdapters');
 const lambdaEvent = require('./helpers/lambdaEvent');
 const lambdaResponse = require('./helpers/lambdaResponse');
 const parseLambdaUrl = require('./helpers/parseLambdaUrl');
@@ -76,11 +77,11 @@ async function lambdaInvocationAdapter (config) {
 }
 
 function lambdaInvocationRequestInterceptor (config) {
-  if (config.url.startsWith('lambda:')) {
-    config.adapter = lambdaInvocationAdapter;
-  }
-
-  return config;
+  return chainAdapters(
+    config,
+    (config) => config.url.startsWith('lambda:'),
+    lambdaInvocationAdapter
+  );
 }
 
 module.exports = (client) => {
