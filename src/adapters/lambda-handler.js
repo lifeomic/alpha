@@ -1,3 +1,4 @@
+const chainAdapters = require('./helpers/chainAdapters');
 const isAbsoluteURL = require('./helpers/isAbsoluteURL');
 const lambdaEvent = require('./helpers/lambdaEvent');
 const lambdaResponse = require('./helpers/lambdaResponse');
@@ -23,11 +24,11 @@ async function lambdaHandlerAdapter (config) {
 }
 
 function lamdaHandlerRequestInterceptor (config) {
-  if (!isAbsoluteURL(config.url) && config.lambda) {
-    config.adapter = lambdaHandlerAdapter;
-  }
-
-  return config;
+  return chainAdapters(
+    config,
+    (config) => (!isAbsoluteURL(config.url) && config.lambda),
+    lambdaHandlerAdapter
+  );
 }
 
 module.exports = (client) => {
