@@ -33,7 +33,9 @@ test.serial('Making a GET request with the lambda protocol invokes the lambda fu
     })
   });
 
-  const response = await test.context.alpha.get('/some/path');
+  const response = await test.context.alpha.get(
+    '/some/path?param1=value1',
+    {params: {param2: 'value2'}});
 
   test.is(response.data, 'hello!');
   test.is(response.status, 200);
@@ -51,7 +53,7 @@ test.serial('Making a GET request with the lambda protocol invokes the lambda fu
   test.truthy(payload.headers);
   test.is(payload.httpMethod, 'GET');
   test.is(payload.path, '/some/path');
-  test.deepEqual(payload.queryStringParameters, {});
+  test.deepEqual(payload.queryStringParameters, {param1: 'value1', param2: 'value2'});
 });
 
 async function assertInvalidUrl (test, url) {
