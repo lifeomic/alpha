@@ -11,6 +11,8 @@ const DEFAULTS = {
 };
 
 function isRetryableError (error) {
+  if (error.isLambdaInvokeTimeout) return true;
+
   return error.code !== 'ECONNABORTED' &&
     (!error.response || (error.response.status >= 500 && error.response.status <= 599));
 }

@@ -42,6 +42,7 @@ async function lambdaInvocationAdapter (config) {
           // ECONNABORTED is the code axios uses for HTTP timeout errors, so this gives
           // a code to consumers which is consistent across HTTP and lambda requests.
           requestError.code = 'ECONNABORTED';
+          requestError.isLambdaInvokeTimeout = true;
           reject(requestError);
 
           awsRequest.abort();
