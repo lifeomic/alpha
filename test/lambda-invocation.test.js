@@ -3,6 +3,8 @@ const AWS = require('aws-sdk-mock');
 const nock = require('nock');
 const sinon = require('sinon');
 const test = require('ava');
+const lolex = require('lolex');
+const size = require('lodash/size');
 
 test.before(() => {
   nock.disableNetConnect();
@@ -447,12 +449,27 @@ test.serial.cb('A configured timeout does not hinder normal lambda function invo
   });
 });
 
-test.serial('A configured timeout does not eat lambda function invocation errors', async (test, done) => {
+test.serial('A configured timeout does not eat lambda function invocation errors', async (test) => {
+  const clock = lolex.install();
+  try {
+    const error = await test.throws(test.context.alpha.get('/some/path', {
+      Lambda: delayedLambda(test, 1, new Error('Other error')),
+      timeout: 1000
+    }));
+
+    test.is(error.message, 'Other error');
+    test.is(test.context.abort.callCount, 0);
+
+    test.is(size(clock.timers), 0);
+  } finally {
+    clock.uninstall();
+  }
+});
+
+test.serial('lambda function invocation errors are re-thrown', async (test) => {
   const error = await test.throws(test.context.alpha.get('/some/path', {
-    Lambda: delayedLambda(test, 1, new Error('Other error')),
-    timeout: 1000
+    Lambda: delayedLambda(test, 1, new Error('Other error'))
   }));
 
   test.is(error.message, 'Other error');
-  test.is(test.context.abort.callCount, 0);
 });

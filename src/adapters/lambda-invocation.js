@@ -30,14 +30,10 @@ async function lambdaInvocationAdapter (config) {
 
   const awsRequest = lambda.invoke(request);
   const result = await new Promise(async (resolve, reject) => {
+    let timeout;
     try {
-      let requestCompleted = false;
-
       if (config.timeout) {
-        setTimeout(() => {
-          if (requestCompleted) {
-            return;
-          }
+        timeout = setTimeout(() => {
           const requestError = new RequestError(`Timeout after ${config.timeout}ms`, config, request);
           // ECONNABORTED is the code axios uses for HTTP timeout errors, so this gives
           // a code to consumers which is consistent across HTTP and lambda requests.
@@ -49,9 +45,10 @@ async function lambdaInvocationAdapter (config) {
       }
 
       const result = await awsRequest.promise();
-      requestCompleted = true;
+      if (timeout) clearTimeout(timeout);
       resolve(result);
     } catch (error) {
+      if (timeout) clearTimeout(timeout);
       reject(error);
     }
   });
