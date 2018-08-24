@@ -1,6 +1,6 @@
 {
   "name": "@lifeomic/alpha",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "Unified client for HTTP services.",
   "main": "lib/Alpha",
   "author": "LifeOmic <development@lifeomic.com>",
