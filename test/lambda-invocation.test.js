@@ -3,7 +3,6 @@ const AWS = require('aws-sdk-mock');
 const nock = require('nock');
 const sinon = require('sinon');
 const test = require('ava');
-const lolex = require('lolex');
 const size = require('lodash/size');
 
 test.before(() => {
@@ -450,7 +449,7 @@ test.serial.cb('A configured timeout does not hinder normal lambda function invo
 });
 
 test.serial('A configured timeout does not eat lambda function invocation errors', async (test) => {
-  const clock = lolex.install();
+  const clock = sinon.useFakeTimers();
   try {
     const error = await test.throws(test.context.alpha.get('/some/path', {
       Lambda: delayedLambda(test, 1, new Error('Other error')),
@@ -462,7 +461,7 @@ test.serial('A configured timeout does not eat lambda function invocation errors
 
     test.is(size(clock.timers), 0);
   } finally {
-    clock.uninstall();
+    clock.restore();
   }
 });
 
