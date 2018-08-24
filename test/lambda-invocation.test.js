@@ -1,4 +1,5 @@
 const Alpha = require('../src/Alpha');
+const AWS_SDK = require('aws-sdk');
 const AWS = require('aws-sdk-mock');
 const nock = require('nock');
 const sinon = require('sinon');
@@ -418,6 +419,27 @@ function delayedLambda (test, delay, errorToThrow) {
     }
   };
 }
+
+test.serial('timeout values are provided to the HTTP client used by the Lambda client', async (test) => {
+  test.context.invoke.callsArgWith(1, null, {
+    StatusCode: 200,
+    Payload: JSON.stringify({
+      body: 'hello!',
+      headers: { 'test-header': 'some value' },
+      statusCode: 200
+    })
+  });
+
+  await test.context.alpha.get('/some/path', {timeout: 5});
+
+  test.is(AWS_SDK.Lambda.callCount, 1);
+  sinon.assert.calledWithMatch(AWS_SDK.Lambda, {
+    httpOptions: {
+      connectTimeout: 5,
+      timeout: 5
+    }
+  });
+});
 
 test.serial('A timeout can be configured for the invoked lambda function', async (test) => {
   const error = await test.throws(test.context.alpha.get('/some/path', {

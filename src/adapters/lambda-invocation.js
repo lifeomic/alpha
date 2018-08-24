@@ -8,9 +8,21 @@ const RequestError = require('./helpers/RequestError');
 
 async function lambdaInvocationAdapter (config) {
   const Lambda = config.Lambda || AWS.Lambda;
-  const lambda = new Lambda({
+  const lambdaOptions = {
     endpoint: process.env.LAMBDA_ENDPOINT
-  });
+  };
+
+  if (config.timeout) {
+    // Set some low level HTTP client timeout options
+    // so that the system level resources will be
+    // cleaned up quickly
+    lambdaOptions.httpOptions = {
+      connectTimeout: config.timeout,
+      timeout: config.timeout
+    };
+  }
+
+  const lambda = new Lambda(lambdaOptions);
   const parts = parseLambdaUrl(config.url);
   assert(parts, `The config.url, '${config.url}' does not appear to be a Lambda Function URL`);
 
