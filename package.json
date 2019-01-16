@@ -11,9 +11,10 @@
   },
   "scripts": {
     "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "buildGrammar": "nearleyc src/adapters/helpers/lambdaURL.ne -o src/adapters/helpers/lambdaURLGrammar.js",
     "lint": "eslint .",
-    "prepare": "yarn run transpile",
-    "pretest": "yarn lint",
+    "prepare": "yarn run transpile && yarn buildGrammar",
+    "pretest": "yarn buildGrammar && yarn lint",
     "test": "nyc ava",
     "transpile": "babel src --out-dir lib"
   },
@@ -42,10 +43,14 @@
     "extends": "plugin:@lifeomic/node/recommended"
   },
   "eslintIgnore": [
-    "/lib/"
+    "/lib/",
+    "src/adapters/helpers/lambdaURLGrammar.js"
   ],
   "nyc": {
     "check-coverage": true,
+    "exclude": [
+      "src/adapters/helpers/lambdaURLGrammar.js"
+    ],
     "lines": 100,
     "statements": 100,
     "functions": 100,
@@ -70,6 +75,7 @@
     "axios": "^0.18.0",
     "docker-lambda": "^0.15.2",
     "lodash": "^4.17.4",
+    "nearley": "^2.16.0",
     "whatwg-url": "^7.0.0"
   },
   "publishConfig": {
