@@ -1,18 +1,13 @@
-// This expression for the funtion name and qualfier was taken from:
-// https://docs.aws.amazon.com/lambda/latest/dg/API_CreateFunction.html#SSS-CreateFunction-request-FunctionName
-// eslint-disable-next-line security/detect-unsafe-regex
-const LAMBDA_URL_PATTERN = new RegExp('^lambda://([a-zA-Z0-9-_]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?(/.*|$)');
+const nearley = require('nearley');
+const grammar = require('./lambdaURLGrammar');
 
 module.exports = (url) => {
-  const parts = LAMBDA_URL_PATTERN.exec(url);
-
-  if (!parts) {
+  const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+  try {
+    parser.feed(url);
+    const parts = parser.results;
+    return parts[0];
+  } catch (error) {
     return null;
   }
-
-  return {
-    name: parts[1],
-    qualifier: parts[3] || '',
-    path: parts[4] || ''
-  };
 };

@@ -5,46 +5,69 @@ test('Parsing an invalid URL returns null', (test) => {
   test.is(parseLambdaUrl('http://example.com'), null);
 });
 
-test('Parsing a simple URL returns the function name', (test) => {
-  test.deepEqual(
-    parseLambdaUrl('lambda://user-service'),
-    {
-      name: 'user-service',
+test('Parsing an invalid ARN URL returns null', (test) => {
+  // The ARN as a type in the 'function' segment
+  test.is(parseLambdaUrl('lambda://arn:aws:lambda:us-west-2:123456789012:func:user-service'), null);
+});
+
+test('Parsing an invalid partial ARN URL returns null', (test) => {
+  // The ARN as a type in the 'function' segment
+  test.is(parseLambdaUrl('lambda://123456789012:func:user-service'), null);
+});
+
+const NAME_STYLES = [
+  {
+    description: 'function ARN',
+    name: 'arn:aws:lambda:us-west-2:123456789012:function:user-service'
+  },
+  {
+    description: 'partial function ARN',
+    name: '123456789012:function:user-service'
+  },
+  {
+    description: 'function name',
+    name: 'user-service'
+  }
+];
+
+for (const {name, description} of NAME_STYLES) {
+  test(`Can ${description}s`, test => {
+    test.deepEqual(parseLambdaUrl(`lambda://${name}`), {
+      name,
       qualifier: '',
       path: ''
-    }
-  );
-});
+    });
+  });
 
-test('Parsing a URL with a path returns the function name and path', (test) => {
-  test.deepEqual(
-    parseLambdaUrl('lambda://user-service/some/path'),
-    {
-      name: 'user-service',
-      qualifier: '',
-      path: '/some/path'
-    }
-  );
-});
-
-test('Parsing a URL with a qualifier returns the function name and qualifier', (test) => {
-  test.deepEqual(
-    parseLambdaUrl('lambda://user-service:deployed'),
-    {
-      name: 'user-service',
+  test(`Can ${description}s with a qualifier`, test => {
+    test.deepEqual(parseLambdaUrl(`lambda://${name}:deployed`), {
+      name,
       qualifier: 'deployed',
       path: ''
-    }
-  );
-});
+    });
+  });
 
-test('Parsing a URL with a qualifier and path returns the function name, qualifier, and path', (test) => {
-  test.deepEqual(
-    parseLambdaUrl('lambda://user-service:$LATEST/some/path'),
-    {
-      name: 'user-service',
+  test(`Can ${description}s with a qualifier and a path`, test => {
+    test.deepEqual(parseLambdaUrl(`lambda://${name}:deployed/some/path`), {
+      name,
+      qualifier: 'deployed',
+      path: '/some/path'
+    });
+  });
+
+  test(`Can ${description}s with a $LATEST qualifier and a path`, test => {
+    test.deepEqual(parseLambdaUrl(`lambda://${name}:$LATEST/some/path`), {
+      name,
       qualifier: '$LATEST',
       path: '/some/path'
-    }
-  );
-});
+    });
+  });
+
+  test(`Can ${description}s with a path`, test => {
+    test.deepEqual(parseLambdaUrl(`lambda://${name}/some/path`), {
+      name,
+      qualifier: '',
+      path: '/some/path'
+    });
+  });
+}
