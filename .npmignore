@@ -2,3 +2,5 @@
 /.travis*
 /src/
 /test/
+.nyc_output
+.vscode
