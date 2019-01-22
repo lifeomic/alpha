@@ -3,6 +3,7 @@
   "version": "0.13.0",
   "description": "Unified client for HTTP services.",
   "main": "lib/Alpha",
+  "types": "lib/Alpha.d.ts",
   "author": "LifeOmic <development@lifeomic.com>",
   "license": "MIT",
   "repository": {
@@ -13,7 +14,7 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "buildGrammar": "nearleyc src/adapters/helpers/lambdaURL.ne -o src/adapters/helpers/lambdaURLGrammar.js",
     "lint": "eslint .",
-    "prepare": "yarn run transpile && yarn buildGrammar",
+    "prepare": "yarn run transpile && yarn buildGrammar && cp src/Alpha.d.ts lib",
     "pretest": "yarn buildGrammar && yarn lint",
     "test": "nyc ava",
     "transpile": "babel src --out-dir lib"
