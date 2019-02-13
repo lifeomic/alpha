@@ -1,13 +1,15 @@
-alpha
-=====
+# alpha
 
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://travis-ci.org/lifeomic/alpha.svg?branch=master)](https://travis-ci.org/lifeomic/alpha)
 [![Coverage Status](https://coveralls.io/repos/github/lifeomic/alpha/badge.svg?branch=master)](https://coveralls.io/github/lifeomic/alpha?branch=master)
 [![Greenkeeper badge](https://badges.greenkeeper.io/lifeomic/alpha.svg)](https://greenkeeper.io/)
+[![Known Vulnerabilities](https://snyk.io/test/github/lifeomic/alpha/badge.svg?targetFile=package.json)](https://snyk.io/test/github/lifeomic/alpha?targetFile=package.json)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/lifeomic/alpha)
 
-Alpha provides a single client interface for interacting with HTTP microservices
-regardless of whether they are implemented as Lambda functions or real HTTP
-servers.
+Alpha is a module that provides a single client interface for interacting with
+HTTP micro-services regardless of whether they are implemented as Lambda
+functions or real HTTP servers.
 
 ## API
 
@@ -38,17 +40,20 @@ const response = await alpha.get('/some/path');
 
 When an `Alpha` instance is created with a base URL using the `lambda` scheme,
 requests to unqualified URLs will cause the specified [Lambda function][lambda]
-to be invoked with a synthetic [API Gateway][api-gateway] event. For example,
-the following code will invoke the `test-function` Lambda function.
+to be invoked with a synthetic [API Gateway][api-gateway] event using the
+optional [Lambda alias][lambda-alias]. For example, the following code will
+invoke the `test-function` Lambda function with the `named-alias`.
 
 ```javascript
-const alpha = new Alpha('lambda://test-function');
+const alpha = new Alpha('lambda://test-function:named-alias');
 const response = await alpha.get('/some/path');
 ```
 
 The `lambda` URL scheme is interpreted according to the following pattern:
 
-    lambda://<function name>
+```xml
+    lambda://<function-name>:<named-alias>
+```
 
 #### Lambda Handler Targets
 
@@ -58,14 +63,14 @@ events that will be passed directly to the handler function. This is primarily
 used for unit testing Lambda handlers.
 
 ```javascript
-const alpha = new Alphan(handlerFunction);
+const alpha = new Alpha(handlerFunction);
 const response = await alpha.get('/some/path');
 ```
 
 ### Request Retries
 
 An `Alpha` client can be configured to retry a failed attempt. A retryable failure
-currently means a request that failed from a network error or had a 5xx status
+currently means a request that failed from a network error or had a `5xx` status
 code.
 
 ```javascript
@@ -101,3 +106,4 @@ configure the `Alpha` client instance that is created.
 [axios]: https://github.com/mzabriskie/axios "Axios"
 [docker-lambda]: https://github.com/lambci/docker-lambda "docker-lambda"
 [lambda]: https://aws.amazon.com/documentation/lambda/ "AWS Lambda"
+[lambda-alias]: https://docs.aws.amazon.com/lambda/latest/dg/versioning-aliases.html "AWS Lambda Versioning / Aliases"
