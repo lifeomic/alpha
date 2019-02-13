@@ -52,7 +52,7 @@ const response = await alpha.get('/some/path');
 The `lambda` URL scheme is interpreted according to the following pattern:
 
 ```xml
-    lambda://<function name>:<alias>
+    lambda://<function-name>:<named-alias>
 ```
 
 #### Lambda Handler Targets
