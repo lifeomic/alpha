@@ -10,7 +10,7 @@ test.after(() => {
   nock.enableNetConnect();
 });
 
-test.always.afterEach(() => {
+test.afterEach.always(() => {
   nock.cleanAll();
 });
 

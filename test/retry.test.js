@@ -10,7 +10,7 @@ test.after(() => {
   nock.enableNetConnect();
 });
 
-test.always.afterEach(() => {
+test.afterEach.always(() => {
   nock.cleanAll();
 });
 
@@ -66,7 +66,7 @@ test.serial('Making a request with retries enabled and a custom retry condition 
       }
     }
   });
-  const err = await test.throws(alpha.get('/some/path'));
+  const err = await test.throwsAsync(() => alpha.get('/some/path'));
   test.is(err.response.status, 403);
 
   test.true(server.isDone());
@@ -78,7 +78,7 @@ test.serial('Making a request with retries enabled should fail for an error that
     .reply(403);
 
   const alpha = new Alpha('http://example.com', { retry: true });
-  const err = await test.throws(alpha.get('/some/path'));
+  const err = await test.throwsAsync(() => alpha.get('/some/path'));
   test.is(err.response.status, 403);
 
   test.true(server.isDone());
@@ -96,7 +96,7 @@ test.serial('Making a request with retries enabled should fail when the number o
     .reply(200, 'hello!', { 'test-header': 'some value' });
 
   const alpha = new Alpha('http://example.com', { retry: { attempts: 2 } });
-  const err = await test.throws(alpha.get('/some/path'));
+  const err = await test.throwsAsync(() => alpha.get('/some/path'));
   test.is(err.response.status, 503);
 
   // Should not be done because we exceeded number of attempts

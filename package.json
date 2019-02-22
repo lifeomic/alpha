@@ -24,14 +24,14 @@
       "test/**/*.test.js"
     ],
     "require": [
-      "babel-register",
+      "@babel/register",
       "./test/setup.js"
     ]
   },
   "babel": {
     "presets": [
       [
-        "env",
+        "@babel/env",
         {
           "targets": {
             "node": 6
@@ -58,18 +58,19 @@
     "branches": 100
   },
   "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.3",
+    "@babel/preset-env": "^7.3.1",
+    "@babel/register": "^7.0.0",
     "@lifeomic/eslint-plugin-node": "^1.1.1",
-    "ava": "^0.25.0",
+    "ava": "^1.2.1",
     "aws-sdk-mock": "^4.0.0",
-    "babel-cli": "^6.26.0",
-    "babel-preset-env": "^1.6.0",
-    "babel-register": "^6.26.0",
     "coveralls": "^3.0.1",
     "eslint": "^5.0.0",
     "nock": "^10.0.0",
     "nyc": "^13.2.0",
     "proxyquire": "^2.0.1",
-    "sinon": "^6.0.0"
+    "sinon": "^7.2.3"
   },
   "dependencies": {
     "aws-sdk": "^2.184.0",

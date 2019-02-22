@@ -87,7 +87,7 @@ test.serial('When the docker container fails to launch an error is thrown', asyn
   test.context.dockerLambda.rejects(failure);
 
   const client = test.context.Alpha.dockerLambda();
-  const error = await test.throws(client.get('/some/path'));
+  const error = await test.throwsAsync(() => client.get('/some/path'));
 
   test.is(error.message, failure.message);
 });
