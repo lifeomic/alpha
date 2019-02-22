@@ -35,6 +35,6 @@ test.serial('Lambda invocations should be retried after a timeout without a cust
     }
   });
 
-  await test.throws(request);
+  await test.throwsAsync(() => request);
   test.is(invokeCount, 3);
 });

@@ -47,7 +47,7 @@ test('When a local handler returns an error the request fails', async (test) => 
   const failure = new Error('simulated failure');
   test.context.handler.callsArgWith(2, failure);
 
-  const error = await test.throws(test.context.client.get('/some/path'));
+  const error = await test.throwsAsync(() => test.context.client.get('/some/path'));
 
   test.is(error.message, failure.message);
 
