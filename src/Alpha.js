@@ -3,11 +3,14 @@ const cloneDeep = require('lodash/cloneDeep');
 const isAbsoluteURL = require('./adapters/helpers/isAbsoluteURL');
 const isString = require('lodash/isString');
 const parseLambdaUrl = require('./adapters/helpers/parseLambdaUrl');
+const pick = require('lodash/pick');
 const RequestError = require('./adapters/helpers/RequestError');
 
 const { Axios } = require('axios');
 const { resolve } = require('url');
 const { URL } = require('whatwg-url');
+
+const ALPHA_CONFIG = [ 'adapter', 'lambda', 'Lambda', 'retry', '__retryCount' ];
 
 class Alpha extends Axios {
   static dockerLambda (options, clientOptions) {
@@ -82,11 +85,11 @@ class Alpha extends Axios {
     const maxRedirects = 'maxRedirects' in config ? config.maxRedirects : 5;
     // Need to override the default redirect logic to allow different adapters
     // to interact.
-    config = cloneDeep(config);
-    config.maxRedirects = 0;
+    const requestConfig = this._buildConfig(config);
+    requestConfig.maxRedirects = 0;
 
     // Babel does not correctly handle the super keyword in async methods
-    const response = await Axios.prototype.request.call(this, config);
+    const response = await Axios.prototype.request.call(this, requestConfig);
 
     if (response.status === 301 || response.status === 302) {
       if (maxRedirects === 0) {
@@ -100,6 +103,15 @@ class Alpha extends Axios {
     }
 
     return response;
+  }
+
+  _buildConfig (config) {
+    config = cloneDeep(config);
+    config.adapter = {
+      ...pick(this.defaults, ALPHA_CONFIG),
+      ...pick(config, ALPHA_CONFIG)
+    };
+    return config;
   }
 }
 
