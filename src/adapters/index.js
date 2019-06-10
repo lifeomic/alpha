@@ -5,5 +5,6 @@
 module.exports = [
   require('./lambda-handler.js'),
   require('./lambda-invocation.js'),
-  require('./response-retry.js')
+  require('./response-retry.js'),
+  require('./alpha-config.js')
 ];
