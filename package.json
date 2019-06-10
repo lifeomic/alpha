@@ -1,6 +1,6 @@
 {
   "name": "@lifeomic/alpha",
-  "version": "0.14.0",
+  "version": "1.0.0",
   "description": "Unified client for HTTP services.",
   "main": "lib/Alpha",
   "types": "lib/Alpha.d.ts",
