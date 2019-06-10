@@ -34,7 +34,7 @@
         "@babel/env",
         {
           "targets": {
-            "node": 6
+            "node": 8
           }
         }
       ]
@@ -63,7 +63,7 @@
     "@babel/preset-env": "^7.3.1",
     "@babel/register": "^7.0.0",
     "@lifeomic/eslint-plugin-node": "^1.1.1",
-    "ava": "^1.2.1",
+    "ava": "^2.0.0",
     "aws-sdk-mock": "^4.0.0",
     "coveralls": "^3.0.1",
     "eslint": "^5.0.0",
