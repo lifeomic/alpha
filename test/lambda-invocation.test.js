@@ -37,7 +37,7 @@ test.serial('Making a GET request with the lambda protocol invokes the lambda fu
 
   const response = await test.context.alpha.get(
     '/some/path?param1=value1',
-    {params: {param2: 'value2'}});
+    { params: { param2: 'value2' } });
 
   test.is(response.data, 'hello!');
   test.is(response.status, 200);
@@ -55,7 +55,7 @@ test.serial('Making a GET request with the lambda protocol invokes the lambda fu
   test.truthy(payload.headers);
   test.is(payload.httpMethod, 'GET');
   test.is(payload.path, '/some/path');
-  test.deepEqual(payload.queryStringParameters, {param1: 'value1', param2: 'value2'});
+  test.deepEqual(payload.queryStringParameters, { param1: 'value1', param2: 'value2' });
 });
 
 async function assertInvalidUrl (test, url) {
@@ -431,7 +431,7 @@ test.serial('timeout values are provided to the HTTP client used by the Lambda c
     })
   });
 
-  await test.context.alpha.get('/some/path', {timeout: 5});
+  await test.context.alpha.get('/some/path', { timeout: 5 });
 
   test.is(AWS_SDK.Lambda.callCount, 1);
   sinon.assert.calledWithMatch(AWS_SDK.Lambda, {
