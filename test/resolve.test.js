@@ -40,3 +40,10 @@ test('Resolving a URL against an HTTP URL returns an HTTP URL', (test) => {
 
   test.is(Alpha.resolve(url, base), 'http://example.com/some/path');
 });
+
+test('Resolving against a base URL that is merely a path returns the base path', (test) => {
+  const base = '/base/path';
+  const url = '/url/path';
+
+  test.is(Alpha.resolve(url, base), url);
+});
