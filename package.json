@@ -1,6 +1,6 @@
 {
   "name": "@lifeomic/alpha",
-  "version": "1.0.0",
+  "version": "1.0.1-alpha",
   "description": "Unified client for HTTP services.",
   "main": "lib/Alpha",
   "types": "lib/Alpha.d.ts",
@@ -78,7 +78,8 @@
     "docker-lambda": "^0.15.2",
     "lodash": "^4.17.11",
     "nearley": "^2.16.0",
-    "whatwg-url": "^7.0.0"
+    "resolve-pathname": "^3.0.0",
+    "url-parse": "^1.4.7"
   },
   "publishConfig": {
     "access": "public"
