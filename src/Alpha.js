@@ -5,10 +5,10 @@ const isString = require('lodash/isString');
 const parseLambdaUrl = require('./adapters/helpers/parseLambdaUrl');
 const pick = require('lodash/pick');
 const RequestError = require('./adapters/helpers/RequestError');
+const resolvePathname = require('resolve-pathname');
 
 const { Axios } = require('axios');
-const { resolve } = require('url');
-const { URL } = require('whatwg-url');
+const { URL } = require('url');
 
 const ALPHA_CONFIG = [ 'adapter', 'lambda', 'Lambda', 'retry', '__retryCount' ];
 
@@ -46,8 +46,11 @@ class Alpha extends Axios {
     let lambdaParts = parseLambdaUrl(base);
 
     if (!lambdaParts) {
-      // whatwg-url doesn't like simple paths
-      return resolve(base, url);
+      // This preserves the behavior we had under `url.resolve()` when
+      // providing a path-only base
+      if (base.startsWith('/')) return resolvePathname(url, base);
+
+      return new URL(url, base).toString();
     }
 
     const qualifier = lambdaParts.qualifier ? `:${lambdaParts.qualifier}` : '';

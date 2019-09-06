@@ -30,7 +30,7 @@ const NAME_STYLES = [
   }
 ];
 
-for (const {name, description} of NAME_STYLES) {
+for (const { name, description } of NAME_STYLES) {
   test(`Can parse URLs with ${description}s`, test => {
     test.deepEqual(parseLambdaUrl(`lambda://${name}`), {
       name,

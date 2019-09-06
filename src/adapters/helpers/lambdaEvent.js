@@ -1,7 +1,7 @@
-const url = require('url');
+const urlParse = require('url-parse');
 
 module.exports = (config, relativeUrl) => {
-  const parts = url.parse(relativeUrl || config.url, true);
+  const parts = urlParse(relativeUrl || config.url, true);
   const params = Object.assign({}, parts.query, config.params);
 
   const event = {
