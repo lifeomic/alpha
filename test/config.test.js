@@ -60,6 +60,7 @@ test.serial('Creating a client with configuration options sets the default clien
 
   const response = await client.get('/some/path');
 
+  test.is(response.data.message, 'hello!');
   test.is(response.status, 200);
   test.true(server.isDone());
 });
@@ -81,6 +82,7 @@ test.serial('Creating a client with a target and configuration options binds the
 
   const response = await client.get('/some/path');
 
+  test.is(response.data.message, 'hello!');
   test.is(response.status, 200);
   test.true(server.isDone());
 });
