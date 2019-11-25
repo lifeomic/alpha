@@ -15,7 +15,7 @@ test.after(() => {
 });
 
 test.beforeEach((test) => {
-  test.context.alpha = new Alpha('lambda://test-function');
+  test.context.alpha = new Alpha('lambda://test-function', { adapter: null });
   test.context.invoke = sinon.stub();
   AWS.mock('Lambda', 'invoke', test.context.invoke);
   test.context.abort = sinon.stub();
