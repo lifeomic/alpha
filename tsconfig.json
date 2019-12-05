@@ -1,0 +1,8 @@
+{
+  "extends": "./node_modules/@lifeomic/typescript-tools/config/typescript",
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "rootDir": ".",
+    "module": "commonjs"
+  }
+}
