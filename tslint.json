@@ -1,5 +1,4 @@
 {
-  "extends": ["@lifeomic/typescript-tools/config/tslint"],
   "rules": {
     "jsdoc-format": false,
     "no-use-before-declare": false,

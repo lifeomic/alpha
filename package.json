@@ -2,8 +2,8 @@
   "name": "@lifeomic/alpha",
   "version": "1.1.0",
   "description": "Unified client for HTTP services.",
-  "main": "lib/Alpha",
-  "types": "lib/Alpha.d.ts",
+  "main": "src/index.js",
+  "types": "src/index.ts",
   "author": "LifeOmic <development@lifeomic.com>",
   "license": "MIT",
   "repository": {
@@ -60,9 +60,6 @@
     "report-dir": "./coverage"
   },
   "devDependencies": {
-    "@lifeomic/dev-tools": "^4.9.3",
-    "@lifeomic/eslint-plugin-node": "^2.0.1",
-    "@lifeomic/typescript-tools": "^7.0.0",
     "@types/aws-lambda": "^8.10.36",
     "@types/lodash": "^4.14.149",
     "@types/nearley": "^2.11.0",
@@ -77,7 +74,9 @@
     "proxyquire": "^2.0.1",
     "sinon": "^7.2.3",
     "ts-node": "^8.5.4",
-    "ts-sinon": "^1.0.24"
+    "ts-sinon": "^1.0.24",
+    "tsc": "^1.20150623.0",
+    "typescript": "^3.7.3"
   },
   "dependencies": {
     "aws-sdk": "^2.184.0",
