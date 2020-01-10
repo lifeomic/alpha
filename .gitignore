@@ -4,4 +4,7 @@
 node_modules/
 .vscode/
 .DS_Store
-/src/adapters/helpers/lambdaURLGrammar.js
+/src/utils/lambdaURLGrammar.ts
+
+/src/**/*.js
+/test/**/*.js

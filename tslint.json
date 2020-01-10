@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "jsdoc-format": false,
+    "no-use-before-declare": false,
+    "react-hooks-nesting": false,
+    "semicolon": [true, "always"]
+  }
+}
