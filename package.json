@@ -80,7 +80,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.184.0",
-    "axios": "axios/axios#a17c70cb5ae4acd7aa307b7f7dc869953dea22c4",
+    "axios": "^0.19.1",
     "docker-lambda": "^0.15.3",
     "lodash": "^4.17.11",
     "nearley": "^2.16.0",
