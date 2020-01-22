@@ -1,5 +1,6 @@
 const assert = require('assert');
 const AWS = require('aws-sdk');
+const isAbsoluteURL = require('./helpers/isAbsoluteURL');
 const chainAdapters = require('./helpers/chainAdapters');
 const lambdaEvent = require('./helpers/lambdaEvent');
 const lambdaResponse = require('./helpers/lambdaResponse');
@@ -23,6 +24,9 @@ async function lambdaInvocationAdapter (config) {
   }
 
   const lambda = new Lambda(lambdaOptions);
+  if (config.baseURL && !isAbsoluteURL(config.url)) {
+    config.url = `${config.baseURL}${config.url}`;
+  }
   const parts = parseLambdaUrl(config.url);
   assert(parts, `The config.url, '${config.url}' does not appear to be a Lambda Function URL`);
 
@@ -89,7 +93,7 @@ async function lambdaInvocationAdapter (config) {
 function lambdaInvocationRequestInterceptor (config) {
   return chainAdapters(
     config,
-    (config) => config.url.startsWith('lambda:'),
+    (config) => config.url.startsWith('lambda:') || (config.baseURL && config.baseURL.startsWith('lambda:')),
     lambdaInvocationAdapter
   );
 }
