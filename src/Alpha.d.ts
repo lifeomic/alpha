@@ -4,7 +4,7 @@ declare module '@lifeomic/alpha' {
   interface RetryOptions {
     attempts?: number,
     factor?: number,
-    maxTimeout?: 10000,
+    maxTimeout?: number,
     retryCondition?: (err: Error) => boolean
   }
 
