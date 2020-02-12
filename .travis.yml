@@ -13,6 +13,7 @@ notifications:
     on_success: never
     on_failure: always
 deploy:
+  edge: true
   provider: npm
   email: $NPM_EMAIL
   api_key: $NPM_KEY
