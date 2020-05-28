@@ -2,6 +2,7 @@ const Alpha = require('../src/Alpha');
 const nock = require('nock');
 const sinon = require('sinon');
 const test = require('ava');
+const { gzipSync } = require('zlib');
 
 test.before(() => {
   nock.disableNetConnect();
@@ -190,4 +191,36 @@ test('Binary content is base64 encoded', async (test) => {
   };
 
   sinon.assert.calledWithExactly(test.context.handler, event, {}, sinon.match.func);
+});
+
+test('When given gzip encoding and content type is json automatically decompresses and parses the body', async (test) => {
+  const body = { foo: 'bar' };
+  const response = {
+    headers: { 'content-encoding': 'gzip', 'content-type': 'application/json' },
+    body: gzipSync(Buffer.from(JSON.stringify(body))).toString('base64'),
+    statusCode: 200
+  };
+
+  test.context.handler.callsArgWith(2, null, response);
+
+  const result = await test.context.client.get('/some/path', { validateStatus: false });
+
+  test.deepEqual(result.data, body);
+});
+
+test('When given gzip encoding with content type other than json automatically decompresses to text', async (test) => {
+  const body = `<test>
+    <of>XML</of>
+  </test>`;
+  const response = {
+    headers: { 'content-encoding': 'gzip', 'content-type': 'application/xml' },
+    body: gzipSync(Buffer.from(body)).toString('base64'),
+    statusCode: 200
+  };
+
+  test.context.handler.callsArgWith(2, null, response);
+
+  const result = await test.context.client.get('/some/path', { validateStatus: false });
+
+  test.is(result.data, body);
 });
