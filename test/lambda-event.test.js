@@ -3,8 +3,8 @@ const test = require('ava');
 
 const duplicateParams = '/lifeomic/dstu3/Questionnaire?pageSize=25&_tag=http%3A%2F%2Flifeomic.com%2Ffhir%2Fquestionnaire-type%7Csurvey-form&_tag=http%3A%2F%2Flifeomic.com%2Ffhir%2Fdataset%7C0bb18fef-4e2d-4b91-a623-09527265a8b3&_tag=http%3A%2F%2Flifeomic.com%2Ffhir%2Fprimary%7C0343bfcf-4e2d-4b91-a623-095272783bf3';
 const params = '/lifeomic/dstu3/Questionnaire?pageSize=25&_tag=http%3A%2F%2Flifeomic.com%2Ffhir%2Fquestionnaire-type%7Csurvey-form&test=diffValue';
-const invalidValueParam = '/lifeomic/dstu3/Questionnaire?pageSize=25&%E0%A4%A=onlyvalue';
-const invalidKeyParam = '/lifeomic/dstu3/Questionnaire?pageSize=25&onlyKey=%E0%A4%A';
+const invalidValueParam = '/lifeomic/dstu3/Questionnaire?pageSize=25&=onlyvalue';
+const invalidKeyParam = '/lifeomic/dstu3/Questionnaire?pageSize=25&onlyKey=';
 
 const lambda = `lambda://service:deployed/`;
 const config = {
@@ -46,7 +46,7 @@ test.serial(`Can parse URLs without duplicates`, async (test) => {
   });
 });
 
-test.serial(`Skips invalid keys`, test => {
+test.serial(`handles null values`, test => {
   config.url = lambda + invalidKeyParam;
   test.deepEqual(lambdaEvent(config, invalidKeyParam), {
     body: '',
@@ -54,12 +54,13 @@ test.serial(`Skips invalid keys`, test => {
     httpMethod: 'GET',
     path: '/lifeomic/dstu3/Questionnaire',
     queryStringParameters: {
-      pageSize: '25'
+      pageSize: '25',
+      onlyKey: ''
     }
   });
 });
 
-test.serial(`Skips invalid values`, test => {
+test.serial(`handles null keys`, test => {
   config.url = lambda + invalidValueParam;
   test.deepEqual(lambdaEvent(config, invalidValueParam), {
     body: '',
@@ -67,7 +68,8 @@ test.serial(`Skips invalid values`, test => {
     httpMethod: 'GET',
     path: '/lifeomic/dstu3/Questionnaire',
     queryStringParameters: {
-      pageSize: '25'
+      pageSize: '25',
+      '': 'onlyvalue'
     }
   });
 });
