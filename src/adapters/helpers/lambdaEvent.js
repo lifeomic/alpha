@@ -1,7 +1,8 @@
 const urlParse = require('url-parse');
+const querystring = require('querystring');
 
 module.exports = (config, relativeUrl) => {
-  const parts = urlParse(relativeUrl || config.url, true);
+  const parts = urlParse(relativeUrl || config.url, null, querystringWithArraySupport);
   const params = Object.assign({}, parts.query, config.params);
 
   const event = {
@@ -19,3 +20,15 @@ module.exports = (config, relativeUrl) => {
 
   return event;
 };
+
+/**
+ * This mirrors the simple querystringify parser, except it creates an array of duplicate keys
+ * instead of only using the first key and discarding all subsequent ones, which is how url.parse functioned until urlParse replaced it.
+ * Need to support that array for receiving services to continue functioning correctly (such as multiple _tag keys for FHIR object queries)
+ */
+function querystringWithArraySupport (query) {
+  if (query.startsWith('?')) {
+    query = query.substring(1);
+  }
+  return querystring.parse(query);
+}
