@@ -19,6 +19,6 @@ module.exports = (fn) => {
     // were called in the callback, .then() will also call the same resolve or
     // reject a second time. However, this is okay because calling resolve/reject
     // multiple times is a no-opt.
-    return Promise.resolve(fn(...parameters)).then(resolve, reject);
+    Promise.resolve(fn(...parameters)).then(resolve, reject);
   });
 };
