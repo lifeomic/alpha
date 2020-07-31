@@ -45,11 +45,14 @@ test.serial('Creating a client with a target binds the client to the target', as
 
 test.serial('Creating a client with configuration options sets the default client options', async (test) => {
   const server = nock('http://localhost')
-    .get('/some/path')
+    .get('/some/path?foo=bar')
     .matchHeader('Accept', 'application/json')
     .reply(200, { message: 'hello!' });
 
   const options = {
+    params: {
+      foo: 'bar'
+    },
     headers: {
       'Accept': 'application/json'
     }
