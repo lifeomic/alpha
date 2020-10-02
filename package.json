@@ -74,10 +74,10 @@
   },
   "dependencies": {
     "aws-sdk": "^2.184.0",
-    "axios": "0.20.0-0",
+    "axios": "^0.20.0",
     "docker-lambda": "^0.15.2",
-    "lodash": "^4.17.11",
-    "nearley": "^2.16.0",
+    "lodash": "^4.17.20",
+    "nearley": "^2.19.7",
     "resolve-pathname": "^3.0.0",
     "url-parse": "^1.4.7"
   },
