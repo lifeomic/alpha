@@ -16,6 +16,38 @@ test.beforeEach((test) => {
   test.context.client = new Alpha(test.context.handler);
 });
 
+test('works with a callback style handler that executes the callback async', async (test) => {
+  const response = {
+    headers: { 'test-header': 'some value' },
+    body: 'hello!',
+    statusCode: 200
+  };
+
+  test.context.handler.callsArgWithAsync(2, null, response);
+  const result = await test.context.client.get('/some/path');
+
+  test.is(result.status, 200);
+  test.deepEqual(result.headers, response.headers);
+  test.is(result.data, response.body);
+
+  const event = {
+    body: '',
+    headers: sinon.match.object,
+    httpMethod: 'GET',
+    path: '/some/path',
+    queryStringParameters: {}
+  };
+
+  const context = {};
+
+  sinon.assert.calledWithExactly(
+    test.context.handler,
+    event,
+    context,
+    sinon.match.func
+  );
+});
+
 function setupHandlerBehavior ({ handlerStub, isCallbackStyleHandler, error, response }) {
   if (isCallbackStyleHandler) {
     handlerStub.callsArgWith(2, error, response);
