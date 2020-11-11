@@ -2,13 +2,7 @@ name: PR Branch Build and Test
 
 # Related: https://github.com/coverallsapp/github-action/issues/19
 # pull_request must be present for the coveralls bot to comment.
-on:
-  pull_request:
-    branches:
-      - master
-  push:
-    branches-ignore:
-      - master
+on: [ pull_request ]
 
 jobs:
   test:
