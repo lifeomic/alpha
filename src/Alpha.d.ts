@@ -1,5 +1,5 @@
 declare module '@lifeomic/alpha' {
-  import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+  import { AxiosInstance, AxiosRequestConfig } from 'axios';
 
   interface RetryOptions {
     attempts?: number,
@@ -8,18 +8,18 @@ declare module '@lifeomic/alpha' {
     retryCondition?: (err: Error) => boolean
   }
 
-  interface AlphaOptions extends AxiosRequestConfig {
+  export interface AlphaOptions extends AxiosRequestConfig {
     retry?: RetryOptions,
     lambda?: Function
   }
 
-  type AlphaClient = AxiosInstance;
+  export type AlphaInstance = AxiosInstance;
 
   interface AlphaConstructor {
-    new (target: string | Function, options?: AlphaOptions): AlphaClient;
-    new (options: AlphaOptions): AlphaClient;
+    new (target: string | Function, options?: AlphaOptions): AlphaInstance;
+    new (options: AlphaOptions): AlphaInstance;
   }
 
-  const Alpha: AlphaConstructor;
-  export = Alpha;
+  // default export
+  export = AlphaConstructor;
 }
