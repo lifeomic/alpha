@@ -1,0 +1,29 @@
+name: PR Branch Build and Test
+
+on:
+  push:
+    branches-ignore:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [8, 10, 12]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Build and Test
+        run: |
+          yarn
+          yarn test
+          yarn prepare
+          yarn coverage
+      - name: Coveralls
+        uses: coverallsapp/github-action@v1.1.2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: .nyc_output/lcov.info
