@@ -2,9 +2,6 @@ name: PR Branch Build and Test
 
 # Related: https://github.com/coverallsapp/github-action/issues/19
 on:
-  push:
-    branches-ignore:
-      - master
   pull_request:
     branches-ignore:
       - master
