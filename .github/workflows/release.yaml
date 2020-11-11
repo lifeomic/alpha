@@ -2,23 +2,19 @@ name: Release
 
 on:
   push:
+    branches:
+      - master
     tags:
       - 'v*'
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [8, 10, 12]
     steps:
       - uses: actions/checkout@v2
-      - name: Exit if not on master branch
-        if: endsWith(github.ref, 'master') == false
-        run: exit 0
       - uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 8
           registry-url: https://registry.npmjs.org
       - name: Build and Test
         run: |
@@ -26,11 +22,6 @@ jobs:
           yarn test
           yarn prepare
           yarn coverage
-      - name: Exit if not node 8
-        if: matrix.node != 8
-        run: |
-          echo 'Skipping, releasing/coverage report via node 8 build only.'
-          exit 0
       - name: Coveralls
         uses: coverallsapp/github-action@v1.1.2
         with:
