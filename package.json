@@ -11,7 +11,7 @@
     "url": "https://github.com/lifeomic/alpha.git"
   },
   "scripts": {
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "coverage": "nyc report --reporter=text-lcov > ./.nyc_output/lcov.info",
     "buildGrammar": "nearleyc src/adapters/helpers/lambdaURL.ne -o src/adapters/helpers/lambdaURLGrammar.js",
     "lint": "eslint .",
     "prepare": "yarn run transpile && yarn buildGrammar && cp src/Alpha.d.ts lib",
