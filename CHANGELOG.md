@@ -23,7 +23,7 @@ juggle different versions of `axios` (`AxiosInstance`).
 ### Fixed
 - Upgraded `axios` to fix bug that caused default query params to get ignored
 
-[1.3.1]: https://github.com/lifeomic/cli/compare/v1.3.0...v1.3.1
-[1.3.0]: https://github.com/lifeomic/cli/compare/v1.2.3...v1.3.0
-[1.2.3]: https://github.com/lifeomic/cli/compare/v1.2.2...v1.2.3
-[1.2.1]: https://github.com/lifeomic/cli/compare/v1.2.0...v1.2.1
+[1.3.1]: https://github.com/lifeomic/alpha/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/lifeomic/alpha/compare/v1.2.3...v1.3.0
+[1.2.3]: https://github.com/lifeomic/alpha/compare/v1.2.2...v1.2.3
+[1.2.1]: https://github.com/lifeomic/alpha/compare/v1.2.0...v1.2.1
