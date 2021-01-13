@@ -82,6 +82,25 @@ test.serial('Making a GET request with responseType \'arraybuffer\' returns the 
   test.is(response.status, 200);
 });
 
+test.serial('Making a GET request with responseType \'stream\' throws an unsupported error', async (test) => {
+  test.context.invoke.callsArgWith(1, null, {
+    StatusCode: 200,
+    Payload: JSON.stringify({
+      body: 'hello!',
+      headers: { 'test-header': 'some value' },
+      statusCode: 200
+    })
+  });
+
+  const response = test.context.alpha.get(
+    '/some/path?param1=value1',
+    {
+      params: { param2: 'value2' },
+      responseType: 'stream'
+    });
+  await test.throwsAsync(() => response, 'Unhandled responseType requested: stream');
+});
+
 async function assertInvalidUrl (test, url) {
   // Override the shared alpha client to include a qualifier
   test.context.alpha = new Alpha(url);
