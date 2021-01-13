@@ -1,10 +1,22 @@
 const http = require('http');
 const RequestError = require('./RequestError');
+const { TextEncoder } = require('util');
+
+const payloadToData = (config, payload) => {
+  if (!config.responseType) return payload.body;
+
+  switch (config.responseType) {
+    case 'arraybuffer': return new TextEncoder().encode(payload.body);
+    default: throw new Error('Unhandled responseType requested: ' + config.responseType);
+  }
+};
 
 module.exports = (config, request, payload) => {
+  const data = payloadToData(config, payload);
+
   const response = {
     config,
-    data: payload.body,
+    data,
     headers: payload.headers,
     request,
     status: payload.statusCode,
