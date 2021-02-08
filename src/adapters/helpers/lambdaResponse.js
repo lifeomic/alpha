@@ -1,5 +1,5 @@
 const http = require('http');
-const RequestError = require('./RequestError');
+const { RequestError } = require('./RequestError');
 const { TextEncoder } = require('util');
 
 const payloadToData = (config, payload) => {

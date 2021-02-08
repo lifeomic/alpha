@@ -1,4 +1,4 @@
-const Alpha = require('../src/Alpha');
+const { configureAxios } = require('../src');
 const nock = require('nock');
 const test = require('ava');
 
@@ -19,7 +19,7 @@ test.serial('Making a GET request with the http protocol performs a normal HTTP 
     .get('/some/path')
     .reply(200, 'hello!', { 'test-header': 'some value' });
 
-  const alpha = new Alpha('http://example.com');
+  const alpha = configureAxios({ url: 'http://example.com' });
   const response = await alpha.get('/some/path');
 
   test.is(response.data, 'hello!');
@@ -38,7 +38,7 @@ test.serial('Making a GET request with the https protocol performs a normal HTTP
     .get('/some/path')
     .reply(200, 'hello!', { 'test-header': 'some value' });
 
-  const alpha = new Alpha('https://example.com');
+  const alpha = configureAxios({ url: 'https://example.com' });
   const response = await alpha.get('/some/path');
 
   test.is(response.data, 'hello!');

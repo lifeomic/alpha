@@ -1,11 +1,11 @@
 const assert = require('assert');
 const AWS = require('aws-sdk');
-const isAbsoluteURL = require('./helpers/isAbsoluteURL');
+const { isAbsoluteURL } = require('./helpers/isAbsoluteURL');
 const chainAdapters = require('./helpers/chainAdapters');
 const lambdaEvent = require('./helpers/lambdaEvent');
 const lambdaResponse = require('./helpers/lambdaResponse');
-const parseLambdaUrl = require('./helpers/parseLambdaUrl');
-const RequestError = require('./helpers/RequestError');
+const { parseLambdaUrl } = require('../utils/parseLambdaUrl');
+const { RequestError } = require('../utils/RequestError');
 
 async function lambdaInvocationAdapter (config) {
   const Lambda = config.Lambda || AWS.Lambda;

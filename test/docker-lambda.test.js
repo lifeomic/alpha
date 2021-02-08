@@ -9,8 +9,8 @@ test.beforeEach((test) => {
     statusCode: 200
   });
 
-  test.context.Alpha = proxyquire(
-    '../src/Alpha',
+  test.context.alpha = proxyquire(
+    '../src',
     {
       'docker-lambda': test.context.dockerLambda
     }
@@ -18,7 +18,7 @@ test.beforeEach((test) => {
 });
 
 test.serial('A docker-lambda client passes events to the docker wrapper', async (test) => {
-  const client = test.context.Alpha.dockerLambda();
+  const client = test.context.alpha.dockerLambda();
   const response = await client.get('/some/path');
 
   test.is(response.status, 200);
@@ -31,7 +31,7 @@ test.serial('A docker-lambda client passes events to the docker wrapper', async 
 });
 
 test.serial('A docker-lambda client can configure the docker wrapper', async (test) => {
-  const client = test.context.Alpha.dockerLambda({
+  const client = test.context.alpha.dockerLambda({
     dockerArgs: [ '--network', 'foo' ],
     dockerImage: 'test-image',
     handler: 'lib/bar',
@@ -50,7 +50,7 @@ test.serial('A docker-lambda client can configure the docker wrapper', async (te
 });
 
 test.serial('A docker-lambda client configuration cannot override the event', async (test) => {
-  const client = test.context.Alpha.dockerLambda({ event: 'foo' });
+  const client = test.context.alpha.dockerLambda({ event: 'foo' });
 
   await client.get('/some/path');
 
@@ -61,7 +61,7 @@ test.serial('A docker-lambda client configuration cannot override the event', as
 });
 
 test.serial('A docker-lambda client can configure the underlying Alpha client', async (test) => {
-  const client = test.context.Alpha.dockerLambda(
+  const client = test.context.alpha.dockerLambda(
     null,
     {
       headers: {
@@ -86,7 +86,7 @@ test.serial('When the docker container fails to launch an error is thrown', asyn
   const failure = new Error('simulated failure');
   test.context.dockerLambda.rejects(failure);
 
-  const client = test.context.Alpha.dockerLambda();
+  const client = test.context.alpha.dockerLambda();
   const error = await test.throwsAsync(client.get('/some/path'));
 
   test.is(error.message, failure.message);

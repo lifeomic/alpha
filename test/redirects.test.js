@@ -1,4 +1,4 @@
-const Alpha = require('../src/Alpha');
+const { configureAxios } = require('../src');
 const AWS = require('aws-sdk-mock');
 const nock = require('nock');
 const sinon = require('sinon');
@@ -8,7 +8,7 @@ test.before(() => nock.disableNetConnect());
 test.after(() => nock.enableNetConnect());
 
 test.beforeEach((test) => {
-  test.context.alpha = new Alpha();
+  test.context.alpha = configureAxios();
   test.context.invoke = sinon.stub();
   AWS.mock('Lambda', 'invoke', test.context.invoke);
 });

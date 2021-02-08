@@ -1,9 +1,9 @@
 const chainAdapters = require('./helpers/chainAdapters');
-const isAbsoluteURL = require('./helpers/isAbsoluteURL');
+const { isAbsoluteURL } = require('./helpers/isAbsoluteURL');
 const lambdaEvent = require('./helpers/lambdaEvent');
 const lambdaResponse = require('./helpers/lambdaResponse');
 const promisify = require('./helpers/promisify');
-const RequestError = require('./helpers/RequestError');
+const { RequestError } = require('../utils/RequestError');
 
 async function lambdaHandlerAdapter (config) {
   const request = {

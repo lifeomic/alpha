@@ -1,4 +1,4 @@
-const Alpha = require('../src/Alpha');
+const { configureAxios } = require('../src');
 const { Axios } = require('axios');
 const nock = require('nock');
 const test = require('ava');
@@ -20,7 +20,7 @@ test.serial('Creating a client with no options creates a standard Axios client',
     .get('/some/path')
     .reply(200, 'hello!');
 
-  const client = new Alpha();
+  const client = configureAxios();
   test.true(client instanceof Axios);
 
   const response = await client.get('/some/path');
@@ -34,7 +34,7 @@ test.serial('Creating a client with a target binds the client to the target', as
     .get('/some/path')
     .reply(200, 'hello!');
 
-  const client = new Alpha('http://example.com');
+  const client = configureAxios({ url: 'http://example.com' });
   test.true(client instanceof Axios);
 
   const response = await client.get('/some/path');
@@ -58,7 +58,7 @@ test.serial('Creating a client with configuration options sets the default clien
     }
   };
 
-  const client = new Alpha(options);
+  const client = configureAxios({ config: options });
   test.true(client instanceof Axios);
 
   const response = await client.get('/some/path');
@@ -80,7 +80,7 @@ test.serial('Creating a client with a target and configuration options binds the
     }
   };
 
-  const client = new Alpha('http://example.com', options);
+  const client = configureAxios({ url: 'http://example.com', config: options });
   test.true(client instanceof Axios);
 
   const response = await client.get('/some/path');
@@ -99,7 +99,7 @@ test.serial('A custom status validator can be used with the client', async (test
     validateStatus: (status) => status >= 200 && status < 300
   };
 
-  const client = new Alpha('http://example.com', options);
+  const client = configureAxios({ url: 'http://example.com', config: options });
   const error = await test.throwsAsync(client.get('/'));
 
   test.is(error.message, 'Request failed with status code 302');

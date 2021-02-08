@@ -1,4 +1,4 @@
-const Alpha = require('../src/Alpha');
+const { configureAxios } = require('../src');
 const nock = require('nock');
 const sinon = require('sinon');
 const test = require('ava');
@@ -15,14 +15,20 @@ test.serial('Lambda invocations should be retried after a timeout without a cust
   // Don't provide any response to invoke to mimic is not ever responding
   const abort = sinon.stub();
   let invokeCount = 0;
-  const alpha = new Alpha('lambda://test-function', {
-    Lambda: class UnresponsiveLambda {
-      invoke () {
-        invokeCount++;
-        return {
-          promise: function () { return new Promise(function () {}); },
-          abort
-        };
+  const alpha = configureAxios({
+    url: 'lambda://test-function',
+    config: {
+      Lambda: class UnresponsiveLambda {
+        invoke () {
+          invokeCount++;
+          return {
+            promise: function () {
+              return new Promise(function () {
+              });
+            },
+            abort
+          };
+        }
       }
     }
   });

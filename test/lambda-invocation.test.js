@@ -1,4 +1,4 @@
-const Alpha = require('../src/Alpha');
+const { configureAxios } = require('../src');
 const AWS_SDK = require('aws-sdk');
 const AWS = require('aws-sdk-mock');
 const nock = require('nock');
@@ -15,7 +15,12 @@ test.after(() => {
 });
 
 test.beforeEach((test) => {
-  test.context.alpha = new Alpha('lambda://test-function', { adapter: null });
+  test.context.alpha = configureAxios({
+    url: 'lambda://test-function',
+    config: {
+      adapter: null
+    }
+  });
   test.context.invoke = sinon.stub();
   AWS.mock('Lambda', 'invoke', test.context.invoke);
   test.context.abort = sinon.stub();
@@ -103,7 +108,7 @@ test.serial('Making a GET request with responseType \'stream\' throws an unsuppo
 
 async function assertInvalidUrl (test, url) {
   // Override the shared alpha client to include a qualifier
-  test.context.alpha = new Alpha(url);
+  test.context.alpha = configureAxios(url);
   const response = test.context.alpha.get('/some/path');
   await test.throwsAsync(response, { message: `The config.url, '${url}/some/path' does not appear to be a Lambda Function URL` });
 }
@@ -118,7 +123,7 @@ test('Invalid URLs cause Errors to be thrown', async (test) => {
 
 async function testLambdaWithQualifier (test, qualifier) {
   // Override the shared alpha client to include a qualifier
-  test.context.alpha = new Alpha(`lambda://test-function:${qualifier}`);
+  test.context.alpha = configureAxios(`lambda://test-function:${qualifier}`);
 
   test.context.invoke.callsArgWith(1, null, {
     StatusCode: 200,

@@ -1,4 +1,4 @@
-const parseLambdaUrl = require('../src/adapters/helpers/parseLambdaUrl');
+const { parseLambdaUrl } = require('../../src/utils/parseLambdaUrl');
 const test = require('ava');
 
 test('Parsing an invalid URL returns null', (test) => {
