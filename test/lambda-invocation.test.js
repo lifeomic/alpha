@@ -98,14 +98,14 @@ test.serial('Making a GET request with responseType \'stream\' throws an unsuppo
       params: { param2: 'value2' },
       responseType: 'stream'
     });
-  await test.throwsAsync(() => response, 'Unhandled responseType requested: stream');
+  await test.throwsAsync(response, { message: 'Unhandled responseType requested: stream' });
 });
 
 async function assertInvalidUrl (test, url) {
   // Override the shared alpha client to include a qualifier
   test.context.alpha = new Alpha(url);
   const response = test.context.alpha.get('/some/path');
-  await test.throwsAsync(() => response, `The config.url, '${url}/some/path' does not appear to be a Lambda Function URL`);
+  await test.throwsAsync(response, { message: `The config.url, '${url}/some/path' does not appear to be a Lambda Function URL` });
 }
 
 test('Invalid URLs cause Errors to be thrown', async (test) => {
@@ -173,7 +173,7 @@ test.serial('When a lambda function returns an error code an error is thrown', a
     })
   });
 
-  const error = await test.throwsAsync(() => test.context.alpha.get('/some/path'));
+  const error = await test.throwsAsync(test.context.alpha.get('/some/path'));
 
   test.is(error.message, 'Request failed with status code 400');
   test.truthy(error.config);
@@ -222,7 +222,7 @@ test.serial('When a lambda function returns an Unhandled FunctionError an error 
     Payload: JSON.stringify({ errorMessage })
   });
 
-  const error = await test.throwsAsync(() => test.context.alpha.get('/some/path'));
+  const error = await test.throwsAsync(test.context.alpha.get('/some/path'));
 
   test.is(error.message, errorMessage);
   test.truthy(error.config);
@@ -252,7 +252,7 @@ test.serial('When a lambda function returns a Handled FunctionError an error is 
     Payload: JSON.stringify({ errorMessage })
   });
 
-  const error = await test.throwsAsync(() => test.context.alpha.get('/some/path'));
+  const error = await test.throwsAsync(test.context.alpha.get('/some/path'));
 
   test.is(error.message, errorMessage);
   test.truthy(error.config);
@@ -281,7 +281,7 @@ test.serial('When the Payload attribute is null an error is thrown', async (test
   };
   test.context.invoke.callsArgWith(1, null, response);
 
-  const error = await test.throwsAsync(() => test.context.alpha.get('/some/path'));
+  const error = await test.throwsAsync(test.context.alpha.get('/some/path'));
 
   test.is(error.message, `Unexpected Payload shape from lambda://test-function/some/path. The full response was\n${JSON.stringify(response, null, '  ')}`);
 
@@ -486,7 +486,7 @@ test.serial('timeout values are provided to the HTTP client used by the Lambda c
 });
 
 test.serial('A timeout can be configured for the invoked lambda function', async (test) => {
-  const error = await test.throwsAsync(() => test.context.alpha.get('/some/path', {
+  const error = await test.throwsAsync(test.context.alpha.get('/some/path', {
     Lambda: delayedLambda(test, 1000), // lambda will take 1000 ms
     timeout: 5 // timeout at 5 ms
   }));
@@ -516,7 +516,7 @@ test.serial.cb('A configured timeout does not hinder normal lambda function invo
 test.serial('A configured timeout does not eat lambda function invocation errors', async (test) => {
   const clock = sinon.useFakeTimers();
   try {
-    const error = await test.throwsAsync(() => test.context.alpha.get('/some/path', {
+    const error = await test.throwsAsync(test.context.alpha.get('/some/path', {
       Lambda: delayedLambda(test, 1, new Error('Other error')),
       timeout: 1000
     }));
@@ -531,7 +531,7 @@ test.serial('A configured timeout does not eat lambda function invocation errors
 });
 
 test.serial('lambda function invocation errors are re-thrown', async (test) => {
-  const error = await test.throwsAsync(() => test.context.alpha.get('/some/path', {
+  const error = await test.throwsAsync(test.context.alpha.get('/some/path', {
     Lambda: delayedLambda(test, 1, new Error('Other error'))
   }));
 

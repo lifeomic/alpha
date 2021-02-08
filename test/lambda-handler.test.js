@@ -101,7 +101,7 @@ function registerSpecs (isCallbackStyleHandler) {
       isCallbackStyleHandler
     });
 
-    const error = await test.throwsAsync(() => test.context.client.get('/some/path'));
+    const error = await test.throwsAsync(test.context.client.get('/some/path'));
 
     test.is(error.message, failure.message);
 

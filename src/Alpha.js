@@ -8,12 +8,11 @@ const pick = require('lodash/pick');
 const RequestError = require('./adapters/helpers/RequestError');
 const resolvePathname = require('resolve-pathname');
 
-const axios = require('axios');
+const { Axios, defaults } = require('axios');
 const { URL } = require('url');
 
 const ALPHA_CONFIG = [ 'adapter', 'lambda', 'Lambda', 'retry', '__retryCount' ];
 
-const Axios = axios.Axios;
 class Alpha extends Axios {
   static dockerLambda (options, clientOptions) {
     const dockerLambda = require('docker-lambda');
@@ -82,7 +81,7 @@ class Alpha extends Axios {
         status === 302;
     }
 
-    options = merge({}, axios.defaults, options);
+    options = merge({}, defaults, options);
     super(options);
     adapters.forEach((adapter) => adapter(this));
   }
