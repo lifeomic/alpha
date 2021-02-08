@@ -131,7 +131,7 @@ test.serial('Redirects are limited by default', async (test) => {
 
   test.context.invoke.onThirdCall().callsArgWith(1, new Error('off the deep end!'));
 
-  const error = await test.throwsAsync(() => test.context.alpha.get('http://example.com'));
+  const error = await test.throwsAsync(test.context.alpha.get('http://example.com'));
 
   test.is(error.message, 'Exceeded maximum number of redirects.');
   test.is(error.config.url, 'lambda://test/two');
@@ -156,7 +156,7 @@ test.serial('Redirects can be explicitly limited', async (test) => {
 
   test.context.invoke.onThirdCall().callsArgWith(1, new Error('off the deep end!'));
 
-  const error = await test.throwsAsync(() => test.context.alpha.get('http://example.com', { maxRedirects: 3 }));
+  const error = await test.throwsAsync(test.context.alpha.get('http://example.com', { maxRedirects: 3 }));
 
   test.is(error.message, 'Exceeded maximum number of redirects.');
   test.is(error.config.url, 'lambda://test/one');

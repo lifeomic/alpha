@@ -100,7 +100,7 @@ test.serial('A custom status validator can be used with the client', async (test
   };
 
   const client = new Alpha('http://example.com', options);
-  const error = await test.throwsAsync(() => client.get('/'));
+  const error = await test.throwsAsync(client.get('/'));
 
   test.is(error.message, 'Request failed with status code 302');
   test.true(server.isDone());
