@@ -2,7 +2,8 @@ const urlParse = require('url-parse');
 const querystring = require('querystring');
 
 module.exports = (config, relativeUrl) => {
-  const parts = urlParse(relativeUrl || config.url, null, querystringWithArraySupport);
+  // url-parse needs a location to properly handle relative urls, so provide a fake one here:
+  const parts = urlParse(relativeUrl || config.url, 'http://fake', querystringWithArraySupport);
   const params = Object.assign({}, parts.query, config.params);
 
   const event = {
