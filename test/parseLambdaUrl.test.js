@@ -63,11 +63,27 @@ for (const { name, description } of NAME_STYLES) {
     });
   });
 
+  test(`Can parse URLs with ${description}s, a $LATEST qualifier and a path and a query string`, test => {
+    test.deepEqual(parseLambdaUrl(`lambda://${name}:$LATEST/some/path?key1=value1`), {
+      name,
+      qualifier: '$LATEST',
+      path: '/some/path?key1=value1'
+    });
+  });
+
   test(`Can parse ${description}s and a path`, test => {
     test.deepEqual(parseLambdaUrl(`lambda://${name}/some/path`), {
       name,
       qualifier: '',
       path: '/some/path'
+    });
+  });
+
+  test(`Can parse ${description}s and a path and a query string with multiple params`, test => {
+    test.deepEqual(parseLambdaUrl(`lambda://${name}/some/path?key1=value1&key2=value2&key3=value3`), {
+      name,
+      qualifier: '',
+      path: '/some/path?key1=value1&key2=value2&key3=value3'
     });
   });
 }
