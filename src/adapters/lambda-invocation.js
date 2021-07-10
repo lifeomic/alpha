@@ -7,6 +7,8 @@ const lambdaResponse = require('./helpers/lambdaResponse');
 const parseLambdaUrl = require('./helpers/parseLambdaUrl');
 const RequestError = require('./helpers/RequestError');
 
+const LAMBDA_MAX_TIMEOUT = 15 * 60 * 1000;
+
 async function lambdaInvocationAdapter (config) {
   const Lambda = config.Lambda || AWS.Lambda;
   const lambdaOptions = {
@@ -21,6 +23,10 @@ async function lambdaInvocationAdapter (config) {
       connectTimeout: config.timeout,
       timeout: config.timeout
     };
+  } else {
+    lambdaOptions.httpOptions = {
+      timeout: LAMBDA_MAX_TIMEOUT,
+    }
   }
 
   const lambda = new Lambda(lambdaOptions);
