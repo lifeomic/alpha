@@ -16,7 +16,7 @@
     "lint": "eslint .",
     "prepare": "yarn run transpile && yarn buildGrammar && cp src/Alpha.d.ts lib",
     "pretest": "yarn buildGrammar && yarn lint",
-    "test": "nyc ava",
+    "test": "nyc ava --verbose",
     "transpile": "babel src --out-dir lib"
   },
   "ava": {

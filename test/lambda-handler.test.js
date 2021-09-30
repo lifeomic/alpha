@@ -35,7 +35,8 @@ test('works with a callback style handler that executes the callback async', asy
     headers: sinon.match.object,
     httpMethod: 'GET',
     path: '/some/path',
-    queryStringParameters: {}
+    queryStringParameters: {},
+    requestContext: undefined
   };
 
   const context = {};
@@ -80,7 +81,8 @@ function registerSpecs (isCallbackStyleHandler) {
       headers: sinon.match.object,
       httpMethod: 'GET',
       path: '/some/path',
-      queryStringParameters: {}
+      queryStringParameters: {},
+      requestContext: undefined
     };
 
     const context = {};
@@ -139,7 +141,7 @@ function registerSpecs (isCallbackStyleHandler) {
     test.is(result.data, response.body);
   });
 
-  test(`Redirects are automaticaly followed (301) (callbackStyle=${isCallbackStyleHandler})`, async (test) => {
+  test(`Redirects are automatically followed (301) (callbackStyle=${isCallbackStyleHandler})`, async (test) => {
     const redirect = {
       headers: { location: '/other/path' },
       statusCode: 301
@@ -173,7 +175,8 @@ function registerSpecs (isCallbackStyleHandler) {
         headers: sinon.match.object,
         httpMethod: 'GET',
         path: '/some/path',
-        queryStringParameters: {}
+        queryStringParameters: {},
+        requestContext: undefined
       },
       {},
       sinon.match.func
@@ -185,7 +188,8 @@ function registerSpecs (isCallbackStyleHandler) {
         headers: sinon.match.object,
         httpMethod: 'GET',
         path: '/other/path',
-        queryStringParameters: {}
+        queryStringParameters: {},
+        requestContext: undefined
       },
       {},
       sinon.match.func
@@ -226,7 +230,8 @@ function registerSpecs (isCallbackStyleHandler) {
         headers: sinon.match.object,
         httpMethod: 'GET',
         path: '/some/path',
-        queryStringParameters: {}
+        queryStringParameters: {},
+        requestContext: undefined
       },
       {},
       sinon.match.func
@@ -238,7 +243,8 @@ function registerSpecs (isCallbackStyleHandler) {
         headers: sinon.match.object,
         httpMethod: 'GET',
         path: '/other/path',
-        queryStringParameters: {}
+        queryStringParameters: {},
+        requestContext: undefined
       },
       {},
       sinon.match.func
@@ -267,7 +273,8 @@ function registerSpecs (isCallbackStyleHandler) {
       httpMethod: 'PUT',
       isBase64Encoded: true,
       path: '/some/path',
-      queryStringParameters: {}
+      queryStringParameters: {},
+      requestContext: undefined
     };
 
     sinon.assert.calledWithExactly(
