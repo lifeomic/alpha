@@ -11,7 +11,8 @@ module.exports = (config, relativeUrl) => {
     headers: config.headers,
     httpMethod: config.method.toUpperCase(),
     path: parts.pathname,
-    queryStringParameters: params
+    queryStringParameters: params,
+    requestContext: config.requestContext
   };
 
   if (Buffer.isBuffer(event.body)) {
