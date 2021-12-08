@@ -39,15 +39,15 @@ jobs:
           registry-url: https://registry.npmjs.org
       - name: Install
         run: yarn install --frozen-lockfile
-      - name: Version
-        env:
-          PRE_ID: pr-${{ github.event.number }}-${{ github.run_id }}
-        run: npm version prepatch --git-tag-version=false --preid="${PRE_ID}-$(date '+%s')"
-      - name: PrePublish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.LIFEOMIC_NPM_TOKEN}}
-          PR_TAG: pr-${{ github.event.number }}
-        run: npm publish --tag "${PR_TAG}"
+      # - name: Version
+      #   env:
+      #     PRE_ID: pr-${{ github.event.number }}-${{ github.run_id }}
+      #   run: npm version prepatch --git-tag-version=false --preid="${PRE_ID}-$(date '+%s')"
+      # - name: PrePublish
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{secrets.LIFEOMIC_NPM_TOKEN}}
+      #     PR_TAG: pr-${{ github.event.number }}
+      #   run: npm publish --tag "${PR_TAG}"
   finish:
     needs: test
     runs-on: ubuntu-latest
