@@ -24,7 +24,7 @@ pipeline {
         not { branch 'master' }
       }
       steps {
-        publishNpmPackagePreRelease('.', true)
+        publishPublicNpmPackagePreRelease()
       }
     }
 
@@ -34,7 +34,7 @@ pipeline {
         branch 'master'
       }
       steps {
-        publishNpmPackage('.', true)
+        runSemanticReleasePublic()
       }
     }
   }
