@@ -6,6 +6,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    environment: npmjs-test
     name: Node.JS ${{ matrix.node-version }}
     strategy:
       matrix:
@@ -31,6 +32,7 @@ jobs:
   preRelease:
     needs: test
     runs-on: ubuntu-latest
+    environment: npmjs-test
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -51,6 +53,7 @@ jobs:
   finish:
     needs: test
     runs-on: ubuntu-latest
+    environment: npmjs-test
     steps:
       - name: Coveralls Finished
         uses: coverallsapp/github-action@v1.1.2

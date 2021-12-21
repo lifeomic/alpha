@@ -9,6 +9,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    outputs:
+      npmTagExists: ${{ steps.tagExistsAndVersion.outputs.npmTagExists }}
+      packageVersion: ${{ steps.tagExistsAndVersion.outputs.packageVersion }}
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -36,19 +39,24 @@ jobs:
           set -e
           echo "::set-output name=npmTagExists::${npmTagExists}"
           echo "::set-output name=packageVersion::${packageVersion}"
+  publish_prod:
+    runs-on: ubuntu-latest
+    needs: build
+    environment: npmjs-prod
+    steps:
       - name: Publish
-        if: ${{ steps.tagExistsAndVersion.outputs.npmTagExists == 'false'}}
+        if: ${{ needs.build.outputs.npmTagExists == 'false'}}
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.LIFEOMIC_NPM_TOKEN}}
       - name: Create Release
-        if: ${{ steps.tagExistsAndVersion.outputs.npmTagExists == 'false'}}
+        if: ${{ needs.build.outputs.npmTagExists == 'false'}}
         id: create_release
         uses: actions/create-release@latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ steps.tagExistsAndVersion.outputs.packageVersion }}
-          release_name: v${{ steps.tagExistsAndVersion.outputs.packageVersion }}
+          tag_name: v${{ needs.build.outputs.packageVersion }}
+          release_name: v${{ needs.build.outputs.packageVersion }}
           draft: false
           prerelease: false
