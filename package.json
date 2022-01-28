@@ -1,6 +1,6 @@
 {
   "name": "@lifeomic/alpha",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Unified client for HTTP services.",
   "main": "lib/Alpha",
   "types": "lib/Alpha.d.ts",
@@ -14,6 +14,7 @@
     "coverage": "nyc report --reporter=text-lcov > ./.nyc_output/lcov.info",
     "buildGrammar": "nearleyc src/adapters/helpers/lambdaURL.ne -o src/adapters/helpers/lambdaURLGrammar.js",
     "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "prepare": "yarn run transpile && yarn buildGrammar && cp src/Alpha.d.ts lib",
     "pretest": "yarn buildGrammar && yarn lint",
     "test": "nyc ava",

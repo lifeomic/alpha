@@ -27,7 +27,8 @@ test.serial(`Can parse URLs with duplicate parameters`, async (test) => {
         'http://lifeomic.com/fhir/primary|0343bfcf-4e2d-4b91-a623-095272783bf3'
       ],
       pageSize: '25'
-    }
+    },
+    requestContext: {}
   });
 });
 
@@ -42,7 +43,8 @@ test.serial(`Can parse URLs without duplicates`, async (test) => {
       _tag: 'http://lifeomic.com/fhir/questionnaire-type|survey-form',
       pageSize: '25',
       test: 'diffValue'
-    }
+    },
+    requestContext: {}
   });
 });
 
@@ -56,7 +58,8 @@ test.serial(`handles null values`, test => {
     queryStringParameters: {
       pageSize: '25',
       onlyKey: ''
-    }
+    },
+    requestContext: {}
   });
 });
 
@@ -70,6 +73,7 @@ test.serial(`handles null keys`, test => {
     queryStringParameters: {
       pageSize: '25',
       '': 'onlyvalue'
-    }
+    },
+    requestContext: {}
   });
 });

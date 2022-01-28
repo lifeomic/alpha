@@ -35,7 +35,8 @@ test('works with a callback style handler that executes the callback async', asy
     headers: sinon.match.object,
     httpMethod: 'GET',
     path: '/some/path',
-    queryStringParameters: {}
+    queryStringParameters: {},
+    requestContext: {}
   };
 
   const context = {};
@@ -80,7 +81,8 @@ function registerSpecs (isCallbackStyleHandler) {
       headers: sinon.match.object,
       httpMethod: 'GET',
       path: '/some/path',
-      queryStringParameters: {}
+      queryStringParameters: {},
+      requestContext: {}
     };
 
     const context = {};
@@ -173,7 +175,8 @@ function registerSpecs (isCallbackStyleHandler) {
         headers: sinon.match.object,
         httpMethod: 'GET',
         path: '/some/path',
-        queryStringParameters: {}
+        queryStringParameters: {},
+        requestContext: {}
       },
       {},
       sinon.match.func
@@ -185,7 +188,8 @@ function registerSpecs (isCallbackStyleHandler) {
         headers: sinon.match.object,
         httpMethod: 'GET',
         path: '/other/path',
-        queryStringParameters: {}
+        queryStringParameters: {},
+        requestContext: {}
       },
       {},
       sinon.match.func
@@ -226,7 +230,8 @@ function registerSpecs (isCallbackStyleHandler) {
         headers: sinon.match.object,
         httpMethod: 'GET',
         path: '/some/path',
-        queryStringParameters: {}
+        queryStringParameters: {},
+        requestContext: {}
       },
       {},
       sinon.match.func
@@ -238,7 +243,8 @@ function registerSpecs (isCallbackStyleHandler) {
         headers: sinon.match.object,
         httpMethod: 'GET',
         path: '/other/path',
-        queryStringParameters: {}
+        queryStringParameters: {},
+        requestContext: {}
       },
       {},
       sinon.match.func
@@ -267,7 +273,8 @@ function registerSpecs (isCallbackStyleHandler) {
       httpMethod: 'PUT',
       isBase64Encoded: true,
       path: '/some/path',
-      queryStringParameters: {}
+      queryStringParameters: {},
+      requestContext: {}
     };
 
     sinon.assert.calledWithExactly(
