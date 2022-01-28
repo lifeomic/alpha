@@ -3,7 +3,11 @@ const querystring = require('querystring');
 
 module.exports = (config, relativeUrl) => {
   // url-parse needs a location to properly handle relative urls, so provide a fake one here:
-  const parts = urlParse(relativeUrl || config.url, 'http://fake', querystringWithArraySupport);
+  const parts = urlParse(
+    relativeUrl || config.url,
+    'http://fake',
+    querystringWithArraySupport
+  );
   const params = Object.assign({}, parts.query, config.params);
 
   const event = {
@@ -11,7 +15,11 @@ module.exports = (config, relativeUrl) => {
     headers: config.headers,
     httpMethod: config.method.toUpperCase(),
     path: parts.pathname,
-    queryStringParameters: params
+    queryStringParameters: params,
+    requestContext: {
+      httpMethod: config.method.toUpperCase(),
+      resourcePath: parts.pathname
+    }
   };
 
   if (Buffer.isBuffer(event.body)) {

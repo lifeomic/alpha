@@ -27,6 +27,10 @@ test.serial(`Can parse URLs with duplicate parameters`, async (test) => {
         'http://lifeomic.com/fhir/primary|0343bfcf-4e2d-4b91-a623-095272783bf3'
       ],
       pageSize: '25'
+    },
+    requestContext: {
+      httpMethod: 'GET',
+      resourcePath: '/lifeomic/dstu3/Questionnaire'
     }
   });
 });
@@ -42,6 +46,10 @@ test.serial(`Can parse URLs without duplicates`, async (test) => {
       _tag: 'http://lifeomic.com/fhir/questionnaire-type|survey-form',
       pageSize: '25',
       test: 'diffValue'
+    },
+    requestContext: {
+      httpMethod: 'GET',
+      resourcePath: '/lifeomic/dstu3/Questionnaire'
     }
   });
 });
@@ -56,6 +64,10 @@ test.serial(`handles null values`, test => {
     queryStringParameters: {
       pageSize: '25',
       onlyKey: ''
+    },
+    requestContext: {
+      httpMethod: 'GET',
+      resourcePath: '/lifeomic/dstu3/Questionnaire'
     }
   });
 });
@@ -70,6 +82,10 @@ test.serial(`handles null keys`, test => {
     queryStringParameters: {
       pageSize: '25',
       '': 'onlyvalue'
+    },
+    requestContext: {
+      httpMethod: 'GET',
+      resourcePath: '/lifeomic/dstu3/Questionnaire'
     }
   });
 });
