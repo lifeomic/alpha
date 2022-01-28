@@ -28,10 +28,7 @@ test.serial(`Can parse URLs with duplicate parameters`, async (test) => {
       ],
       pageSize: '25'
     },
-    requestContext: {
-      httpMethod: 'GET',
-      resourcePath: '/lifeomic/dstu3/Questionnaire'
-    }
+    requestContext: {}
   });
 });
 
@@ -47,10 +44,7 @@ test.serial(`Can parse URLs without duplicates`, async (test) => {
       pageSize: '25',
       test: 'diffValue'
     },
-    requestContext: {
-      httpMethod: 'GET',
-      resourcePath: '/lifeomic/dstu3/Questionnaire'
-    }
+    requestContext: {}
   });
 });
 
@@ -65,10 +59,7 @@ test.serial(`handles null values`, test => {
       pageSize: '25',
       onlyKey: ''
     },
-    requestContext: {
-      httpMethod: 'GET',
-      resourcePath: '/lifeomic/dstu3/Questionnaire'
-    }
+    requestContext: {}
   });
 });
 
@@ -83,9 +74,6 @@ test.serial(`handles null keys`, test => {
       pageSize: '25',
       '': 'onlyvalue'
     },
-    requestContext: {
-      httpMethod: 'GET',
-      resourcePath: '/lifeomic/dstu3/Questionnaire'
-    }
+    requestContext: {}
   });
 });

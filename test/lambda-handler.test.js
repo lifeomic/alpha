@@ -36,7 +36,7 @@ test('works with a callback style handler that executes the callback async', asy
     httpMethod: 'GET',
     path: '/some/path',
     queryStringParameters: {},
-    requestContext: { httpMethod: 'GET', resourcePath: '/some/path' }
+    requestContext: {}
   };
 
   const context = {};
@@ -82,7 +82,7 @@ function registerSpecs (isCallbackStyleHandler) {
       httpMethod: 'GET',
       path: '/some/path',
       queryStringParameters: {},
-      requestContext: { httpMethod: 'GET', resourcePath: '/some/path' }
+      requestContext: {}
     };
 
     const context = {};
@@ -176,7 +176,7 @@ function registerSpecs (isCallbackStyleHandler) {
         httpMethod: 'GET',
         path: '/some/path',
         queryStringParameters: {},
-        requestContext: { httpMethod: 'GET', resourcePath: '/some/path' }
+        requestContext: {}
       },
       {},
       sinon.match.func
@@ -189,7 +189,7 @@ function registerSpecs (isCallbackStyleHandler) {
         httpMethod: 'GET',
         path: '/other/path',
         queryStringParameters: {},
-        requestContext: { httpMethod: 'GET', resourcePath: '/other/path' }
+        requestContext: {}
       },
       {},
       sinon.match.func
@@ -231,7 +231,7 @@ function registerSpecs (isCallbackStyleHandler) {
         httpMethod: 'GET',
         path: '/some/path',
         queryStringParameters: {},
-        requestContext: { httpMethod: 'GET', resourcePath: '/some/path' }
+        requestContext: {}
       },
       {},
       sinon.match.func
@@ -244,7 +244,7 @@ function registerSpecs (isCallbackStyleHandler) {
         httpMethod: 'GET',
         path: '/other/path',
         queryStringParameters: {},
-        requestContext: { httpMethod: 'GET', resourcePath: '/other/path' }
+        requestContext: {}
       },
       {},
       sinon.match.func
@@ -274,7 +274,7 @@ function registerSpecs (isCallbackStyleHandler) {
       isBase64Encoded: true,
       path: '/some/path',
       queryStringParameters: {},
-      requestContext: { httpMethod: 'PUT', resourcePath: '/some/path' }
+      requestContext: {}
     };
 
     sinon.assert.calledWithExactly(

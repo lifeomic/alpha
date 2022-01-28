@@ -16,10 +16,7 @@ module.exports = (config, relativeUrl) => {
     httpMethod: config.method.toUpperCase(),
     path: parts.pathname,
     queryStringParameters: params,
-    requestContext: {
-      httpMethod: config.method.toUpperCase(),
-      resourcePath: parts.pathname
-    }
+    requestContext: {}
   };
 
   if (Buffer.isBuffer(event.body)) {
