@@ -58,7 +58,7 @@ The `lambda` URL scheme is interpreted according to the following pattern:
 #### Lambda Handler Targets
 
 When an `Alpha` instance is created with a handler function target, requests to
-unqualified URLs will be transformed into synthetic [API Gateway][api-gateway]
+unqualified URLs will be transformed into synthetic [API Gateway (v1)][api-gateway]
 events that will be passed directly to the handler function. This is primarily
 used for unit testing Lambda handlers.
 

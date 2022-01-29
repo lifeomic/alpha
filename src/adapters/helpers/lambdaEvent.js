@@ -10,13 +10,23 @@ module.exports = (config, relativeUrl) => {
   );
   const params = Object.assign({}, parts.query, config.params);
 
+  /**
+   * A mock API Gateway v1 proxy event.
+   * See here for more info: https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html#apigateway-example-event
+   * The APIGatewayProxyEvent type can be imported from the aws-lambda npm package.
+   */
   const event = {
     body: config.data || '',
     headers: config.headers,
     httpMethod: config.method.toUpperCase(),
     path: parts.pathname,
     queryStringParameters: params,
-    requestContext: {}
+    requestContext: {},
+    multiValueHeaders: {
+      // Needed for invoking apollo-server-lambda handlers.
+      // https://github.com/apollographql/apollo-server/issues/5504
+      'Content-Type': 'application/json'
+    }
   };
 
   if (Buffer.isBuffer(event.body)) {

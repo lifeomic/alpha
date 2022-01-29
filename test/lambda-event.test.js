@@ -28,7 +28,10 @@ test.serial(`Can parse URLs with duplicate parameters`, async (test) => {
       ],
       pageSize: '25'
     },
-    requestContext: {}
+    requestContext: {},
+    multiValueHeaders: {
+      'Content-Type': 'application/json'
+    }
   });
 });
 
@@ -44,7 +47,10 @@ test.serial(`Can parse URLs without duplicates`, async (test) => {
       pageSize: '25',
       test: 'diffValue'
     },
-    requestContext: {}
+    requestContext: {},
+    multiValueHeaders: {
+      'Content-Type': 'application/json'
+    }
   });
 });
 
@@ -59,7 +65,10 @@ test.serial(`handles null values`, test => {
       pageSize: '25',
       onlyKey: ''
     },
-    requestContext: {}
+    requestContext: {},
+    multiValueHeaders: {
+      'Content-Type': 'application/json'
+    }
   });
 });
 
@@ -74,6 +83,9 @@ test.serial(`handles null keys`, test => {
       pageSize: '25',
       '': 'onlyvalue'
     },
-    requestContext: {}
+    requestContext: {},
+    multiValueHeaders: {
+      'Content-Type': 'application/json'
+    }
   });
 });
