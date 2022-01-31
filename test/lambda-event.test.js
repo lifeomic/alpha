@@ -98,7 +98,7 @@ test.serial(`Adds content-type to multiValueHeaders`, test => {
     queryStringParameters: {},
     requestContext: {},
     multiValueHeaders: {
-      'Content-Type': 'application/json'
+      'Content-Type': ['application/json']
     }
   });
 });

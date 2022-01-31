@@ -27,7 +27,13 @@ module.exports = (config, relativeUrl) => {
      * Needed for invoking @vendia/serverless-express handlers.
      * https://github.com/apollographql/apollo-server/issues/5504
      */
-    multiValueHeaders: config.headers
+    multiValueHeaders: Object.entries({ ...config.headers }).reduce((prev, [name, value]) => {
+      const values = value.split(',').map((v) => v.trim());
+      return {
+        ...prev,
+        [name]: values
+      };
+    }, {})
   };
 
   if (Buffer.isBuffer(event.body)) {
