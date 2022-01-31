@@ -1,6 +1,5 @@
 const urlParse = require('url-parse');
 const querystring = require('querystring');
-const isEmpty = require('lodash/isEmpty');
 
 module.exports = (config, relativeUrl) => {
   // url-parse needs a location to properly handle relative urls, so provide a fake one here:
@@ -22,27 +21,14 @@ module.exports = (config, relativeUrl) => {
     httpMethod: config.method.toUpperCase(),
     path: parts.pathname,
     queryStringParameters: params,
-    requestContext: {}
+    requestContext: {},
+    /**
+     * Copy headers into multiValueHeaders.
+     * Needed for invoking @vendia/serverless-express handlers.
+     * https://github.com/apollographql/apollo-server/issues/5504
+     */
+    multiValueHeaders: config.headers
   };
-
-  /**
-   * Add content-type to multiValueHeaders.
-   * Needed for invoking @vendia/serverless-express handlers.
-   * https://github.com/apollographql/apollo-server/issues/5504
-   */
-  const multiValueHeaders = Object.entries({ ...config.headers }).reduce((prev, [name, value]) => {
-    if (name.toLocaleLowerCase() === 'content-type') {
-      return {
-        ...prev,
-        'Content-Type': value
-      };
-    }
-    return prev;
-  }, {});
-
-  if (!isEmpty(multiValueHeaders)) {
-    event.multiValueHeaders = multiValueHeaders;
-  }
 
   if (Buffer.isBuffer(event.body)) {
     event.body = event.body.toString('base64');

@@ -29,7 +29,8 @@ test.serial(`Can parse URLs with duplicate parameters`, async (test) => {
       ],
       pageSize: '25'
     },
-    requestContext: {}
+    requestContext: {},
+    multiValueHeaders: {}
   });
 });
 
@@ -45,7 +46,8 @@ test.serial(`Can parse URLs without duplicates`, async (test) => {
       pageSize: '25',
       test: 'diffValue'
     },
-    requestContext: {}
+    requestContext: {},
+    multiValueHeaders: {}
   });
 });
 
@@ -60,7 +62,8 @@ test.serial(`handles null values`, test => {
       pageSize: '25',
       onlyKey: ''
     },
-    requestContext: {}
+    requestContext: {},
+    multiValueHeaders: {}
   });
 });
 
@@ -75,7 +78,8 @@ test.serial(`handles null keys`, test => {
       pageSize: '25',
       '': 'onlyvalue'
     },
-    requestContext: {}
+    requestContext: {},
+    multiValueHeaders: {}
   });
 });
 
@@ -83,12 +87,12 @@ test.serial(`Adds content-type to multiValueHeaders`, test => {
   const config = {
     data: JSON.stringify({ data: 'test' }),
     method: 'POST',
-    headers: { 'content-type': 'application/json', 'test': 'test' },
+    headers: { 'Content-Type': 'application/json' },
     url: lambda + noParams
   };
   test.deepEqual(lambdaEvent(config, noParams), {
     body: JSON.stringify({ data: 'test' }),
-    headers: { 'content-type': 'application/json', 'test': 'test' },
+    headers: { 'Content-Type': 'application/json' },
     httpMethod: 'POST',
     path: '/lifeomic/dstu3/Questionnaire',
     queryStringParameters: {},
