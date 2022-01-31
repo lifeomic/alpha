@@ -1,5 +1,6 @@
 const urlParse = require('url-parse');
 const querystring = require('querystring');
+const { v4: uuid } = require('uuid');
 
 module.exports = (config, relativeUrl) => {
   // url-parse needs a location to properly handle relative urls, so provide a fake one here:
@@ -16,7 +17,9 @@ module.exports = (config, relativeUrl) => {
     httpMethod: config.method.toUpperCase(),
     path: parts.pathname,
     queryStringParameters: params,
-    requestContext: {}
+    requestContext: {
+      requestId: uuid()
+    }
   };
 
   if (Buffer.isBuffer(event.body)) {
