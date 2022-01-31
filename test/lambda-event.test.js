@@ -5,6 +5,7 @@ const duplicateParams = '/lifeomic/dstu3/Questionnaire?pageSize=25&_tag=http%3A%
 const params = '/lifeomic/dstu3/Questionnaire?pageSize=25&_tag=http%3A%2F%2Flifeomic.com%2Ffhir%2Fquestionnaire-type%7Csurvey-form&test=diffValue';
 const invalidValueParam = '/lifeomic/dstu3/Questionnaire?pageSize=25&=onlyvalue';
 const invalidKeyParam = '/lifeomic/dstu3/Questionnaire?pageSize=25&onlyKey=';
+const noParams = '/lifeomic/dstu3/Questionnaire';
 
 const lambda = `lambda://service:deployed/`;
 const config = {
@@ -28,10 +29,7 @@ test.serial(`Can parse URLs with duplicate parameters`, async (test) => {
       ],
       pageSize: '25'
     },
-    requestContext: {},
-    multiValueHeaders: {
-      'Content-Type': 'application/json'
-    }
+    requestContext: {}
   });
 });
 
@@ -47,10 +45,7 @@ test.serial(`Can parse URLs without duplicates`, async (test) => {
       pageSize: '25',
       test: 'diffValue'
     },
-    requestContext: {},
-    multiValueHeaders: {
-      'Content-Type': 'application/json'
-    }
+    requestContext: {}
   });
 });
 
@@ -65,10 +60,7 @@ test.serial(`handles null values`, test => {
       pageSize: '25',
       onlyKey: ''
     },
-    requestContext: {},
-    multiValueHeaders: {
-      'Content-Type': 'application/json'
-    }
+    requestContext: {}
   });
 });
 
@@ -83,6 +75,23 @@ test.serial(`handles null keys`, test => {
       pageSize: '25',
       '': 'onlyvalue'
     },
+    requestContext: {}
+  });
+});
+
+test.serial(`Adds content-type to multiValueHeaders`, test => {
+  const config = {
+    data: JSON.stringify({ data: 'test' }),
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'test': 'test' },
+    url: lambda + noParams
+  };
+  test.deepEqual(lambdaEvent(config, noParams), {
+    body: JSON.stringify({ data: 'test' }),
+    headers: { 'content-type': 'application/json', 'test': 'test' },
+    httpMethod: 'POST',
+    path: '/lifeomic/dstu3/Questionnaire',
+    queryStringParameters: {},
     requestContext: {},
     multiValueHeaders: {
       'Content-Type': 'application/json'
