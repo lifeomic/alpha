@@ -1,3 +1,4 @@
+const get = require('lodash/get');
 const lambdaEvent = require('../src/adapters/helpers/lambdaEvent');
 const test = require('ava');
 
@@ -7,6 +8,8 @@ const invalidValueParam = '/lifeomic/dstu3/Questionnaire?pageSize=25&=onlyvalue'
 const invalidKeyParam = '/lifeomic/dstu3/Questionnaire?pageSize=25&onlyKey=';
 const noParams = '/lifeomic/dstu3/Questionnaire';
 
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
 const lambda = `lambda://service:deployed/`;
 const config = {
   method: 'get',
@@ -14,9 +17,15 @@ const config = {
   url: ''
 };
 
+function assertRequestId (test, eventPayload) {
+  const requestId = get(eventPayload, 'requestContext.requestId');
+  test.true(uuidPattern.test(requestId));
+}
+
 test.serial(`Can parse URLs with duplicate parameters`, async (test) => {
   config.url = lambda + duplicateParams;
-  test.deepEqual(lambdaEvent(config, duplicateParams), {
+  const result = lambdaEvent(config, duplicateParams);
+  test.like(result, {
     body: '',
     headers: {},
     httpMethod: 'GET',
@@ -28,15 +37,15 @@ test.serial(`Can parse URLs with duplicate parameters`, async (test) => {
         'http://lifeomic.com/fhir/primary|0343bfcf-4e2d-4b91-a623-095272783bf3'
       ],
       pageSize: '25'
-    },
-    requestContext: {},
-    multiValueHeaders: {}
+    }
   });
+  assertRequestId(test, result);
 });
 
 test.serial(`Can parse URLs without duplicates`, async (test) => {
   config.url = lambda + params;
-  test.deepEqual(lambdaEvent(config, params), {
+  const result = lambdaEvent(config, params);
+  test.like(result, {
     body: '',
     headers: {},
     httpMethod: 'GET',
@@ -45,15 +54,15 @@ test.serial(`Can parse URLs without duplicates`, async (test) => {
       _tag: 'http://lifeomic.com/fhir/questionnaire-type|survey-form',
       pageSize: '25',
       test: 'diffValue'
-    },
-    requestContext: {},
-    multiValueHeaders: {}
+    }
   });
+  assertRequestId(test, result);
 });
 
 test.serial(`handles null values`, test => {
   config.url = lambda + invalidKeyParam;
-  test.deepEqual(lambdaEvent(config, invalidKeyParam), {
+  const result = lambdaEvent(config, invalidKeyParam);
+  test.like(result, {
     body: '',
     headers: {},
     httpMethod: 'GET',
@@ -61,15 +70,15 @@ test.serial(`handles null values`, test => {
     queryStringParameters: {
       pageSize: '25',
       onlyKey: ''
-    },
-    requestContext: {},
-    multiValueHeaders: {}
+    }
   });
+  assertRequestId(test, result);
 });
 
 test.serial(`handles null keys`, test => {
   config.url = lambda + invalidValueParam;
-  test.deepEqual(lambdaEvent(config, invalidValueParam), {
+  const result = lambdaEvent(config, invalidValueParam);
+  test.like(result, {
     body: '',
     headers: {},
     httpMethod: 'GET',
@@ -77,9 +86,7 @@ test.serial(`handles null keys`, test => {
     queryStringParameters: {
       pageSize: '25',
       '': 'onlyvalue'
-    },
-    requestContext: {},
-    multiValueHeaders: {}
+    }
   });
 });
 
@@ -90,15 +97,16 @@ test.serial(`Adds content-type to multiValueHeaders`, test => {
     headers: { 'Content-Type': 'application/json' },
     url: lambda + noParams
   };
-  test.deepEqual(lambdaEvent(config, noParams), {
+  const result = lambdaEvent(config, noParams);
+  test.like(result, {
     body: JSON.stringify({ data: 'test' }),
     headers: { 'Content-Type': 'application/json' },
     httpMethod: 'POST',
     path: '/lifeomic/dstu3/Questionnaire',
     queryStringParameters: {},
-    requestContext: {},
     multiValueHeaders: {
       'Content-Type': ['application/json']
     }
   });
+  assertRequestId(test, result);
 });
