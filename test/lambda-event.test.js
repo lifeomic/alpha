@@ -6,6 +6,7 @@ const duplicateParams = '/lifeomic/dstu3/Questionnaire?pageSize=25&_tag=http%3A%
 const params = '/lifeomic/dstu3/Questionnaire?pageSize=25&_tag=http%3A%2F%2Flifeomic.com%2Ffhir%2Fquestionnaire-type%7Csurvey-form&test=diffValue';
 const invalidValueParam = '/lifeomic/dstu3/Questionnaire?pageSize=25&=onlyvalue';
 const invalidKeyParam = '/lifeomic/dstu3/Questionnaire?pageSize=25&onlyKey=';
+const noParams = '/lifeomic/dstu3/Questionnaire';
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -85,6 +86,26 @@ test.serial(`handles null keys`, test => {
     queryStringParameters: {
       pageSize: '25',
       '': 'onlyvalue'
+    }
+  });
+});
+
+test.serial(`Adds content-type to multiValueHeaders`, test => {
+  const config = {
+    data: JSON.stringify({ data: 'test' }),
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    url: lambda + noParams
+  };
+  const result = lambdaEvent(config, noParams);
+  test.like(result, {
+    body: JSON.stringify({ data: 'test' }),
+    headers: { 'Content-Type': 'application/json' },
+    httpMethod: 'POST',
+    path: '/lifeomic/dstu3/Questionnaire',
+    queryStringParameters: {},
+    multiValueHeaders: {
+      'Content-Type': ['application/json']
     }
   });
   assertRequestId(test, result);

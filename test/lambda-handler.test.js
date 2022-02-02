@@ -36,6 +36,7 @@ test('works with a callback style handler that executes the callback async', asy
     httpMethod: 'GET',
     path: '/some/path',
     queryStringParameters: {},
+    multiValueHeaders: sinon.match.object,
     requestContext: {
       requestId: sinon.match.string
     }
@@ -86,7 +87,54 @@ function registerSpecs (isCallbackStyleHandler) {
       queryStringParameters: {},
       requestContext: {
         requestId: sinon.match.string
+      },
+      multiValueHeaders: sinon.match.object
+    };
+
+    const context = {};
+
+    sinon.assert.calledWithExactly(
+      test.context.handler,
+      event,
+      context,
+      sinon.match.func
+    );
+  });
+
+  test(`Making a POST request to a local handler invokes the handler (callbackStyle=${isCallbackStyleHandler})`, async (test) => {
+    const response = {
+      headers: { 'test-header': 'some value' },
+      body: {
+        hello: 'hello'
+      },
+      statusCode: 200
+    };
+
+    setupHandlerBehavior({
+      handlerStub: test.context.handler,
+      isCallbackStyleHandler,
+      response
+    });
+    const result = await test.context.client.post('/some/path', { data: 'test' }, {
+      headers: {
+        'Content-Type': 'application/json'
       }
+    });
+
+    test.is(result.status, 200);
+    test.deepEqual(result.headers, response.headers);
+    test.is(result.data, response.body);
+
+    const event = {
+      body: JSON.stringify({ data: 'test' }),
+      headers: sinon.match.object,
+      httpMethod: 'POST',
+      path: '/some/path',
+      queryStringParameters: {},
+      requestContext: {
+        requestId: sinon.match.string
+      },
+      multiValueHeaders: sinon.match.object
     };
 
     const context = {};
@@ -180,6 +228,7 @@ function registerSpecs (isCallbackStyleHandler) {
         httpMethod: 'GET',
         path: '/some/path',
         queryStringParameters: {},
+        multiValueHeaders: sinon.match.object,
         requestContext: {
           requestId: sinon.match.string
         }
@@ -195,6 +244,7 @@ function registerSpecs (isCallbackStyleHandler) {
         httpMethod: 'GET',
         path: '/other/path',
         queryStringParameters: {},
+        multiValueHeaders: sinon.match.object,
         requestContext: {
           requestId: sinon.match.string
         }
@@ -239,6 +289,7 @@ function registerSpecs (isCallbackStyleHandler) {
         httpMethod: 'GET',
         path: '/some/path',
         queryStringParameters: {},
+        multiValueHeaders: sinon.match.object,
         requestContext: {
           requestId: sinon.match.string
         }
@@ -254,6 +305,7 @@ function registerSpecs (isCallbackStyleHandler) {
         httpMethod: 'GET',
         path: '/other/path',
         queryStringParameters: {},
+        multiValueHeaders: sinon.match.object,
         requestContext: {
           requestId: sinon.match.string
         }
@@ -286,6 +338,7 @@ function registerSpecs (isCallbackStyleHandler) {
       isBase64Encoded: true,
       path: '/some/path',
       queryStringParameters: {},
+      multiValueHeaders: sinon.match.object,
       requestContext: {
         requestId: sinon.match.string
       }

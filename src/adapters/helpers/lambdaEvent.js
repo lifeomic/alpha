@@ -11,6 +11,11 @@ module.exports = (config, relativeUrl) => {
   );
   const params = Object.assign({}, parts.query, config.params);
 
+  /**
+   * A mock API Gateway v1 proxy event.
+   * See here for more info: https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html#apigateway-example-event
+   * The APIGatewayProxyEvent type can be imported from the aws-lambda npm package.
+   */
   const event = {
     body: config.data || '',
     headers: config.headers,
@@ -19,7 +24,19 @@ module.exports = (config, relativeUrl) => {
     queryStringParameters: params,
     requestContext: {
       requestId: uuid()
-    }
+    },
+    /**
+     * Copy headers into multiValueHeaders.
+     * Needed for invoking @vendia/serverless-express handlers.
+     * https://github.com/apollographql/apollo-server/issues/5504
+     */
+    multiValueHeaders: Object.entries({ ...config.headers }).reduce((prev, [name, value]) => {
+      const values = value.split(',').map((v) => v.trim());
+      return {
+        ...prev,
+        [name]: values
+      };
+    }, {})
   };
 
   if (Buffer.isBuffer(event.body)) {
