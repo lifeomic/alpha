@@ -537,3 +537,24 @@ test.serial('lambda function invocation errors are re-thrown', async (test) => {
 
   test.is(error.message, 'Other error');
 });
+
+test.serial('lambdaEndpoint config option is provided to the Lambda client', async (test) => {
+  const alpha = new Alpha('lambda://test-function', {
+    lambdaEndpoint: 'http://test-endpoint'
+  });
+
+  test.context.invoke.callsArgWith(1, null, {
+    StatusCode: 200,
+    Payload: JSON.stringify({
+      body: 'test',
+      statusCode: 200
+    })
+  });
+
+  const response = await alpha.get('/test');
+
+  test.is(response.data, 'test');
+  test.is(response.status, 200);
+
+  sinon.assert.calledWith(AWS_SDK.Lambda, { endpoint: 'http://test-endpoint' });
+});
