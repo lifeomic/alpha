@@ -11,7 +11,11 @@ interface RetryOptions {
 
 export interface AlphaOptions extends AxiosRequestConfig {
   retry?: RetryOptions,
-  lambda?: Function
+  lambda?: Function,
+  /**
+   * (Optional) The AWS endpoint to use when invoking the target Lambda function.
+   */
+  lambdaEndpoint?: string;
 }
 
 export type AlphaInstance = AxiosInstance;

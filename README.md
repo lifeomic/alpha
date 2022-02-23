@@ -90,9 +90,16 @@ const alpha = new Alpha('http://example.com', { retry: {
 
 #### Mocking Lambda
 
-To redirect the Lambda requests to a mocked implementation, set the
-`LAMBDA_ENDPOINT` environment variable.  The value of this environment variable
-will be used when creating the AWS Lambda client.
+To redirect the Lambda requests to a mocked implementation, either set the
+`LAMBDA_ENDPOINT` environment variable, or use the `lambdaEndpoint` config option:
+
+```javascript
+const alpha = new Alpha('lambda:my-lambda', { 
+  lambdaEndpoint: 'http://localstack:4566'
+});
+```
+
+The value of this option will be used when creating the AWS Lambda client.
 
 ### `Alpha.dockerLambda(options, clientOptions)`
 

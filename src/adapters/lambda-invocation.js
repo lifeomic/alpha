@@ -10,7 +10,7 @@ const RequestError = require('./helpers/RequestError');
 async function lambdaInvocationAdapter (config) {
   const Lambda = config.Lambda || AWS.Lambda;
   const lambdaOptions = {
-    endpoint: process.env.LAMBDA_ENDPOINT
+    endpoint: config.lambdaEndpoint || process.env.LAMBDA_ENDPOINT
   };
 
   if (config.timeout) {
