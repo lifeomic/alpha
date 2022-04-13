@@ -4,6 +4,9 @@
     "noEmit": false
   },
   "include": [
-    "src/**/*"
-  ]
+    "./src/**/*.ts",
+  ],
+  "exclude": [
+    "./src/**/*.d.ts",
+  ],
 }

@@ -26,7 +26,8 @@
     "prepare": "yarn buildGrammar",
     "pretest": "yarn buildGrammar && yarn lint",
     "test": "nyc ava",
-    "prepublishOnly": "yarn prepare && tsc -p tsconfig.build.json"
+    "prepublishOnly": "yarn clean && yarn prepare && yarn tsc -p tsconfig.build.json",
+    "clean": "yarn tsc --build --clean"
   },
   "ava": {
     "verbose": true,

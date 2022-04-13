@@ -4,5 +4,8 @@
 node_modules/
 .vscode/
 .DS_Store
-/src/adapters/helpers/lambdaURLGrammar.js
+/src/**/*.js
+/src/**/*.d.ts
+!/src/Alpha.d.ts
+!/src/Alpha.js
 .idea

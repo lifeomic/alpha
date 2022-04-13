@@ -1,6 +1,6 @@
-import { AxiosPromise, AxiosRequestConfig } from 'axios';
-import AWSLambda from 'aws-sdk/clients/lambda';
-import { Context, Handler } from 'aws-lambda';
+import type { AxiosPromise, AxiosRequestConfig } from 'axios';
+import type AWSLambda from 'aws-sdk/clients/lambda';
+import type { Context, Handler } from 'aws-lambda';
 
 export interface RetryOptions {
   attempts?: number;

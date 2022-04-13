@@ -1,22 +1,16 @@
 {
   "extends": "@lifeomic/typescript-config",
   "compilerOptions": {
-    "baseUrl": ".",
     "declaration": true,
     "lib": ["es2022", "dom"],
     "module": "commonjs",
     "noEmit": true,
     "resolveJsonModule": true,
-    "rootDir": ".",
     "strict": true,
     "target": "es2019",
     "types": ["node"]
   },
-  "include": [
-    "src/**/*.ts",
-    "test/**/*.ts"
-  ],
   "exclude": [
-    "node_modules"
+    "./node_modules"
   ]
 }
