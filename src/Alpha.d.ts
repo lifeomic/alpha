@@ -1,22 +1,8 @@
-import { AxiosInstance, AxiosRequestConfig, AxiosStatic } from 'axios';
+import { AxiosInstance, AxiosStatic } from 'axios';
 export { AxiosResponse, AxiosError, AxiosPromise } from 'axios';
 import { SpawnSyncOptions } from 'child_process';
-
-interface RetryOptions {
-  attempts?: number,
-  factor?: number,
-  maxTimeout?: number,
-  retryCondition?: (err: Error) => boolean
-}
-
-export interface AlphaOptions extends AxiosRequestConfig {
-  retry?: RetryOptions,
-  lambda?: Function,
-  /**
-   * (Optional) The AWS endpoint to use when invoking the target Lambda function.
-   */
-  lambdaEndpoint?: string;
-}
+import { AlphaOptions } from './types';
+export { AlphaOptions, RetryOptions } from './types';
 
 export type AlphaInstance = AxiosInstance;
 

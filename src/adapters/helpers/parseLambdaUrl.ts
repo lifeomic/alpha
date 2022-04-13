@@ -1,12 +1,13 @@
-const nearley = require('nearley');
-const grammar = require('./lambdaURLGrammar');
+import nearley from 'nearley';
 
-module.exports = (url) => {
+import grammar = require('./lambdaURLGrammar');
+
+export const parseLambdaUrl = (url: string) => {
   const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
   try {
     // large query strings can slow the parser down significantly
     const urlSplitOnQuery = url.split('?');
-    parser.feed(urlSplitOnQuery.shift());
+    parser.feed(urlSplitOnQuery.shift()!);
     const parts = parser.results;
     if (urlSplitOnQuery.length) {
       parts[0].path += `?${urlSplitOnQuery.join('?')}`;

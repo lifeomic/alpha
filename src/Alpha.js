@@ -1,15 +1,15 @@
-const adapters = require('./adapters');
-const cloneDeep = require('lodash/cloneDeep');
-const isAbsoluteURL = require('./adapters/helpers/isAbsoluteURL');
-const isString = require('lodash/isString');
-const merge = require('lodash/merge');
-const parseLambdaUrl = require('./adapters/helpers/parseLambdaUrl');
+const { URL } = require('url');
 const pick = require('lodash/pick');
-const RequestError = require('./adapters/helpers/RequestError');
+const merge = require('lodash/merge');
+const isString = require('lodash/isString');
+const { Axios, defaults } = require('axios');
+const cloneDeep = require('lodash/cloneDeep');
 const resolvePathname = require('resolve-pathname');
 
-const { Axios, defaults } = require('axios');
-const { URL } = require('url');
+const adapters = require('./adapters');
+const { isAbsoluteURL } = require('./adapters/helpers/isAbsoluteURL');
+const { parseLambdaUrl } = require('./adapters/helpers/parseLambdaUrl');
+const { RequestError } = require('./adapters/helpers/RequestError');
 
 const ALPHA_CONFIG = [ 'adapter', 'lambda', 'Lambda', 'retry', '__retryCount' ];
 

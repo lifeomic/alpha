@@ -1,15 +1,18 @@
-const assert = require('assert');
-const AWS = require('aws-sdk');
-const isAbsoluteURL = require('./helpers/isAbsoluteURL');
-const chainAdapters = require('./helpers/chainAdapters');
-const lambdaEvent = require('./helpers/lambdaEvent');
-const lambdaResponse = require('./helpers/lambdaResponse');
-const parseLambdaUrl = require('./helpers/parseLambdaUrl');
-const RequestError = require('./helpers/RequestError');
+import assert from 'assert';
+import AWS from 'aws-sdk';
+import { InvocationRequest, InvocationResponse } from 'aws-sdk/clients/lambda';
+import { isAbsoluteURL } from './helpers/isAbsoluteURL';
+import { chainAdapters } from './helpers/chainAdapters';
+import { lambdaEvent } from './helpers/lambdaEvent';
+import { lambdaResponse } from './helpers/lambdaResponse';
+import { parseLambdaUrl } from './helpers/parseLambdaUrl';
+import { RequestError } from './helpers/RequestError';
+import { AlphaOptions, AlphaAdapter } from '../types';
+import { AxiosInstance } from 'axios';
 
-async function lambdaInvocationAdapter (config) {
+const lambdaInvocationAdapter: AlphaAdapter = async (config) => {
   const Lambda = config.Lambda || AWS.Lambda;
-  const lambdaOptions = {
+  const lambdaOptions: AWS.Lambda.Types.ClientConfiguration = {
     endpoint: config.lambdaEndpoint || process.env.LAMBDA_ENDPOINT
   };
 
@@ -24,17 +27,17 @@ async function lambdaInvocationAdapter (config) {
   }
 
   const lambda = new Lambda(lambdaOptions);
-  if (config.baseURL && !isAbsoluteURL(config.url)) {
+  if (config.baseURL && !isAbsoluteURL(config.url!)) {
     config.url = `${config.baseURL}${config.url}`;
   }
-  const parts = parseLambdaUrl(config.url);
+  const parts = parseLambdaUrl(config.url!);
   assert(parts, `The config.url, '${config.url}' does not appear to be a Lambda Function URL`);
 
   const functionName = parts.name;
   const functionQualifier = parts.qualifier;
   const path = parts.path;
 
-  const request = {
+  const request: InvocationRequest = {
     FunctionName: functionName,
     InvocationType: 'RequestResponse',
     Payload: JSON.stringify(lambdaEvent(config, path))
@@ -45,7 +48,7 @@ async function lambdaInvocationAdapter (config) {
   }
 
   const awsRequest = lambda.invoke(request);
-  const result = await new Promise(async (resolve, reject) => {
+  const result = await new Promise<InvocationResponse>(async (resolve, reject) => {
     let timeout;
     try {
       if (config.timeout) {
@@ -70,7 +73,7 @@ async function lambdaInvocationAdapter (config) {
     }
   });
 
-  const payload = JSON.parse(result.Payload);
+  const payload = JSON.parse(result.Payload as string);
   if (!payload) {
     const message = `Unexpected Payload shape from ${config.url}. The full response was\n${JSON.stringify(result, null, '  ')}`;
     throw new RequestError(message, config, request);
@@ -80,8 +83,8 @@ async function lambdaInvocationAdapter (config) {
     // With Unhandled errors, AWS will provide an errorMessage attribute
     // in the payload with details.
     //
-    // With `Handled` errors the thrown expection will be converted into a
-    // payload for each langage. Each language seems to provide a `errorMessage`
+    // With `Handled` errors the thrown expectation will be converted into a
+    // payload for each language. Each language seems to provide a `errorMessage`
     // attribute. The details of the Node.js behavior can be found at:
     // https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-mode-exceptions.html
     throw new RequestError(payload.errorMessage, config, request);
@@ -90,14 +93,14 @@ async function lambdaInvocationAdapter (config) {
   return lambdaResponse(config, request, payload);
 }
 
-function lambdaInvocationRequestInterceptor (config) {
+function lambdaInvocationRequestInterceptor (config: AlphaOptions) {
   return chainAdapters(
     config,
-    (config) => config.url.startsWith('lambda:') || (config.baseURL && config.baseURL.startsWith('lambda:')),
+    (config) => config.url!.startsWith('lambda:') || (config.baseURL?.startsWith('lambda:')),
     lambdaInvocationAdapter
   );
 }
 
-module.exports = (client) => {
+export const setup = (client: AxiosInstance) => {
   client.interceptors.request.use(lambdaInvocationRequestInterceptor);
 };

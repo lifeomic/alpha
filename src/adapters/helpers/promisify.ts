@@ -1,15 +1,17 @@
-const isPromiseLike = (maybe) => {
+import { Context, Handler } from 'aws-lambda';
+
+const isPromiseLike = (maybe: void | Promise<any>): maybe is Promise<any> => {
   return (
     maybe !== null &&
     (typeof maybe === 'object' || typeof maybe === 'function') &&
-    typeof maybe.then === 'function'
+    ('then' in maybe && typeof maybe.then === 'function')
   );
 };
 
-module.exports = (fn) => {
-  return (...parameters) =>
+export const promisify = (fn: Handler) => {
+  return (event: any, context: Context) =>
     new Promise((resolve, reject) => {
-      const callback = (error, result) => {
+      const callback = (error: any, result: any) => {
         if (error) {
           return reject(error);
         }
@@ -17,9 +19,7 @@ module.exports = (fn) => {
         return resolve(result);
       };
 
-      parameters.push(callback);
-
-      const returnVal = fn(...parameters);
+      const returnVal = fn(event, context, callback);
 
       // if the function returns a promise like
       // value, resolve the top level promise

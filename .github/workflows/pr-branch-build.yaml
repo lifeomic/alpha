@@ -6,21 +6,21 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: Node.JS ${{ matrix.node-version }}
+    name: Node.JS ${{ matrix.node-version }} Axios ${{ matrix.axios-version }}
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x]
+        node-version: [12.x, 14.x, 16.x]
+        axios-version: [0.24.0, 0.25.0, 0.26.1]
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Install
-        run: yarn install
-      - name: Test
-        run: yarn test
-      - name: Coverage
-        run: yarn coverage
+          cache: 'yarn'
+      - run: yarn install
+      - run: yarn add -D axios@${{ matrix.axios-version }}
+      - run: yarn test
+      - run: yarn coverage
       - name: Coveralls
         uses: coverallsapp/github-action@v1.1.2
         with:

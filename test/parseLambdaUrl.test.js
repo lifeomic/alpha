@@ -1,4 +1,4 @@
-const parseLambdaUrl = require('../src/adapters/helpers/parseLambdaUrl');
+const { parseLambdaUrl } = require('../src/adapters/helpers/parseLambdaUrl');
 const test = require('ava');
 
 test('Parsing an invalid URL returns null', (test) => {
@@ -19,6 +19,10 @@ const NAME_STYLES = [
   {
     description: 'function ARN',
     name: 'arn:aws:lambda:us-west-2:123456789012:function:user-service'
+  },
+  {
+    description: 'gov cloud function ARN',
+    name: 'arn:aws-us-gov:lambda:us-west-2:123456789012:function:user-service'
   },
   {
     description: 'partial function ARN',
