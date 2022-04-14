@@ -1,4 +1,4 @@
-const Alpha = require('../src/Alpha');
+const { Alpha } = require('../src');
 const AWS_SDK = require('aws-sdk');
 const AWS = require('aws-sdk-mock');
 const nock = require('nock');

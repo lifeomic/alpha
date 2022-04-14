@@ -6,6 +6,5 @@ node_modules/
 .DS_Store
 /src/**/*.js
 /src/**/*.d.ts
-!/src/Alpha.d.ts
-!/src/Alpha.js
 .idea
+yarn-error.log

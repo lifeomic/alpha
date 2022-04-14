@@ -1,8 +1,9 @@
 import isBoolean from 'lodash/isBoolean';
 import defaults from 'lodash/defaults';
 import { RequestError } from './helpers/RequestError';
-import { AlphaOptions } from '../types';
-import { AxiosInstance } from 'axios';
+import type { AlphaOptions } from '../types';
+import type { Alpha } from '../Alpha';
+import { AxiosError } from 'axios';
 
 export interface RetryOptions {
   attempts: number;
@@ -11,7 +12,7 @@ export interface RetryOptions {
   retryCondition: (err: Error) => boolean;
 }
 
-interface RetryAlphaOptions extends Omit<AlphaOptions, 'retry'> {
+export interface RetryAlphaOptions extends Omit<AlphaOptions, 'retry'> {
   __retryCount: number;
   retry: RetryOptions;
 }
@@ -53,10 +54,10 @@ async function exponentialBackoff (config: RetryAlphaOptions) {
 /**
  * Attempts to retry a failed request a configurable number of times.
  */
-export const setup = (client: AxiosInstance) => {
+export const setup = (client: Alpha) => {
   client.interceptors.response.use(
     undefined,
-    async (err: any | RequestError) => {
+    async (err: any | AxiosError) => {
       if (!('config' in err && err.config.retry)) {
         return Promise.reject(err);
       }

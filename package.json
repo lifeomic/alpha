@@ -1,9 +1,9 @@
 {
   "name": "@lifeomic/alpha",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Unified client for HTTP services.",
-  "main": "src/Alpha.js",
-  "types": "src/Alpha.d.ts",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
   "author": "LifeOmic <development@lifeomic.com>",
   "license": "MIT",
   "engines": {
@@ -39,7 +39,7 @@
       "test/**/*.test.[jt]s"
     ],
     "require": [
-      "ts-node/register",
+      "ts-node/register/transpile-only",
       "./test/setup.js"
     ],
     "timeout": "30s"
@@ -72,7 +72,7 @@
     "ava": "^3.15.0",
     "aws-sdk": "^2.1001.0",
     "aws-sdk-mock": "^4.0.0",
-    "axios": "^0.26.1",
+    "axios": "^0.24.0",
     "coveralls": "^3.1.0",
     "docker-lambda": "^0.15.3",
     "eslint": "^7.19.0",
@@ -91,7 +91,6 @@
     "@types/uuid": "^8.3.4",
     "lodash": "^4.17.21",
     "nearley": "2",
-    "resolve-pathname": "^3.0.0",
     "url-parse": "^1.5.10",
     "uuid": "^8.3.2"
   },

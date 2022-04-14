@@ -8,7 +8,7 @@ import { lambdaResponse } from './helpers/lambdaResponse';
 import { parseLambdaUrl } from './helpers/parseLambdaUrl';
 import { RequestError } from './helpers/RequestError';
 import { AlphaOptions, AlphaAdapter } from '../types';
-import { AxiosInstance } from 'axios';
+import { Alpha } from '../Alpha';
 
 const lambdaInvocationAdapter: AlphaAdapter = async (config) => {
   const Lambda = config.Lambda || AWS.Lambda;
@@ -101,6 +101,6 @@ function lambdaInvocationRequestInterceptor (config: AlphaOptions) {
   );
 }
 
-export const setup = (client: AxiosInstance) => {
+export const setup = (client: Alpha) => {
   client.interceptors.request.use(lambdaInvocationRequestInterceptor);
 };
