@@ -1,8 +1,13 @@
-const http = require('http');
-const RequestError = require('./RequestError');
-const { TextEncoder } = require('util');
+import http from 'http';
+import { RequestError } from './RequestError';
+import { TextEncoder } from 'util';
 
-const payloadToData = (config, payload) => {
+import type { AlphaOptions } from '../../types';
+import type { InvocationRequest } from 'aws-sdk/clients/lambda';
+import type { AxiosResponse } from 'axios';
+import { HandlerRequest } from '../../types';
+
+const payloadToData = (config: AlphaOptions, payload: any) => {
   if (!config.responseType) return payload.body;
 
   switch (config.responseType) {
@@ -11,16 +16,20 @@ const payloadToData = (config, payload) => {
   }
 };
 
-module.exports = (config, request, payload) => {
+export const lambdaResponse = (
+  config: AlphaOptions,
+  request: InvocationRequest | HandlerRequest,
+  payload: any,
+): AxiosResponse => {
   const data = payloadToData(config, payload);
 
-  const response = {
+  const response: AxiosResponse = {
     config,
     data,
     headers: payload.headers,
     request,
     status: payload.statusCode,
-    statusText: http.STATUS_CODES[payload.statusCode]
+    statusText: http.STATUS_CODES[payload.statusCode]!
   };
 
   if (typeof config.validateStatus === 'function' && !config.validateStatus(response.status)) {

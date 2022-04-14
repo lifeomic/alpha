@@ -101,19 +101,18 @@ test.serial('Making a GET request with responseType \'stream\' throws an unsuppo
   await test.throwsAsync(response, { message: 'Unhandled responseType requested: stream' });
 });
 
-async function assertInvalidUrl (test, url) {
-  // Override the shared alpha client to include a qualifier
-  test.context.alpha = new Alpha(url);
-  const response = test.context.alpha.get('/some/path');
-  await test.throwsAsync(response, { message: `The config.url, '${url}/some/path' does not appear to be a Lambda Function URL` });
-}
-
 test('Invalid URLs cause Errors to be thrown', async (test) => {
-  await assertInvalidUrl(test, 'lambda://test-function.test');
-  await assertInvalidUrl(test, 'lambda://test-function.test/test');
-  await assertInvalidUrl(test, 'lambda://test-function.test:2345');
-  await assertInvalidUrl(test, 'lambda://test-function.test:2345:another');
-  await assertInvalidUrl(test, 'lambda://test-function.test:2345:another/test');
+  async function assertInvalidUrl (url) {
+    // Override the shared alpha client to include a qualifier
+    test.context.alpha = new Alpha(url);
+    const response = test.context.alpha.get('/some/path');
+    await test.throwsAsync(response, { message: `The config.url, '${url}/some/path' does not appear to be a Lambda Function URL` });
+  }
+  await assertInvalidUrl('lambda://test-function.test');
+  await assertInvalidUrl('lambda://test-function.test/test');
+  await assertInvalidUrl('lambda://test-function.test:2345');
+  await assertInvalidUrl('lambda://test-function.test:2345:another');
+  await assertInvalidUrl('lambda://test-function.test:2345:another/test');
 });
 
 async function testLambdaWithQualifier (test, qualifier) {

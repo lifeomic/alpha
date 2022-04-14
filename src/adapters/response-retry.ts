@@ -1,7 +1,20 @@
-'use strict';
+import isBoolean from 'lodash/isBoolean';
+import defaults from 'lodash/defaults';
+import { RequestError } from './helpers/RequestError';
+import { AlphaOptions } from '../types';
+import { AxiosInstance } from 'axios';
 
-const isBoolean = require('lodash/isBoolean');
-const defaults = require('lodash/defaults');
+export interface RetryOptions {
+  attempts: number;
+  factor: number;
+  maxTimeout: number;
+  retryCondition: (err: Error) => boolean;
+}
+
+interface RetryAlphaOptions extends Omit<AlphaOptions, 'retry'> {
+  __retryCount: number;
+  retry: RetryOptions;
+}
 
 const DEFAULTS = {
   attempts: 3,
@@ -10,23 +23,21 @@ const DEFAULTS = {
   retryCondition: isRetryableError
 };
 
-function isRetryableError (error) {
+function isRetryableError (error: any | RequestError) {
   if (error.isLambdaInvokeTimeout) return true;
 
   return error.code !== 'ECONNABORTED' &&
     (!error.response || (error.response.status >= 500 && error.response.status <= 599));
 }
 
-function setDefaults (config) {
-  config.__retryCount = config.__retryCount || 0;
-
+function setDefaults (config: AlphaOptions) {
   if (isBoolean(config.retry)) {
     config.retry = {};
   }
   config.retry = defaults(config.retry, DEFAULTS);
 }
 
-async function exponentialBackoff (config) {
+async function exponentialBackoff (config: RetryAlphaOptions) {
   config.__retryCount += 1;
 
   // Get random between 1 and 1000
@@ -36,24 +47,24 @@ async function exponentialBackoff (config) {
   const backoff = Math.pow(config.retry.factor, config.__retryCount) * random * jitter;
   const delay = Math.min(backoff, config.retry.maxTimeout);
 
-  return new Promise((resolve) => {
-    setTimeout(() => { resolve(); }, delay);
-  });
+  return new Promise((resolve) => setTimeout(resolve, delay));
 }
 
 /**
  * Attempts to retry a failed request a configurable number of times.
  */
-module.exports = (client) => {
+export const setup = (client: AxiosInstance) => {
   client.interceptors.response.use(
     undefined,
-    async err => {
-      const config = err.config;
-      if (!config || !config.retry) {
+    async (err: any | RequestError) => {
+      if (!('config' in err && err.config.retry)) {
         return Promise.reject(err);
       }
 
+      const config = err.config as RetryAlphaOptions;
+
       setDefaults(config);
+      config.__retryCount = config.__retryCount || 0;
 
       if (!config.retry.retryCondition(err) ||
           config.__retryCount >= config.retry.attempts) {

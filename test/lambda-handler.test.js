@@ -3,6 +3,39 @@ const nock = require('nock');
 const sinon = require('sinon');
 const test = require('ava');
 
+const response = {
+  headers: { 'test-header': 'some value' },
+  body: 'hello!',
+  statusCode: 200
+};
+
+const event = {
+  body: '',
+  headers: sinon.match.object,
+  httpMethod: 'GET',
+  path: '/some/path',
+  queryStringParameters: {},
+  multiValueHeaders: sinon.match.object,
+  requestContext: {
+    requestId: sinon.match.string
+  }
+};
+
+const contextKeys = [
+  'awsRequestId',
+  'callbackWaitsForEmptyEventLoop',
+  'functionName',
+  'functionVersion',
+  'invokedFunctionArn',
+  'memoryLimitInMB',
+  'logGroupName',
+  'logStreamName',
+  'getRemainingTimeInMillis',
+  'done',
+  'fail',
+  'succeed'
+];
+
 test.before(() => {
   nock.disableNetConnect();
 });
@@ -16,40 +49,40 @@ test.beforeEach((test) => {
   test.context.client = new Alpha(test.context.handler);
 });
 
-test('works with a callback style handler that executes the callback async', async (test) => {
-  const response = {
-    headers: { 'test-header': 'some value' },
-    body: 'hello!',
-    statusCode: 200
-  };
+const setupHandler = (t, expectedEvent, response, useCallback = false) => {
+  t.context.handler.callsFake((event, context, cb) => {
+    sinon.assert.match(cb, sinon.match.func);
+    sinon.assert.match(event, sinon.match(event));
+    sinon.assert.match(Object.keys(context), sinon.match.array.contains(contextKeys));
+    t.is(context.getRemainingTimeInMillis(), 0);
+    t.is(context.done(), undefined);
+    t.is(context.fail(), undefined);
+    t.is(context.succeed(), undefined);
+    t.regex(context.awsRequestId, /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/);
+    if (useCallback) {
+      cb(undefined, response);
+    } else {
+      return Promise.resolve(response);
+    }
+  });
+};
 
-  test.context.handler.callsArgWithAsync(2, null, response);
+test('provides a mock context', async (test) => {
+  setupHandler(test, event, response);
   const result = await test.context.client.get('/some/path');
 
   test.is(result.status, 200);
   test.deepEqual(result.headers, response.headers);
   test.is(result.data, response.body);
+});
 
-  const event = {
-    body: '',
-    headers: sinon.match.object,
-    httpMethod: 'GET',
-    path: '/some/path',
-    queryStringParameters: {},
-    multiValueHeaders: sinon.match.object,
-    requestContext: {
-      requestId: sinon.match.string
-    }
-  };
+test('works with a callback style handler that executes the callback async', async (test) => {
+  setupHandler(test, event, response, true);
+  const result = await test.context.client.get('/some/path');
 
-  const context = {};
-
-  sinon.assert.calledWithExactly(
-    test.context.handler,
-    event,
-    context,
-    sinon.match.func
-  );
+  test.is(result.status, 200);
+  test.deepEqual(result.headers, response.headers);
+  test.is(result.data, response.body);
 });
 
 function setupHandlerBehavior ({ handlerStub, isCallbackStyleHandler, error, response }) {
@@ -62,12 +95,6 @@ function setupHandlerBehavior ({ handlerStub, isCallbackStyleHandler, error, res
 
 function registerSpecs (isCallbackStyleHandler) {
   test(`Making a GET request to a local handler invokes the handler (callbackStyle=${isCallbackStyleHandler})`, async (test) => {
-    const response = {
-      headers: { 'test-header': 'some value' },
-      body: 'hello!',
-      statusCode: 200
-    };
-
     setupHandlerBehavior({
       handlerStub: test.context.handler,
       isCallbackStyleHandler,
@@ -79,37 +106,15 @@ function registerSpecs (isCallbackStyleHandler) {
     test.deepEqual(result.headers, response.headers);
     test.is(result.data, response.body);
 
-    const event = {
-      body: '',
-      headers: sinon.match.object,
-      httpMethod: 'GET',
-      path: '/some/path',
-      queryStringParameters: {},
-      requestContext: {
-        requestId: sinon.match.string
-      },
-      multiValueHeaders: sinon.match.object
-    };
-
-    const context = {};
-
     sinon.assert.calledWithExactly(
       test.context.handler,
-      event,
-      context,
+      sinon.match(event),
+      sinon.match.object,
       sinon.match.func
     );
   });
 
   test(`Making a POST request to a local handler invokes the handler (callbackStyle=${isCallbackStyleHandler})`, async (test) => {
-    const response = {
-      headers: { 'test-header': 'some value' },
-      body: {
-        hello: 'hello'
-      },
-      statusCode: 200
-    };
-
     setupHandlerBehavior({
       handlerStub: test.context.handler,
       isCallbackStyleHandler,
@@ -137,12 +142,10 @@ function registerSpecs (isCallbackStyleHandler) {
       multiValueHeaders: sinon.match.object
     };
 
-    const context = {};
-
     sinon.assert.calledWithExactly(
       test.context.handler,
-      event,
-      context,
+      sinon.match(event),
+      sinon.match.object,
       sinon.match.func
     );
   });
@@ -222,7 +225,7 @@ function registerSpecs (isCallbackStyleHandler) {
 
     sinon.assert.calledWithExactly(
       test.context.handler.firstCall,
-      {
+      sinon.match({
         body: '',
         headers: sinon.match.object,
         httpMethod: 'GET',
@@ -232,13 +235,13 @@ function registerSpecs (isCallbackStyleHandler) {
         requestContext: {
           requestId: sinon.match.string
         }
-      },
-      {},
+      }),
+      sinon.match.object,
       sinon.match.func
     );
     sinon.assert.calledWithExactly(
       test.context.handler.secondCall,
-      {
+      sinon.match({
         body: '',
         headers: sinon.match.object,
         httpMethod: 'GET',
@@ -248,8 +251,8 @@ function registerSpecs (isCallbackStyleHandler) {
         requestContext: {
           requestId: sinon.match.string
         }
-      },
-      {},
+      }),
+      sinon.match.object,
       sinon.match.func
     );
   });
@@ -283,7 +286,7 @@ function registerSpecs (isCallbackStyleHandler) {
 
     sinon.assert.calledWithExactly(
       test.context.handler.firstCall,
-      {
+      sinon.match({
         body: '',
         headers: sinon.match.object,
         httpMethod: 'GET',
@@ -293,13 +296,13 @@ function registerSpecs (isCallbackStyleHandler) {
         requestContext: {
           requestId: sinon.match.string
         }
-      },
-      {},
+      }),
+      sinon.match.object,
       sinon.match.func
     );
     sinon.assert.calledWithExactly(
       test.context.handler.secondCall,
-      {
+      sinon.match({
         body: '',
         headers: sinon.match.object,
         httpMethod: 'GET',
@@ -309,8 +312,8 @@ function registerSpecs (isCallbackStyleHandler) {
         requestContext: {
           requestId: sinon.match.string
         }
-      },
-      {},
+      }),
+      sinon.match.object,
       sinon.match.func
     );
   });
@@ -346,8 +349,8 @@ function registerSpecs (isCallbackStyleHandler) {
 
     sinon.assert.calledWithExactly(
       test.context.handler,
-      event,
-      {},
+      sinon.match(event),
+      sinon.match.object,
       sinon.match.func
     );
   });

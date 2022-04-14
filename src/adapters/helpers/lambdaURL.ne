@@ -16,11 +16,12 @@ anyName -> functionName
             | fullArnName
 path -> "/" .:*
 
-# This expression for the funtion name and qualfier was taken from:
+# This expression for the function name and qualifier was taken from:
 # https://docs.aws.amazon.com/lambda/latest/dg/API_CreateFunction.html#SSS-CreateFunction-request-FunctionName
 functionName -> [a-zA-Z0-9-_]:+
+partition -> "aws" [a-zA-Z-]:*
 qualifier -> "$LATEST" | [a-zA-Z0-9-_]:+
 accountId -> [0-9]:+
 region -> [a-zA-Z0-9-_]:+
 partialArnName -> accountId ":function:" functionName
-fullArnName -> "arn:aws:lambda:" region ":" partialArnName
+fullArnName -> "arn:" partition ":lambda:" region ":" partialArnName
