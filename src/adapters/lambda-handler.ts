@@ -3,11 +3,11 @@ import { isAbsoluteURL } from './helpers/isAbsoluteURL';
 import { lambdaEvent } from './helpers/lambdaEvent';
 import { lambdaResponse } from './helpers/lambdaResponse';
 import { promisify } from './helpers/promisify';
-import { RequestError } from './helpers/RequestError';
+import { RequestError } from './helpers/requestError';
 import { AlphaOptions, AlphaAdapter, HandlerRequest } from '../types';
 import { v4 as uuid } from 'uuid';
 import { Context } from 'aws-lambda';
-import { Alpha } from '../Alpha';
+import { Alpha } from '../alpha';
 
 const createContext = (provided?: Partial<Context>): Context => {
   const defaultCtx: Context = {

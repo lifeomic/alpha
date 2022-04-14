@@ -1,4 +1,4 @@
-import type { Alpha } from '../Alpha';
+import type { Alpha } from '../alpha';
 
 export const setup = (client: Alpha) => {
   client.interceptors.request.use((config) => {

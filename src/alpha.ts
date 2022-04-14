@@ -7,7 +7,7 @@ import { AlphaOptions } from './types';
 import { Handler } from 'aws-lambda';
 
 import { adapters } from './adapters';
-import { RequestError } from './adapters/helpers/RequestError';
+import { RequestError } from './adapters/helpers/requestError';
 import { resolve } from './resolve';
 
 const ALPHA_CONFIG = [ 'adapter', 'lambda', 'Lambda', 'retry', '__retryCount' ];

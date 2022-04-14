@@ -1,8 +1,8 @@
 import isBoolean from 'lodash/isBoolean';
 import defaults from 'lodash/defaults';
-import { RequestError } from './helpers/RequestError';
+import { RequestError } from './helpers/requestError';
 import type { AlphaOptions } from '../types';
-import type { Alpha } from '../Alpha';
+import type { Alpha } from '../alpha';
 import { AxiosError } from 'axios';
 
 export interface RetryOptions {
