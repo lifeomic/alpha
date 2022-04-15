@@ -3,11 +3,11 @@ import { isAbsoluteURL } from './helpers/isAbsoluteURL';
 import { lambdaEvent } from './helpers/lambdaEvent';
 import { lambdaResponse } from './helpers/lambdaResponse';
 import { promisify } from './helpers/promisify';
-import { RequestError } from './helpers/RequestError';
-import { AxiosInstance } from 'axios';
+import { RequestError } from './helpers/requestError';
 import { AlphaOptions, AlphaAdapter, HandlerRequest } from '../types';
 import { v4 as uuid } from 'uuid';
 import { Context } from 'aws-lambda';
+import { Alpha } from '../alpha';
 
 const createContext = (provided?: Partial<Context>): Context => {
   const defaultCtx: Context = {
@@ -49,6 +49,6 @@ const lambdaHandlerRequestInterceptor = (config: AlphaOptions) => chainAdapters(
   lambdaHandlerAdapter
 );
 
-export const setup = (client: AxiosInstance) => {
+export const setup = (client: Alpha) => {
   client.interceptors.request.use(lambdaHandlerRequestInterceptor);
 };

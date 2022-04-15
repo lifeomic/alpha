@@ -1,6 +1,6 @@
-import { AxiosInstance } from 'axios';
+import type { Alpha } from '../alpha';
 
-export const setup = (client: AxiosInstance) => {
+export const setup = (client: Alpha) => {
   client.interceptors.request.use((config) => {
     const alphaConfig = config.adapter;
     delete config.adapter;

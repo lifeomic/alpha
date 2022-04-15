@@ -5,8 +5,9 @@ import { setup as handler } from './lambda-handler';
 import { setup as invocation } from './lambda-invocation';
 import { setup as retry } from './response-retry';
 import { setup as alphaConfig } from './alpha-config';
+import { Alpha } from '../alpha';
 
-module.exports = [
+export const adapters: ((client: Alpha) => void)[] = [
   handler,
   invocation,
   retry,

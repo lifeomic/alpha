@@ -6,9 +6,9 @@ import { chainAdapters } from './helpers/chainAdapters';
 import { lambdaEvent } from './helpers/lambdaEvent';
 import { lambdaResponse } from './helpers/lambdaResponse';
 import { parseLambdaUrl } from './helpers/parseLambdaUrl';
-import { RequestError } from './helpers/RequestError';
+import { RequestError } from './helpers/requestError';
 import { AlphaOptions, AlphaAdapter } from '../types';
-import { AxiosInstance } from 'axios';
+import { Alpha } from '../alpha';
 
 const lambdaInvocationAdapter: AlphaAdapter = async (config) => {
   const Lambda = config.Lambda || AWS.Lambda;
@@ -101,6 +101,6 @@ function lambdaInvocationRequestInterceptor (config: AlphaOptions) {
   );
 }
 
-export const setup = (client: AxiosInstance) => {
+export const setup = (client: Alpha) => {
   client.interceptors.request.use(lambdaInvocationRequestInterceptor);
 };

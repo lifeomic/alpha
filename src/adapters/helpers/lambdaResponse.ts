@@ -1,5 +1,5 @@
 import http from 'http';
-import { RequestError } from './RequestError';
+import { RequestError } from './requestError';
 import { TextEncoder } from 'util';
 
 import type { AlphaOptions } from '../../types';
