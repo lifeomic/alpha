@@ -21,14 +21,24 @@ const buildConfig = (client: Alpha, options: AlphaOptions) => {
   return config;
 }
 
+type ConstructorArgs =
+  | []
+  | [string | Handler]
+  | [string | Handler, AlphaOptions]
+  | [AlphaOptions];
+
 export class Alpha extends Axios {
-  constructor (...[target, config]: [string | Handler, AlphaOptions | undefined] | [AlphaOptions]) {
+  constructor()
+  constructor(config: AlphaOptions)
+  constructor(target: string | Handler)
+  constructor(target: string | Handler, config: AlphaOptions)
+  constructor (...[target, config]: ConstructorArgs) {
     const tmpOptions: AlphaOptions = {};
     if (typeof target === 'object') {
       Object.assign(tmpOptions, target);
     } else if (typeof target === 'string') {
       tmpOptions.baseURL = target;
-    } else {
+    } else if (typeof target === 'function') {
       tmpOptions.lambda = target;
     }
 
