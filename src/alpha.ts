@@ -58,14 +58,14 @@ export class Alpha extends Axios {
     adapters.forEach((adapter) => adapter(this));
   }
 
-  async request <T = any, R = AxiosResponse<T>, D = any>(config: AxiosRequestConfig<D>): Promise<R> {
+  async request <T = any, R = AxiosResponse<T>>(config: AxiosRequestConfig): Promise<R> {
     const maxRedirects = config.maxRedirects ?? 5;
     // Need to override the default redirect logic to allow different adapters
     // to interact.
     const requestConfig = buildConfig(this, config);
     requestConfig.maxRedirects = 0;
 
-    const response = await super.request<T, R, D>(requestConfig);
+    const response = await super.request<T, R>(requestConfig);
 
     const castResp = response as any as AxiosResponse;
 
