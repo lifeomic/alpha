@@ -67,9 +67,12 @@
   "devDependencies": {
     "@lifeomic/eslint-plugin-node": "^2.0.1",
     "@lifeomic/typescript-config": "^1.0.3",
-    "@types/aws-lambda": "^8.10.93",
+    "@types/lodash": "^4.14.181",
+    "@types/nearley": "^2.11.2",
     "@types/node": "^14.14.25",
     "@types/sinon": "^10.0.11",
+    "@types/url-parse": "^1.4.8",
+    "@types/uuid": "^8.3.4",
     "ava": "^3.15.0",
     "aws-sdk": "^2.1001.0",
     "aws-sdk-mock": "^4.0.0",
@@ -88,10 +91,7 @@
     "typescript": "^4.6.3"
   },
   "dependencies": {
-    "@types/lodash": "^4.14.181",
-    "@types/nearley": "^2.11.2",
-    "@types/url-parse": "^1.4.8",
-    "@types/uuid": "^8.3.4",
+    "@types/aws-lambda": "^8.10.93",
     "lodash": "^4.17.21",
     "nearley": "2",
     "url-parse": "^1.5.10",
