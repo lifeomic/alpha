@@ -9,13 +9,13 @@ import { toProxyHeaders } from './apiGateway';
 export const lambdaEvent = (config: AlphaOptions, relativeUrl?: string) => {
   // url-parse needs a location to properly handle relative urls, so provide a fake one here:
   const parts = urlParse(
-    relativeUrl ?? config.url!,
+    relativeUrl ?? config.url as string,
     'http://fake',
-    querystringWithArraySupport
+    querystringWithArraySupport,
   );
   const params = Object.assign({}, parts.query, config.params);
 
-  const httpMethod = config.method!.toUpperCase();
+  const httpMethod = (config.method as string).toUpperCase();
   const requestTime = new Date();
 
   /**
@@ -85,4 +85,4 @@ export const querystringWithArraySupport = (query: string) => {
     query = query.substring(1);
   }
   return querystring.parse(query);
-}
+};

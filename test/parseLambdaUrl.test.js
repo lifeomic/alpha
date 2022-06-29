@@ -18,76 +18,76 @@ test('Parsing an invalid partial ARN URL returns null', (test) => {
 const NAME_STYLES = [
   {
     description: 'function ARN',
-    name: 'arn:aws:lambda:us-west-2:123456789012:function:user-service'
+    name: 'arn:aws:lambda:us-west-2:123456789012:function:user-service',
   },
   {
     description: 'gov cloud function ARN',
-    name: 'arn:aws-us-gov:lambda:us-west-2:123456789012:function:user-service'
+    name: 'arn:aws-us-gov:lambda:us-west-2:123456789012:function:user-service',
   },
   {
     description: 'partial function ARN',
-    name: '123456789012:function:user-service'
+    name: '123456789012:function:user-service',
   },
   {
     description: 'function name',
-    name: 'user-service'
-  }
+    name: 'user-service',
+  },
 ];
 
 for (const { name, description } of NAME_STYLES) {
-  test(`Can parse URLs with ${description}s`, test => {
+  test(`Can parse URLs with ${description}s`, (test) => {
     test.deepEqual(parseLambdaUrl(`lambda://${name}`), {
       name,
       qualifier: '',
-      path: ''
+      path: '',
     });
   });
 
-  test(`Can parse URLs with ${description}s and a qualifier`, test => {
+  test(`Can parse URLs with ${description}s and a qualifier`, (test) => {
     test.deepEqual(parseLambdaUrl(`lambda://${name}:deployed`), {
       name,
       qualifier: 'deployed',
-      path: ''
+      path: '',
     });
   });
 
-  test(`Can parse URLs with ${description}s, a qualifier and a path`, test => {
+  test(`Can parse URLs with ${description}s, a qualifier and a path`, (test) => {
     test.deepEqual(parseLambdaUrl(`lambda://${name}:deployed/some/path`), {
       name,
       qualifier: 'deployed',
-      path: '/some/path'
+      path: '/some/path',
     });
   });
 
-  test(`Can parse URLs with ${description}s, a $LATEST qualifier and a path`, test => {
+  test(`Can parse URLs with ${description}s, a $LATEST qualifier and a path`, (test) => {
     test.deepEqual(parseLambdaUrl(`lambda://${name}:$LATEST/some/path`), {
       name,
       qualifier: '$LATEST',
-      path: '/some/path'
+      path: '/some/path',
     });
   });
 
-  test(`Can parse URLs with ${description}s, a $LATEST qualifier and a path and a query string`, test => {
+  test(`Can parse URLs with ${description}s, a $LATEST qualifier and a path and a query string`, (test) => {
     test.deepEqual(parseLambdaUrl(`lambda://${name}:$LATEST/some/path?key1=value1`), {
       name,
       qualifier: '$LATEST',
-      path: '/some/path?key1=value1'
+      path: '/some/path?key1=value1',
     });
   });
 
-  test(`Can parse ${description}s and a path`, test => {
+  test(`Can parse ${description}s and a path`, (test) => {
     test.deepEqual(parseLambdaUrl(`lambda://${name}/some/path`), {
       name,
       qualifier: '',
-      path: '/some/path'
+      path: '/some/path',
     });
   });
 
-  test(`Can parse ${description}s and a path and a query string with multiple params`, test => {
+  test(`Can parse ${description}s and a path and a query string with multiple params`, (test) => {
     test.deepEqual(parseLambdaUrl(`lambda://${name}/some/path?key1=value1&key2=value2&key3=value3`), {
       name,
       qualifier: '',
-      path: '/some/path?key1=value1&key2=value2&key3=value3'
+      path: '/some/path?key1=value1&key2=value2&key3=value3',
     });
   });
 }

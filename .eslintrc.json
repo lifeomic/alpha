@@ -1,0 +1,18 @@
+{
+  "extends": [
+    "@lifeomic/standards/javascript",
+    "@lifeomic/standards/typescript"
+  ],
+  "env": {
+    "node": true,
+    "jest": true,
+    "es6": true
+  },
+  "ignorePatterns": [
+    "/lib/",
+    "src/adapters/helpers/lambdaURLGrammar.js"
+  ],
+  "rules": {
+    "@typescript-eslint/restrict-template-expressions": "off"
+  }
+}

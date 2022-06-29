@@ -7,7 +7,14 @@ import type { InvocationRequest } from 'aws-sdk/clients/lambda';
 import type { AxiosResponse } from 'axios';
 import { HandlerRequest } from '../../types';
 
-const payloadToData = (config: AlphaOptions, payload: any) => {
+export interface Payload {
+  body: string;
+  headers: AxiosResponse['headers'];
+  statusCode: AxiosResponse['status'];
+  errorMessage: string;
+}
+
+const payloadToData = (config: AlphaOptions, payload: Payload) => {
   if (!config.responseType) return payload.body;
 
   switch (config.responseType) {
@@ -19,7 +26,7 @@ const payloadToData = (config: AlphaOptions, payload: any) => {
 export const lambdaResponse = (
   config: AlphaOptions,
   request: InvocationRequest | HandlerRequest,
-  payload: any,
+  payload: Payload,
 ): AxiosResponse => {
   const data = payloadToData(config, payload);
 
@@ -29,7 +36,7 @@ export const lambdaResponse = (
     headers: payload.headers,
     request,
     status: payload.statusCode,
-    statusText: http.STATUS_CODES[payload.statusCode]!
+    statusText: http.STATUS_CODES[payload.statusCode] as string,
   };
 
   if (typeof config.validateStatus === 'function' && !config.validateStatus(response.status)) {

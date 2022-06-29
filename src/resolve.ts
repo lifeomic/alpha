@@ -32,4 +32,4 @@ export const resolve = (url: string, base: string) => {
 
   lambdaParts = parseLambdaUrl(resolved);
   return `lambda://${lambdaParts.name}${qualifier}${lambdaParts.path}`;
-}
+};

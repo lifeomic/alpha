@@ -3,23 +3,24 @@ import merge from 'lodash/merge';
 
 import axios, { Axios, AxiosAdapter, AxiosRequestConfig, AxiosResponse } from 'axios';
 import cloneDeep from 'lodash/cloneDeep';
-import { AlphaOptions } from './types';
+import { AlphaOptions, HandlerRequest } from './types';
 import { Handler } from 'aws-lambda';
 
 import { adapters } from './adapters';
 import { RequestError } from './adapters/helpers/requestError';
 import { resolve } from './resolve';
+import { InvocationRequest } from 'aws-sdk/clients/lambda';
 
-const ALPHA_CONFIG = [ 'adapter', 'lambda', 'Lambda', 'retry', '__retryCount' ];
+const ALPHA_CONFIG = ['adapter', 'lambda', 'Lambda', 'retry', '__retryCount'];
 
 const buildConfig = (client: Alpha, options: AlphaOptions) => {
   const config = cloneDeep(options);
   config.adapter = {
     ...pick(client.defaults, ALPHA_CONFIG),
-    ...pick(config, ALPHA_CONFIG)
+    ...pick(config, ALPHA_CONFIG),
   } as AxiosAdapter;
   return config;
-}
+};
 
 type ConstructorArgs =
   | []
@@ -71,12 +72,13 @@ export class Alpha extends Axios {
 
     if (castResp.status === 301 || castResp.status === 302) {
       if (maxRedirects === 0) {
-        throw new RequestError('Exceeded maximum number of redirects.', castResp.config, castResp.request, response);
+        const request = castResp.request as InvocationRequest | HandlerRequest;
+        throw new RequestError('Exceeded maximum number of redirects.', castResp.config, request, response);
       }
 
       const redirect = cloneDeep(config);
       redirect.maxRedirects = maxRedirects - 1;
-      redirect.url = resolve(castResp.headers['location'], castResp.config.url!);
+      redirect.url = resolve(castResp.headers.location, castResp.config.url as string);
       return this.request(redirect);
     }
 

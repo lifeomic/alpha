@@ -10,7 +10,7 @@ export type ToProxyHeaders = Pick<APIGatewayProxyEvent, 'multiValueHeaders' | 'h
 export const toProxyHeaders = (headers: AxiosRequestHeaders = {}): ToProxyHeaders => {
   const response: ToProxyHeaders = {
     multiValueHeaders: {},
-    headers: {}
+    headers: {},
   };
   Object.entries(headers).forEach(([key, value]) => {
     if (typeof value === 'string') {
@@ -25,4 +25,4 @@ export const toProxyHeaders = (headers: AxiosRequestHeaders = {}): ToProxyHeader
     }
   });
   return response;
-}
+};

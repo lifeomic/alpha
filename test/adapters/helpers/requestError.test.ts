@@ -2,9 +2,10 @@ import test from 'ava';
 
 import { isAxiosError, isAlphaRequestError } from '../../../src';
 
-function FakeError () {}
-FakeError.isAxiosError = true;
-FakeError.isAlphaRequestError = true;
+class FakeError {
+  isAxiosError = true;
+  isAlphaRequestError = true;
+}
 
 test('will return if an error isAxiosError', (t) => {
   t.true(isAxiosError({ isAxiosError: true }));
