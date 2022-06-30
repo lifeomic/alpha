@@ -1,13 +1,19 @@
-const { Alpha } = require('../src');
-const AWS = require('aws-sdk-mock');
-const nock = require('nock');
+import { Alpha } from '../src';
+import AWS from 'aws-sdk-mock';
+import nock from 'nock';
+import { InvocationRequest, InvocationResponse } from 'aws-sdk/clients/lambda';
+import { AWSError } from 'aws-sdk';
 
 beforeAll(() => nock.disableNetConnect());
 afterAll(() => nock.enableNetConnect());
 
-let ctx;
+interface TestContext {
+  alpha: Alpha;
+  invoke: jest.MockedFn<(params: InvocationRequest, cb: (err: Error | AWSError | null | undefined, data?: InvocationResponse) => void) => void>;
+}
+let ctx: TestContext;
 beforeEach(() => {
-  ctx = {};
+  ctx = {} as TestContext;
   ctx.alpha = new Alpha();
   ctx.invoke = jest.fn();
   AWS.mock('Lambda', 'invoke', ctx.invoke);
@@ -103,7 +109,7 @@ test('A Lambda can redirect to a qualified Lambda URL', async () => {
 test('An HTTP endpoint can redirect to a Lambda', async () => {
   const server = nock('http://example.com')
     .get('/')
-    .reply(302, null, { location: 'lambda://test' });
+    .reply(302, undefined, { location: 'lambda://test' });
   ctx.invoke
     .mockImplementation((req, cb) => {
       cb(null, {
@@ -124,10 +130,10 @@ test('An HTTP endpoint can redirect to a Lambda', async () => {
 
 test('Redirects are limited by default', async () => {
   const server = nock('http://example.com')
-    .get('/').reply(302, null, { location: '/one' })
-    .get('/one').reply(302, null, { location: '/two' })
-    .get('/two').reply(302, null, { location: '/three' })
-    .get('/three').reply(302, null, { location: 'lambda://test/one' });
+    .get('/').reply(302, undefined, { location: '/one' })
+    .get('/one').reply(302, undefined, { location: '/two' })
+    .get('/two').reply(302, undefined, { location: '/three' })
+    .get('/three').reply(302, undefined, { location: 'lambda://test/one' });
   ctx.invoke
     .mockImplementationOnce((req, cb) => {
       cb(null, {
@@ -163,9 +169,9 @@ test('Redirects are limited by default', async () => {
 
 test('Redirects can be explicitly limited', async () => {
   const server = nock('http://example.com')
-    .get('/').reply(302, null, { location: '/one' })
-    .get('/one').reply(302, null, { location: '/two' })
-    .get('/two').reply(302, null, { location: 'lambda://test/one' });
+    .get('/').reply(302, undefined, { location: '/one' })
+    .get('/one').reply(302, undefined, { location: '/two' })
+    .get('/two').reply(302, undefined, { location: 'lambda://test/one' });
 
   ctx.invoke
     .mockImplementationOnce((req, cb) => {
@@ -178,7 +184,7 @@ test('Redirects can be explicitly limited', async () => {
       });
     })
     .mockImplementationOnce(() => {})
-    .mockImplementationOnce((cb) => {
+    .mockImplementationOnce((req, cb) => {
       cb(new Error('off the deep end!'));
     });
 

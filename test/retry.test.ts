@@ -1,5 +1,6 @@
-const { Alpha } = require('../src');
-const nock = require('nock');
+import { Alpha } from '../src';
+import nock from 'nock';
+import { AxiosError } from 'axios';
 
 beforeAll(() => {
   nock.disableNetConnect();
@@ -41,7 +42,7 @@ test('Making a request with retries enabled and a custom retry condition should 
 
   const alpha = new Alpha('http://example.com', {
     retry: {
-      retryCondition: (error) => error.response.status === 404,
+      retryCondition: (error) => (error as AxiosError).response!.status === 404,
     },
   });
   const response = await alpha.get('/some/path');
@@ -58,7 +59,7 @@ test('Making a request with retries enabled and a custom retry condition should 
 
   const alpha = new Alpha('http://example.com', {
     retry: {
-      retryCondition: (error) => error.response.status === 404,
+      retryCondition: (error) => (error as AxiosError).response!.status === 404,
     },
   });
   const promise = alpha.get('/some/path');

@@ -1,5 +1,7 @@
-const { Alpha } = require('../src');
-const nock = require('nock');
+import { Alpha } from '../src';
+import nock from 'nock';
+import { Lambda } from 'aws-sdk';
+import { AxiosRequestConfig } from 'axios';
 
 beforeAll(() => {
   nock.disableNetConnect();
@@ -23,7 +25,7 @@ test('Lambda invocations should be retried after a timeout without a custom retr
           abort,
         };
       }
-    },
+    } as any as typeof Lambda,
   });
 
   const request = alpha.get('/some/path', {
@@ -32,7 +34,7 @@ test('Lambda invocations should be retried after a timeout without a custom retr
       attempts: 2,
       factor: 1,
     },
-  });
+  } as any as AxiosRequestConfig);
 
   await expect(request).rejects.toThrow();
   expect(invokeCount).toBe(3);

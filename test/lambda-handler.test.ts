@@ -1,5 +1,6 @@
-const { Alpha } = require('../src');
-const nock = require('nock');
+import { Alpha } from '../src';
+import nock from 'nock';
+import { Handler } from 'aws-lambda';
 
 const response = {
   headers: { 'test-header': 'some value' },
@@ -34,7 +35,11 @@ const contextKeys = [
   'succeed',
 ];
 
-let ctx;
+interface TestContext {
+  handler: jest.MockedFn<Handler>;
+  client: Alpha;
+}
+let ctx: TestContext ;
 
 beforeAll(() => {
   nock.disableNetConnect();
@@ -45,20 +50,20 @@ afterAll(() => {
 });
 
 beforeEach(() => {
-  ctx = {};
+  ctx = {} as TestContext;
   ctx.handler = jest.fn();
   ctx.client = new Alpha(ctx.handler);
 });
 
-const setupHandler = (ctx, expectedEvent, response, useCallback = false) => {
+const setupHandler = (expectedEvent: any, response: any, useCallback = false) => {
   ctx.handler.mockImplementation((event, context, cb) => {
     expect(cb).toStrictEqual(expect.any(Function));
     expect(event).toBe(event);
     expect(Object.keys(context).sort()).toEqual(contextKeys.sort());
     expect(context.getRemainingTimeInMillis()).toBe(0);
     expect(context.done()).toBe(undefined);
-    expect(context.fail()).toBe(undefined);
-    expect(context.succeed()).toBe(undefined);
+    expect(context.fail(new Error())).toBe(undefined);
+    expect(context.succeed(undefined)).toBe(undefined);
     expect(context.awsRequestId).toMatch(
       /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/,
     );
@@ -71,7 +76,7 @@ const setupHandler = (ctx, expectedEvent, response, useCallback = false) => {
 };
 
 test('provides a mock context', async () => {
-  setupHandler(ctx, event, response);
+  setupHandler(event, response);
   const result = await ctx.client.get('/some/path');
 
   expect(result.status).toBe(200);
@@ -80,7 +85,7 @@ test('provides a mock context', async () => {
 });
 
 test('works with a callback style handler that executes the callback async', async () => {
-  setupHandler(ctx, event, response, true);
+  setupHandler(event, response, true);
   const result = await ctx.client.get('/some/path');
 
   expect(result.status).toBe(200);
@@ -88,7 +93,14 @@ test('works with a callback style handler that executes the callback async', asy
   expect(result.data).toBe(response.body);
 });
 
-const setupHandlerBehavior = ({ handlerStub, isCallbackStyleHandler, error, response }) => {
+interface SetupHandlerBehavior {
+  handlerStub: jest.MockedFn<Handler>;
+  isCallbackStyleHandler?: boolean;
+  error?: string | Error | null;
+  response?: any;
+}
+
+const setupHandlerBehavior = ({ handlerStub, isCallbackStyleHandler, error, response }: SetupHandlerBehavior) => {
   if (isCallbackStyleHandler) {
     handlerStub.mockImplementationOnce((req, config, cb) => cb(error, response));
   } else {
@@ -96,7 +108,7 @@ const setupHandlerBehavior = ({ handlerStub, isCallbackStyleHandler, error, resp
   }
 };
 
-const registerSpecs = (isCallbackStyleHandler) => {
+const registerSpecs = (isCallbackStyleHandler: boolean) => {
   test(`Making a GET request to a local handler invokes the handler (callbackStyle=${isCallbackStyleHandler})`, async () => {
     setupHandlerBehavior({
       handlerStub: ctx.handler,
@@ -167,7 +179,7 @@ const registerSpecs = (isCallbackStyleHandler) => {
     expect(error.request.event.path).toBe('/some/path');
     expect(error.request.event.queryStringParameters).toEqual({});
 
-    expect(Object.keys(error).includes('code')).toBe(false);
+    expect(Object.keys(error as Object).includes('code')).toBe(false);
     expect(ctx.handler).toBeCalled();
   });
 
@@ -183,7 +195,7 @@ const registerSpecs = (isCallbackStyleHandler) => {
       isCallbackStyleHandler,
     });
 
-    const result = await ctx.client.get('/some/path', { validateStatus: false });
+    const result = await ctx.client.get('/some/path', { validateStatus: undefined });
 
     expect(result.status).toBe(response.statusCode);
     expect(result.data).toBe(response.body);

@@ -1,6 +1,6 @@
-const { Alpha } = require('../src');
-const { Axios } = require('axios');
-const nock = require('nock');
+import { Alpha } from '../src';
+import { Axios } from 'axios';
+import nock from 'nock';
 
 beforeAll(() => {
   nock.disableNetConnect();
@@ -95,7 +95,7 @@ test('A custom status validator can be used with the client', async () => {
     .reply(302, { location: '/redirect' });
 
   const options = {
-    validateStatus: (status) => status >= 200 && status < 300,
+    validateStatus: (status: number) => status >= 200 && status < 300,
   };
 
   const client = new Alpha('http://example.com', options);

@@ -1,4 +1,4 @@
-const { resolve } = require('../src');
+import { resolve } from '../src';
 
 test('Resolving a relative URL against a Lambda URL returns a Lambda URL', () => {
   const base = 'lambda://user-service';

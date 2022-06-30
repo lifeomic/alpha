@@ -1,5 +1,5 @@
-const { Alpha } = require('../src');
-const nock = require('nock');
+import { Alpha } from '../src';
+import nock from 'nock';
 
 beforeAll(() => {
   nock.disableNetConnect();

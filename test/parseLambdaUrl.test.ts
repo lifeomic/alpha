@@ -1,4 +1,4 @@
-const { parseLambdaUrl } = require('../src/adapters/helpers/parseLambdaUrl');
+import { parseLambdaUrl } from '../src/adapters/helpers/parseLambdaUrl';
 
 test('Parsing an invalid URL returns null', () => {
   expect(parseLambdaUrl('http://example.com')).toBe(null);

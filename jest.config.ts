@@ -32,7 +32,6 @@ const config: Config.InitialOptions = {
   setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
   testMatch: [
     '<rootDir>/test/**/*.test.ts',
-    '<rootDir>/test/**/*.test.js',
   ],
   verbose: true,
   maxWorkers: 1,
