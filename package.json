@@ -18,55 +18,29 @@
     "url": "https://github.com/lifeomic/alpha.git"
   },
   "scripts": {
-    "coverage": "nyc report --reporter=text-lcov > ./.nyc_output/lcov.info",
     "buildGrammar": "nearleyc src/adapters/helpers/lambdaURL.ne -o src/adapters/helpers/lambdaURLGrammar.js",
     "lint": "eslint .",
     "postlint": "yarn tsc",
     "lint:fix": "eslint --fix .",
     "prepare": "yarn buildGrammar",
     "pretest": "yarn buildGrammar && yarn lint",
-    "test": "nyc ava",
+    "test": "jest",
     "prepublishOnly": "yarn clean && yarn prepare && yarn tsc -p tsconfig.build.json",
     "clean": "yarn tsc --build --clean"
   },
-  "ava": {
-    "verbose": true,
-    "extensions": [
-      "js",
-      "ts"
-    ],
-    "files": [
-      "test/**/*.test.[jt]s"
-    ],
-    "require": [
-      "ts-node/register/transpile-only",
-      "./test/setup.js"
-    ],
-    "timeout": "30s"
-  },
-  "nyc": {
-    "check-coverage": true,
-    "exclude": [
-      "src/adapters/helpers/lambdaURLGrammar.js"
-    ],
-    "include": [
-      "src"
-    ],
-    "lines": 100,
-    "statements": 100,
-    "functions": 100,
-    "branches": 100
-  },
   "devDependencies": {
     "@lifeomic/eslint-config-standards": "^2.1.2",
+    "@lifeomic/jest-config": "^1.1.2",
     "@lifeomic/typescript-config": "^1.0.3",
+    "@swc/core": "^1.2.207",
+    "@swc/jest": "^0.2.21",
+    "@types/jest": "^28.1.3",
     "@types/lodash": "^4.14.181",
     "@types/nearley": "^2.11.2",
     "@types/node": "^14.14.25",
     "@types/sinon": "^10.0.11",
     "@types/url-parse": "^1.4.8",
     "@types/uuid": "^8.3.4",
-    "ava": "^3.15.0",
     "aws-sdk": "^2.1001.0",
     "aws-sdk-mock": "^4.0.0",
     "axios": "^0.27.2",
@@ -75,11 +49,11 @@
     "docker-lambda": "^0.15.3",
     "eslint": "^8.18.0",
     "husky": "^4.3.8",
+    "jest": "^28.1.2",
     "nock": "^13.2.7",
     "nyc": "^15.1.0",
     "proxyquire": "^2.1.3",
     "semantic-release": "^17.0.0",
-    "sinon": "^9.2.4",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.3"
   },

@@ -1,10 +1,9 @@
-import test from 'ava';
 import { ToProxyHeaders, toProxyHeaders } from '../../../src/adapters/helpers/apiGateway';
 import { v4 as uuid } from 'uuid';
 import { AxiosRequestHeaders } from 'axios';
 
-test('will convert header values', (t) => {
-  t.deepEqual(toProxyHeaders(), { multiValueHeaders: {}, headers: {} });
+test('will convert header values', () => {
+  expect(toProxyHeaders()).toEqual({ multiValueHeaders: {}, headers: {} });
   const multiStringHeader = [uuid(), ` ${uuid()}`, `${uuid()} `, uuid()];
   const input: AxiosRequestHeaders = {
     stringHeader: uuid(),
@@ -34,5 +33,5 @@ test('will convert header values', (t) => {
     },
   };
   const actual = toProxyHeaders(input);
-  t.deepEqual(actual, expected);
+  expect(actual).toEqual(expected);
 });

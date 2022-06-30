@@ -13,20 +13,19 @@ jobs:
         axios-version: [0.24.0, 0.25.0, 0.26.1, 0.27.2]
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
       - run: yarn install
       - run: yarn add -D axios@${{ matrix.axios-version }}
       - run: yarn test
-      - run: yarn coverage
       - name: Coveralls
         uses: coverallsapp/github-action@v1.1.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: .nyc_output/lcov.info
-          flag-name: run-${{ matrix.node }}
+          path-to-lcov: coverage/lcov.info
+          flag-name: run-${{ matrix.node }}-${{ matrix.axios-version }}
           parallel: true
   finish:
     needs: test
@@ -35,5 +34,5 @@ jobs:
       - name: Coveralls Finished
         uses: coverallsapp/github-action@v1.1.2
         with:
-          github-token: ${{ secrets.github_token }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true

@@ -1,19 +1,19 @@
-const { Alpha } = require('../src');
-const nock = require('nock');
-const sinon = require('sinon');
-const test = require('ava');
+import { Alpha } from '../src';
+import nock from 'nock';
+import { Lambda } from 'aws-sdk';
+import { AxiosRequestConfig } from 'axios';
 
-test.before(() => {
+beforeAll(() => {
   nock.disableNetConnect();
 });
 
-test.after(() => {
+afterAll(() => {
   nock.enableNetConnect();
 });
 
-test.serial('Lambda invocations should be retried after a timeout without a custom retryCondition', async (test) => {
+test('Lambda invocations should be retried after a timeout without a custom retryCondition', async () => {
   // Don't provide any response to invoke to mimic is not ever responding
-  const abort = sinon.stub();
+  const abort = jest.fn();
   let invokeCount = 0;
   const alpha = new Alpha('lambda://test-function', {
     Lambda: class UnresponsiveLambda {
@@ -25,7 +25,7 @@ test.serial('Lambda invocations should be retried after a timeout without a cust
           abort,
         };
       }
-    },
+    } as any as typeof Lambda,
   });
 
   const request = alpha.get('/some/path', {
@@ -34,8 +34,8 @@ test.serial('Lambda invocations should be retried after a timeout without a cust
       attempts: 2,
       factor: 1,
     },
-  });
+  } as any as AxiosRequestConfig);
 
-  await test.throwsAsync(request);
-  test.is(invokeCount, 3);
+  await expect(request).rejects.toThrow();
+  expect(invokeCount).toBe(3);
 });

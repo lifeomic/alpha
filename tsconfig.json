@@ -2,13 +2,13 @@
   "extends": "@lifeomic/typescript-config",
   "compilerOptions": {
     "declaration": true,
-    "lib": ["es2022", "dom"],
+    "lib": ["es2021", "dom"],
     "module": "commonjs",
     "noEmit": true,
     "resolveJsonModule": true,
     "strict": true,
     "target": "es2019",
-    "types": ["node"]
+    "types": ["node", "jest"]
   },
   "exclude": [
     "./node_modules"

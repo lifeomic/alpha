@@ -1,6 +1,6 @@
-const test = require('ava');
-const get = require('lodash/get');
-const { lambdaEvent } = require('../src/adapters/helpers/lambdaEvent');
+import get from 'lodash/get';
+import { lambdaEvent } from '../src/adapters/helpers/lambdaEvent';
+import { AlphaOptions } from '../src';
 
 const duplicateParams = '/lifeomic/dstu3/Questionnaire?pageSize=25&_tag=http%3A%2F%2Flifeomic.com%2Ffhir%2Fquestionnaire-type%7Csurvey-form&_tag=http%3A%2F%2Flifeomic.com%2Ffhir%2Fdataset%7C0bb18fef-4e2d-4b91-a623-09527265a8b3&_tag=http%3A%2F%2Flifeomic.com%2Ffhir%2Fprimary%7C0343bfcf-4e2d-4b91-a623-095272783bf3';
 const params = '/lifeomic/dstu3/Questionnaire?pageSize=25&_tag=http%3A%2F%2Flifeomic.com%2Ffhir%2Fquestionnaire-type%7Csurvey-form&test=diffValue';
@@ -11,21 +11,21 @@ const noParams = '/lifeomic/dstu3/Questionnaire';
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 const lambda = 'lambda://service:deployed/';
-const config = {
+const config: AlphaOptions = {
   method: 'get',
   headers: {},
   url: '',
 };
 
-const assertRequestId = (test, eventPayload) => {
+const assertRequestId = (eventPayload: Record<string, any>) => {
   const requestId = get(eventPayload, 'requestContext.requestId');
-  test.true(uuidPattern.test(requestId));
+  expect(requestId).toMatch(uuidPattern);
 };
 
-test.serial('Can parse URLs with duplicate parameters', (test) => {
+test('Can parse URLs with duplicate parameters', () => {
   config.url = lambda + duplicateParams;
   const result = lambdaEvent(config, duplicateParams);
-  test.like(result, {
+  expect(result).toEqual(expect.objectContaining({
     body: '',
     headers: {},
     httpMethod: 'GET',
@@ -38,14 +38,14 @@ test.serial('Can parse URLs with duplicate parameters', (test) => {
       ],
       pageSize: '25',
     },
-  });
-  assertRequestId(test, result);
+  }));
+  assertRequestId(result);
 });
 
-test.serial('Can parse URLs without duplicates', (test) => {
+test('Can parse URLs without duplicates', () => {
   config.url = lambda + params;
   const result = lambdaEvent(config, params);
-  test.like(result, {
+  expect(result).toEqual(expect.objectContaining({
     body: '',
     headers: {},
     httpMethod: 'GET',
@@ -55,14 +55,14 @@ test.serial('Can parse URLs without duplicates', (test) => {
       pageSize: '25',
       test: 'diffValue',
     },
-  });
-  assertRequestId(test, result);
+  }));
+  assertRequestId(result);
 });
 
-test.serial('handles null values', (test) => {
+test('handles null values', () => {
   config.url = lambda + invalidKeyParam;
   const result = lambdaEvent(config, invalidKeyParam);
-  test.like(result, {
+  expect(result).toEqual(expect.objectContaining({
     body: '',
     headers: {},
     httpMethod: 'GET',
@@ -71,14 +71,14 @@ test.serial('handles null values', (test) => {
       pageSize: '25',
       onlyKey: '',
     },
-  });
-  assertRequestId(test, result);
+  }));
+  assertRequestId(result);
 });
 
-test.serial('handles null keys', (test) => {
+test('handles null keys', () => {
   config.url = lambda + invalidValueParam;
   const result = lambdaEvent(config, invalidValueParam);
-  test.like(result, {
+  expect(result).toEqual(expect.objectContaining({
     body: '',
     headers: {},
     httpMethod: 'GET',
@@ -87,18 +87,18 @@ test.serial('handles null keys', (test) => {
       pageSize: '25',
       '': 'onlyvalue',
     },
-  });
+  }));
 });
 
-test.serial('Adds content-type to multiValueHeaders', (test) => {
-  const config = {
+test('Adds content-type to multiValueHeaders', () => {
+  const config: AlphaOptions = {
     data: JSON.stringify({ data: 'test' }),
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     url: lambda + noParams,
   };
   const result = lambdaEvent(config, noParams);
-  test.like(result, {
+  expect(result).toEqual(expect.objectContaining({
     body: JSON.stringify({ data: 'test' }),
     headers: { 'Content-Type': 'application/json' },
     httpMethod: 'POST',
@@ -107,6 +107,6 @@ test.serial('Adds content-type to multiValueHeaders', (test) => {
     multiValueHeaders: {
       'Content-Type': ['application/json'],
     },
-  });
-  assertRequestId(test, result);
+  }));
+  assertRequestId(result);
 });
