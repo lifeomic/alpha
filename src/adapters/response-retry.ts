@@ -17,28 +17,28 @@ export interface RetryAlphaOptions extends Omit<AlphaOptions, 'retry'> {
   retry: RetryOptions;
 }
 
-const DEFAULTS = {
-  attempts: 3,
-  factor: 2,
-  maxTimeout: 10000,
-  retryCondition: isRetryableError
-};
-
-function isRetryableError (error: any | RequestError) {
+const isRetryableError = (error: any | RequestError) => {
   if (error.isLambdaInvokeTimeout) return true;
 
   return error.code !== 'ECONNABORTED' &&
     (!error.response || (error.response.status >= 500 && error.response.status <= 599));
-}
+};
 
-function setDefaults (config: AlphaOptions) {
+const DEFAULTS = {
+  attempts: 3,
+  factor: 2,
+  maxTimeout: 10000,
+  retryCondition: isRetryableError,
+};
+
+const setDefaults = (config: AlphaOptions) => {
   if (isBoolean(config.retry)) {
     config.retry = {};
   }
   config.retry = defaults(config.retry, DEFAULTS);
-}
+};
 
-async function exponentialBackoff (config: RetryAlphaOptions) {
+const exponentialBackoff = (config: RetryAlphaOptions) => {
   config.__retryCount += 1;
 
   // Get random between 1 and 1000
@@ -49,7 +49,7 @@ async function exponentialBackoff (config: RetryAlphaOptions) {
   const delay = Math.min(backoff, config.retry.maxTimeout);
 
   return new Promise((resolve) => setTimeout(resolve, delay));
-}
+};
 
 /**
  * Attempts to retry a failed request a configurable number of times.
@@ -67,7 +67,7 @@ export const setup = (client: Alpha) => {
       setDefaults(config);
       config.__retryCount = config.__retryCount || 0;
 
-      if (!config.retry.retryCondition(err) ||
+      if (!config.retry.retryCondition(err as Error) ||
           config.__retryCount >= config.retry.attempts) {
         return Promise.reject(err);
       }
@@ -76,6 +76,6 @@ export const setup = (client: Alpha) => {
 
       // Send another request after delay
       return client.request(config);
-    }
+    },
   );
 };

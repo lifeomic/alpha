@@ -51,11 +51,11 @@ test.serial('Creating a client with configuration options sets the default clien
 
   const options = {
     params: {
-      foo: 'bar'
+      foo: 'bar',
     },
     headers: {
-      'Accept': 'application/json'
-    }
+      'Accept': 'application/json',
+    },
   };
 
   const client = new Alpha(options);
@@ -76,8 +76,8 @@ test.serial('Creating a client with a target and configuration options binds the
 
   const options = {
     headers: {
-      'Accept': 'application/json'
-    }
+      'Accept': 'application/json',
+    },
   };
 
   const client = new Alpha('http://example.com', options);
@@ -96,7 +96,7 @@ test.serial('A custom status validator can be used with the client', async (test
     .reply(302, { location: '/redirect' });
 
   const options = {
-    validateStatus: (status) => status >= 200 && status < 300
+    validateStatus: (status) => status >= 200 && status < 300,
   };
 
   const client = new Alpha('http://example.com', options);

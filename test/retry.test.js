@@ -42,10 +42,8 @@ test.serial('Making a request with retries enabled and a custom retry condition 
 
   const alpha = new Alpha('http://example.com', {
     retry: {
-      retryCondition: function (error) {
-        return error.response.status === 404;
-      }
-    }
+      retryCondition: (error) => error.response.status === 404,
+    },
   });
   const response = await alpha.get('/some/path');
 
@@ -61,10 +59,8 @@ test.serial('Making a request with retries enabled and a custom retry condition 
 
   const alpha = new Alpha('http://example.com', {
     retry: {
-      retryCondition: function (error) {
-        return error.response.status === 404;
-      }
-    }
+      retryCondition: (error) => error.response.status === 404,
+    },
   });
   const err = await test.throwsAsync(alpha.get('/some/path'));
   test.is(err.response.status, 403);

@@ -14,8 +14,8 @@ test('will convert header values', (t) => {
     // @ts-ignore
     booleanHeader: true,
     // @ts-ignore
-    undefinedHeader: undefined
-  }
+    undefinedHeader: undefined,
+  };
 
   const expected: ToProxyHeaders = {
     headers: {
@@ -23,16 +23,16 @@ test('will convert header values', (t) => {
       multiStringHeader: multiStringHeader.join(','),
       numberHeader: `${input.numberHeader}`,
       booleanHeader: `${input.booleanHeader}`,
-      undefinedHeader: undefined
+      undefinedHeader: undefined,
     },
     multiValueHeaders: {
       stringHeader: [input.stringHeader as string],
       multiStringHeader: multiStringHeader.map((v) => v.trim()),
       numberHeader: [`${input.numberHeader}`],
       booleanHeader: [`${input.booleanHeader}`],
-      undefinedHeader: undefined
-    }
-  }
+      undefinedHeader: undefined,
+    },
+  };
   const actual = toProxyHeaders(input);
   t.deepEqual(actual, expected);
 });

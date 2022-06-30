@@ -27,7 +27,7 @@ test.serial('Making a GET request with the http protocol performs a normal HTTP 
 
   test.deepEqual(
     response.headers,
-    { 'test-header': 'some value' }
+    { 'test-header': 'some value' },
   );
 
   test.true(server.isDone());
@@ -46,7 +46,7 @@ test.serial('Making a GET request with the https protocol performs a normal HTTP
 
   test.deepEqual(
     response.headers,
-    { 'test-header': 'some value' }
+    { 'test-header': 'some value' },
   );
 
   test.true(server.isDone());

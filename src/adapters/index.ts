@@ -11,5 +11,5 @@ export const adapters: ((client: Alpha) => void)[] = [
   handler,
   invocation,
   retry,
-  alphaConfig
+  alphaConfig,
 ];

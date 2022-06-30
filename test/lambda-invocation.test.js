@@ -31,8 +31,8 @@ test.serial('Making a GET request with the lambda protocol invokes the lambda fu
     Payload: JSON.stringify({
       body: 'hello!',
       headers: { 'test-header': 'some value' },
-      statusCode: 200
-    })
+      statusCode: 200,
+    }),
   });
 
   const response = await test.context.alpha.get(
@@ -46,7 +46,7 @@ test.serial('Making a GET request with the lambda protocol invokes the lambda fu
   test.true(test.context.invoke.calledWith({
     FunctionName: 'test-function',
     InvocationType: 'RequestResponse',
-    Payload: sinon.match.string
+    Payload: sinon.match.string,
   }));
 
   const payload = JSON.parse(test.context.invoke.firstCall.args[0].Payload);
@@ -64,15 +64,15 @@ test.serial('Making a GET request with responseType \'arraybuffer\' returns the 
     Payload: JSON.stringify({
       body: 'hello!',
       headers: { 'test-header': 'some value' },
-      statusCode: 200
-    })
+      statusCode: 200,
+    }),
   });
 
   const response = await test.context.alpha.get(
     '/some/path?param1=value1',
     {
       params: { param2: 'value2' },
-      responseType: 'arraybuffer'
+      responseType: 'arraybuffer',
     });
 
   // Assert that the right type is returned
@@ -88,26 +88,26 @@ test.serial('Making a GET request with responseType \'stream\' throws an unsuppo
     Payload: JSON.stringify({
       body: 'hello!',
       headers: { 'test-header': 'some value' },
-      statusCode: 200
-    })
+      statusCode: 200,
+    }),
   });
 
   const response = test.context.alpha.get(
     '/some/path?param1=value1',
     {
       params: { param2: 'value2' },
-      responseType: 'stream'
+      responseType: 'stream',
     });
   await test.throwsAsync(response, { message: 'Unhandled responseType requested: stream' });
 });
 
 test('Invalid URLs cause Errors to be thrown', async (test) => {
-  async function assertInvalidUrl (url) {
+  const assertInvalidUrl = async (url) => {
     // Override the shared alpha client to include a qualifier
     test.context.alpha = new Alpha(url);
     const response = test.context.alpha.get('/some/path');
     await test.throwsAsync(response, { message: `The config.url, '${url}/some/path' does not appear to be a Lambda Function URL` });
-  }
+  };
   await assertInvalidUrl('lambda://test-function.test');
   await assertInvalidUrl('lambda://test-function.test/test');
   await assertInvalidUrl('lambda://test-function.test:2345');
@@ -115,40 +115,40 @@ test('Invalid URLs cause Errors to be thrown', async (test) => {
   await assertInvalidUrl('lambda://test-function.test:2345:another/test');
 });
 
-async function testLambdaWithQualifier (test, qualifier) {
+const testLambdaWithQualifier = async (t, qualifier) => {
   // Override the shared alpha client to include a qualifier
-  test.context.alpha = new Alpha(`lambda://test-function:${qualifier}`);
+  t.context.alpha = new Alpha(`lambda://test-function:${qualifier}`);
 
-  test.context.invoke.callsArgWith(1, null, {
+  t.context.invoke.callsArgWith(1, null, {
     StatusCode: 200,
     Payload: JSON.stringify({
       body: 'hello!',
       headers: { 'test-header': 'some value' },
-      statusCode: 200
-    })
+      statusCode: 200,
+    }),
   });
 
-  const response = await test.context.alpha.get('/some/path');
+  const response = await t.context.alpha.get('/some/path');
 
-  test.is(response.data, 'hello!');
-  test.is(response.status, 200);
-  test.deepEqual(response.headers, { 'test-header': 'some value' });
+  t.is(response.data, 'hello!');
+  t.is(response.status, 200);
+  t.deepEqual(response.headers, { 'test-header': 'some value' });
 
-  sinon.assert.calledWithMatch(test.context.invoke, {
+  sinon.assert.calledWithMatch(t.context.invoke, {
     FunctionName: 'test-function',
     InvocationType: 'RequestResponse',
     Qualifier: qualifier,
-    Payload: sinon.match.string
+    Payload: sinon.match.string,
   }, sinon.match.func);
 
-  const payload = JSON.parse(test.context.invoke.firstCall.args[0].Payload);
+  const payload = JSON.parse(t.context.invoke.firstCall.args[0].Payload);
 
-  test.is(payload.body, '');
-  test.truthy(payload.headers);
-  test.is(payload.httpMethod, 'GET');
-  test.is(payload.path, '/some/path');
-  test.deepEqual(payload.queryStringParameters, {});
-}
+  t.is(payload.body, '');
+  t.truthy(payload.headers);
+  t.is(payload.httpMethod, 'GET');
+  t.is(payload.path, '/some/path');
+  t.deepEqual(payload.queryStringParameters, {});
+};
 
 test.serial('Making a GET request with the lambda protocol with a numeric qualifier invokes the lambda function using a qualifier', async (test) => {
   await testLambdaWithQualifier(test, '2');
@@ -168,8 +168,8 @@ test.serial('When a lambda function returns an error code an error is thrown', a
     Payload: JSON.stringify({
       body: { error: 'Bad request.' },
       headers: {},
-      statusCode: 400
-    })
+      statusCode: 400,
+    }),
   });
 
   const error = await test.throwsAsync(test.context.alpha.get('/some/path'));
@@ -203,8 +203,8 @@ test.serial('When status validation is disabled errors are not thrown', async (t
     StatusCode: 200,
     Payload: JSON.stringify({
       body: 'error!',
-      statusCode: 400
-    })
+      statusCode: 400,
+    }),
   });
 
   const response = await test.context.alpha.get('/some/path', { validateStatus: false });
@@ -218,7 +218,7 @@ test.serial('When a lambda function returns an Unhandled FunctionError an error 
   test.context.invoke.callsArgWith(1, null, {
     StatusCode: 200,
     FunctionError: 'Unhandled',
-    Payload: JSON.stringify({ errorMessage })
+    Payload: JSON.stringify({ errorMessage }),
   });
 
   const error = await test.throwsAsync(test.context.alpha.get('/some/path'));
@@ -248,7 +248,7 @@ test.serial('When a lambda function returns a Handled FunctionError an error is 
   test.context.invoke.callsArgWith(1, null, {
     StatusCode: 200,
     FunctionError: 'Handled',
-    Payload: JSON.stringify({ errorMessage })
+    Payload: JSON.stringify({ errorMessage }),
   });
 
   const error = await test.throwsAsync(test.context.alpha.get('/some/path'));
@@ -276,7 +276,7 @@ test.serial('When a lambda function returns a Handled FunctionError an error is 
 test.serial('When the Payload attribute is null an error is thrown', async (test) => {
   const response = {
     StatusCode: 500,
-    Payload: null
+    Payload: null,
   };
   test.context.invoke.callsArgWith(1, null, response);
 
@@ -308,16 +308,16 @@ test.serial('Redirects are automatically followed (301)', async (test) => {
     StatusCode: 200,
     Payload: JSON.stringify({
       headers: { location: '/redirect' },
-      statusCode: 301
-    })
+      statusCode: 301,
+    }),
   });
 
   test.context.invoke.onSecondCall().callsArgWith(1, null, {
     StatusCode: 200,
     Payload: JSON.stringify({
       body: 'we made it alive!',
-      statusCode: 200
-    })
+      statusCode: 200,
+    }),
   });
 
   const response = await test.context.alpha.get('/some/path');
@@ -328,7 +328,7 @@ test.serial('Redirects are automatically followed (301)', async (test) => {
   test.true(test.context.invoke.firstCall.calledWith({
     FunctionName: 'test-function',
     InvocationType: 'RequestResponse',
-    Payload: sinon.match.string
+    Payload: sinon.match.string,
   }));
 
   let payload = JSON.parse(test.context.invoke.firstCall.args[0].Payload);
@@ -342,7 +342,7 @@ test.serial('Redirects are automatically followed (301)', async (test) => {
   test.true(test.context.invoke.secondCall.calledWith({
     FunctionName: 'test-function',
     InvocationType: 'RequestResponse',
-    Payload: sinon.match.string
+    Payload: sinon.match.string,
   }));
 
   payload = JSON.parse(test.context.invoke.secondCall.args[0].Payload);
@@ -359,16 +359,16 @@ test.serial('Redirects are automatically followed (302)', async (test) => {
     StatusCode: 200,
     Payload: JSON.stringify({
       headers: { location: '/redirect' },
-      statusCode: 302
-    })
+      statusCode: 302,
+    }),
   });
 
   test.context.invoke.onSecondCall().callsArgWith(1, null, {
     StatusCode: 200,
     Payload: JSON.stringify({
       body: 'we made it alive!',
-      statusCode: 200
-    })
+      statusCode: 200,
+    }),
   });
 
   const response = await test.context.alpha.get('/some/path');
@@ -379,7 +379,7 @@ test.serial('Redirects are automatically followed (302)', async (test) => {
   test.true(test.context.invoke.firstCall.calledWith({
     FunctionName: 'test-function',
     InvocationType: 'RequestResponse',
-    Payload: sinon.match.string
+    Payload: sinon.match.string,
   }));
 
   let payload = JSON.parse(test.context.invoke.firstCall.args[0].Payload);
@@ -393,7 +393,7 @@ test.serial('Redirects are automatically followed (302)', async (test) => {
   test.true(test.context.invoke.secondCall.calledWith({
     FunctionName: 'test-function',
     InvocationType: 'RequestResponse',
-    Payload: sinon.match.string
+    Payload: sinon.match.string,
   }));
 
   payload = JSON.parse(test.context.invoke.secondCall.args[0].Payload);
@@ -408,7 +408,7 @@ test.serial('Redirects are automatically followed (302)', async (test) => {
 test.serial('Binary content is base64 encoded', async (test) => {
   test.context.invoke.callsArgWith(1, null, {
     StatusCode: 200,
-    Payload: JSON.stringify({ statusCode: 200 })
+    Payload: JSON.stringify({ statusCode: 200 }),
   });
 
   const content = Buffer.from('hello!');
@@ -421,9 +421,9 @@ test.serial('Binary content is base64 encoded', async (test) => {
     {
       FunctionName: 'test-function',
       InvocationType: 'RequestResponse',
-      Payload: sinon.match.string
+      Payload: sinon.match.string,
     },
-    sinon.match.func
+    sinon.match.func,
   );
 
   const payload = JSON.parse(test.context.invoke.firstCall.args[0].Payload);
@@ -436,12 +436,12 @@ test.serial('Binary content is base64 encoded', async (test) => {
   test.deepEqual(payload.queryStringParameters, {});
 });
 
-function delayedLambda (test, delay, errorToThrow) {
+const delayedLambda = (test, delay, errorToThrow) => {
   return class OneSecondAWSLambda {
     invoke () {
       return {
         abort: test.context.abort,
-        promise: async () => {
+        promise: () => {
           return new Promise((resolve, reject) => {
             if (errorToThrow) {
               return reject(errorToThrow);
@@ -452,16 +452,16 @@ function delayedLambda (test, delay, errorToThrow) {
                 Payload: JSON.stringify({
                   body: 'hello!',
                   headers: { 'test-header': 'some value' },
-                  statusCode: 200
-                })
+                  statusCode: 200,
+                }),
               });
             }, delay);
           });
-        }
+        },
       };
     }
   };
-}
+};
 
 test.serial('timeout values are provided to the HTTP client used by the Lambda client', async (test) => {
   test.context.invoke.callsArgWith(1, null, {
@@ -469,8 +469,8 @@ test.serial('timeout values are provided to the HTTP client used by the Lambda c
     Payload: JSON.stringify({
       body: 'hello!',
       headers: { 'test-header': 'some value' },
-      statusCode: 200
-    })
+      statusCode: 200,
+    }),
   });
 
   await test.context.alpha.get('/some/path', { timeout: 5 });
@@ -479,15 +479,15 @@ test.serial('timeout values are provided to the HTTP client used by the Lambda c
   sinon.assert.calledWithMatch(AWS_SDK.Lambda, {
     httpOptions: {
       connectTimeout: 5,
-      timeout: 5
-    }
+      timeout: 5,
+    },
   });
 });
 
 test.serial('A timeout can be configured for the invoked lambda function', async (test) => {
   const error = await test.throwsAsync(test.context.alpha.get('/some/path', {
     Lambda: delayedLambda(test, 1000), // lambda will take 1000 ms
-    timeout: 5 // timeout at 5 ms
+    timeout: 5, // timeout at 5 ms
   }));
 
   test.is(error.code, 'ECONNABORTED');
@@ -497,8 +497,8 @@ test.serial('A timeout can be configured for the invoked lambda function', async
 test.serial.cb('A configured timeout does not hinder normal lambda function invocation behavior', (test) => {
   test.context.alpha.get('/some/path', {
     Lambda: delayedLambda(test, 1),
-    timeout: 10
-  }).then(response => {
+    timeout: 10,
+  }).then((response) => {
     test.is(response.data, 'hello!');
     test.is(response.status, 200);
     test.deepEqual(response.headers, { 'test-header': 'some value' });
@@ -517,7 +517,7 @@ test.serial('A configured timeout does not eat lambda function invocation errors
   try {
     const error = await test.throwsAsync(test.context.alpha.get('/some/path', {
       Lambda: delayedLambda(test, 1, new Error('Other error')),
-      timeout: 1000
+      timeout: 1000,
     }));
 
     test.is(error.message, 'Other error');
@@ -531,7 +531,7 @@ test.serial('A configured timeout does not eat lambda function invocation errors
 
 test.serial('lambda function invocation errors are re-thrown', async (test) => {
   const error = await test.throwsAsync(test.context.alpha.get('/some/path', {
-    Lambda: delayedLambda(test, 1, new Error('Other error'))
+    Lambda: delayedLambda(test, 1, new Error('Other error')),
   }));
 
   test.is(error.message, 'Other error');
@@ -539,15 +539,15 @@ test.serial('lambda function invocation errors are re-thrown', async (test) => {
 
 test.serial('lambdaEndpoint config option is provided to the Lambda client', async (test) => {
   const alpha = new Alpha('lambda://test-function', {
-    lambdaEndpoint: 'http://test-endpoint'
+    lambdaEndpoint: 'http://test-endpoint',
   });
 
   test.context.invoke.callsArgWith(1, null, {
     StatusCode: 200,
     Payload: JSON.stringify({
       body: 'test',
-      statusCode: 200
-    })
+      statusCode: 200,
+    }),
   });
 
   const response = await alpha.get('/test');

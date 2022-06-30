@@ -10,19 +10,19 @@ const noParams = '/lifeomic/dstu3/Questionnaire';
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
-const lambda = `lambda://service:deployed/`;
+const lambda = 'lambda://service:deployed/';
 const config = {
   method: 'get',
   headers: {},
-  url: ''
+  url: '',
 };
 
-function assertRequestId (test, eventPayload) {
+const assertRequestId = (test, eventPayload) => {
   const requestId = get(eventPayload, 'requestContext.requestId');
   test.true(uuidPattern.test(requestId));
-}
+};
 
-test.serial(`Can parse URLs with duplicate parameters`, async (test) => {
+test.serial('Can parse URLs with duplicate parameters', (test) => {
   config.url = lambda + duplicateParams;
   const result = lambdaEvent(config, duplicateParams);
   test.like(result, {
@@ -34,15 +34,15 @@ test.serial(`Can parse URLs with duplicate parameters`, async (test) => {
       _tag: [
         'http://lifeomic.com/fhir/questionnaire-type|survey-form',
         'http://lifeomic.com/fhir/dataset|0bb18fef-4e2d-4b91-a623-09527265a8b3',
-        'http://lifeomic.com/fhir/primary|0343bfcf-4e2d-4b91-a623-095272783bf3'
+        'http://lifeomic.com/fhir/primary|0343bfcf-4e2d-4b91-a623-095272783bf3',
       ],
-      pageSize: '25'
-    }
+      pageSize: '25',
+    },
   });
   assertRequestId(test, result);
 });
 
-test.serial(`Can parse URLs without duplicates`, async (test) => {
+test.serial('Can parse URLs without duplicates', (test) => {
   config.url = lambda + params;
   const result = lambdaEvent(config, params);
   test.like(result, {
@@ -53,13 +53,13 @@ test.serial(`Can parse URLs without duplicates`, async (test) => {
     queryStringParameters: {
       _tag: 'http://lifeomic.com/fhir/questionnaire-type|survey-form',
       pageSize: '25',
-      test: 'diffValue'
-    }
+      test: 'diffValue',
+    },
   });
   assertRequestId(test, result);
 });
 
-test.serial(`handles null values`, test => {
+test.serial('handles null values', (test) => {
   config.url = lambda + invalidKeyParam;
   const result = lambdaEvent(config, invalidKeyParam);
   test.like(result, {
@@ -69,13 +69,13 @@ test.serial(`handles null values`, test => {
     path: '/lifeomic/dstu3/Questionnaire',
     queryStringParameters: {
       pageSize: '25',
-      onlyKey: ''
-    }
+      onlyKey: '',
+    },
   });
   assertRequestId(test, result);
 });
 
-test.serial(`handles null keys`, test => {
+test.serial('handles null keys', (test) => {
   config.url = lambda + invalidValueParam;
   const result = lambdaEvent(config, invalidValueParam);
   test.like(result, {
@@ -85,17 +85,17 @@ test.serial(`handles null keys`, test => {
     path: '/lifeomic/dstu3/Questionnaire',
     queryStringParameters: {
       pageSize: '25',
-      '': 'onlyvalue'
-    }
+      '': 'onlyvalue',
+    },
   });
 });
 
-test.serial(`Adds content-type to multiValueHeaders`, test => {
+test.serial('Adds content-type to multiValueHeaders', (test) => {
   const config = {
     data: JSON.stringify({ data: 'test' }),
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    url: lambda + noParams
+    url: lambda + noParams,
   };
   const result = lambdaEvent(config, noParams);
   test.like(result, {
@@ -105,8 +105,8 @@ test.serial(`Adds content-type to multiValueHeaders`, test => {
     path: '/lifeomic/dstu3/Questionnaire',
     queryStringParameters: {},
     multiValueHeaders: {
-      'Content-Type': ['application/json']
-    }
+      'Content-Type': ['application/json'],
+    },
   });
   assertRequestId(test, result);
 });

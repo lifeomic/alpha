@@ -6,7 +6,7 @@ const test = require('ava');
 const response = {
   headers: { 'test-header': 'some value' },
   body: 'hello!',
-  statusCode: 200
+  statusCode: 200,
 };
 
 const event = {
@@ -17,8 +17,8 @@ const event = {
   queryStringParameters: {},
   multiValueHeaders: sinon.match.object,
   requestContext: {
-    requestId: sinon.match.string
-  }
+    requestId: sinon.match.string,
+  },
 };
 
 const contextKeys = [
@@ -33,7 +33,7 @@ const contextKeys = [
   'getRemainingTimeInMillis',
   'done',
   'fail',
-  'succeed'
+  'succeed',
 ];
 
 test.before(() => {
@@ -85,20 +85,20 @@ test('works with a callback style handler that executes the callback async', asy
   test.is(result.data, response.body);
 });
 
-function setupHandlerBehavior ({ handlerStub, isCallbackStyleHandler, error, response }) {
+const setupHandlerBehavior = ({ handlerStub, isCallbackStyleHandler, error, response }) => {
   if (isCallbackStyleHandler) {
     handlerStub.callsArgWith(2, error, response);
   } else {
     error ? handlerStub.rejects(error) : handlerStub.resolves(response);
   }
-}
+};
 
-function registerSpecs (isCallbackStyleHandler) {
+const registerSpecs = (isCallbackStyleHandler) => {
   test(`Making a GET request to a local handler invokes the handler (callbackStyle=${isCallbackStyleHandler})`, async (test) => {
     setupHandlerBehavior({
       handlerStub: test.context.handler,
       isCallbackStyleHandler,
-      response
+      response,
     });
     const result = await test.context.client.get('/some/path');
 
@@ -110,7 +110,7 @@ function registerSpecs (isCallbackStyleHandler) {
       test.context.handler,
       sinon.match(event),
       sinon.match.object,
-      sinon.match.func
+      sinon.match.func,
     );
   });
 
@@ -118,12 +118,12 @@ function registerSpecs (isCallbackStyleHandler) {
     setupHandlerBehavior({
       handlerStub: test.context.handler,
       isCallbackStyleHandler,
-      response
+      response,
     });
     const result = await test.context.client.post('/some/path', { data: 'test' }, {
       headers: {
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     });
 
     test.is(result.status, 200);
@@ -137,16 +137,16 @@ function registerSpecs (isCallbackStyleHandler) {
       path: '/some/path',
       queryStringParameters: {},
       requestContext: {
-        requestId: sinon.match.string
+        requestId: sinon.match.string,
       },
-      multiValueHeaders: sinon.match.object
+      multiValueHeaders: sinon.match.object,
     };
 
     sinon.assert.calledWithExactly(
       test.context.handler,
       sinon.match(event),
       sinon.match.object,
-      sinon.match.func
+      sinon.match.func,
     );
   });
 
@@ -155,7 +155,7 @@ function registerSpecs (isCallbackStyleHandler) {
     setupHandlerBehavior({
       handlerStub: test.context.handler,
       error: failure,
-      isCallbackStyleHandler
+      isCallbackStyleHandler,
     });
 
     const error = await test.throwsAsync(test.context.client.get('/some/path'));
@@ -181,13 +181,13 @@ function registerSpecs (isCallbackStyleHandler) {
   test(`When status validation is disable errors are not thrown (callbackStyle=${isCallbackStyleHandler})`, async (test) => {
     const response = {
       body: 'error!',
-      statusCode: 400
+      statusCode: 400,
     };
 
     setupHandlerBehavior({
       handlerStub: test.context.handler,
       response,
-      isCallbackStyleHandler
+      isCallbackStyleHandler,
     });
 
     const result = await test.context.client.get('/some/path', { validateStatus: false });
@@ -199,23 +199,23 @@ function registerSpecs (isCallbackStyleHandler) {
   test(`Redirects are automaticaly followed (301) (callbackStyle=${isCallbackStyleHandler})`, async (test) => {
     const redirect = {
       headers: { location: '/other/path' },
-      statusCode: 301
+      statusCode: 301,
     };
 
     const response = {
       body: 'hello!',
-      statusCode: 200
+      statusCode: 200,
     };
 
     setupHandlerBehavior({
       handlerStub: test.context.handler.onFirstCall(),
       response: redirect,
-      isCallbackStyleHandler
+      isCallbackStyleHandler,
     });
     setupHandlerBehavior({
       handlerStub: test.context.handler.onSecondCall(),
       response,
-      isCallbackStyleHandler
+      isCallbackStyleHandler,
     });
 
     const result = await test.context.client.get('/some/path');
@@ -233,11 +233,11 @@ function registerSpecs (isCallbackStyleHandler) {
         queryStringParameters: {},
         multiValueHeaders: sinon.match.object,
         requestContext: {
-          requestId: sinon.match.string
-        }
+          requestId: sinon.match.string,
+        },
       }),
       sinon.match.object,
-      sinon.match.func
+      sinon.match.func,
     );
     sinon.assert.calledWithExactly(
       test.context.handler.secondCall,
@@ -249,34 +249,34 @@ function registerSpecs (isCallbackStyleHandler) {
         queryStringParameters: {},
         multiValueHeaders: sinon.match.object,
         requestContext: {
-          requestId: sinon.match.string
-        }
+          requestId: sinon.match.string,
+        },
       }),
       sinon.match.object,
-      sinon.match.func
+      sinon.match.func,
     );
   });
 
   test(`Redirects are automaticaly followed (302) (callbackStyle=${isCallbackStyleHandler})`, async (test) => {
     const redirect = {
       headers: { location: '/other/path' },
-      statusCode: 302
+      statusCode: 302,
     };
 
     const response = {
       body: 'hello!',
-      statusCode: 200
+      statusCode: 200,
     };
 
     setupHandlerBehavior({
       handlerStub: test.context.handler.onFirstCall(),
       response: redirect,
-      isCallbackStyleHandler
+      isCallbackStyleHandler,
     });
     setupHandlerBehavior({
       handlerStub: test.context.handler.onSecondCall(),
       response,
-      isCallbackStyleHandler
+      isCallbackStyleHandler,
     });
 
     const result = await test.context.client.get('/some/path');
@@ -294,11 +294,11 @@ function registerSpecs (isCallbackStyleHandler) {
         queryStringParameters: {},
         multiValueHeaders: sinon.match.object,
         requestContext: {
-          requestId: sinon.match.string
-        }
+          requestId: sinon.match.string,
+        },
       }),
       sinon.match.object,
-      sinon.match.func
+      sinon.match.func,
     );
     sinon.assert.calledWithExactly(
       test.context.handler.secondCall,
@@ -310,11 +310,11 @@ function registerSpecs (isCallbackStyleHandler) {
         queryStringParameters: {},
         multiValueHeaders: sinon.match.object,
         requestContext: {
-          requestId: sinon.match.string
-        }
+          requestId: sinon.match.string,
+        },
       }),
       sinon.match.object,
-      sinon.match.func
+      sinon.match.func,
     );
   });
 
@@ -322,13 +322,13 @@ function registerSpecs (isCallbackStyleHandler) {
     const content = Buffer.from('hello!');
 
     const response = {
-      statusCode: 204
+      statusCode: 204,
     };
 
     setupHandlerBehavior({
       handlerStub: test.context.handler,
       response,
-      isCallbackStyleHandler
+      isCallbackStyleHandler,
     });
     const result = await test.context.client.put('/some/path', content);
 
@@ -343,17 +343,18 @@ function registerSpecs (isCallbackStyleHandler) {
       queryStringParameters: {},
       multiValueHeaders: sinon.match.object,
       requestContext: {
-        requestId: sinon.match.string
-      }
+        requestId: sinon.match.string,
+      },
     };
 
     sinon.assert.calledWithExactly(
       test.context.handler,
       sinon.match(event),
       sinon.match.object,
-      sinon.match.func
+      sinon.match.func,
     );
   });
-}
+};
+
 registerSpecs(true);
 registerSpecs(false);

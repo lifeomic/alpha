@@ -20,19 +20,20 @@ test.serial('Lambda invocations should be retried after a timeout without a cust
       invoke () {
         invokeCount++;
         return {
-          promise: function () { return new Promise(function () {}); },
-          abort
+          promise: () => new Promise(() => {}),
+          send: () => {},
+          abort,
         };
       }
-    }
+    },
   });
 
   const request = alpha.get('/some/path', {
     timeout: 5,
     retry: {
       attempts: 2,
-      factor: 1
-    }
+      factor: 1,
+    },
   });
 
   await test.throwsAsync(request);

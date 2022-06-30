@@ -13,7 +13,7 @@ test.beforeEach((test) => {
   AWS.mock('Lambda', 'invoke', test.context.invoke);
 });
 
-test.afterEach.always((test) => {
+test.afterEach.always(() => {
   AWS.restore();
   nock.cleanAll();
 });
@@ -27,8 +27,8 @@ test.serial('A Lambda can redirect to HTTP', async (test) => {
     StatusCode: 200,
     Payload: JSON.stringify({
       headers: { location: 'http://example.com' },
-      statusCode: 302
-    })
+      statusCode: 302,
+    }),
   });
 
   const response = await test.context.alpha.get('lambda://test');
@@ -43,16 +43,16 @@ test.serial('A Lambda can redirect to a relative URL', async (test) => {
     StatusCode: 200,
     Payload: JSON.stringify({
       headers: { location: '/some/path' },
-      statusCode: 302
-    })
+      statusCode: 302,
+    }),
   });
 
   test.context.invoke.onSecondCall().callsArgWith(1, null, {
     StatusCode: 200,
     Payload: JSON.stringify({
       body: 'we made it alive!',
-      statusCode: 200
-    })
+      statusCode: 200,
+    }),
   });
 
   const response = await test.context.alpha.get('lambda://test');
@@ -67,16 +67,16 @@ test.serial('A Lambda can redirect to a qualified Lambda URL', async (test) => {
     StatusCode: 200,
     Payload: JSON.stringify({
       headers: { location: 'lambda://test:deployed/some/path' },
-      statusCode: 302
-    })
+      statusCode: 302,
+    }),
   });
 
   test.context.invoke.onSecondCall().callsArgWith(1, null, {
     StatusCode: 200,
     Payload: JSON.stringify({
       body: 'we made it alive!',
-      statusCode: 200
-    })
+      statusCode: 200,
+    }),
   });
 
   const response = await test.context.alpha.get('lambda://test');
@@ -95,8 +95,8 @@ test.serial('An HTTP endpoint can redirect to a Lambda', async (test) => {
     StatusCode: 200,
     Payload: JSON.stringify({
       body: 'we made it alive!',
-      statusCode: 200
-    })
+      statusCode: 200,
+    }),
   });
 
   const response = await test.context.alpha.get('http://example.com');
@@ -117,16 +117,16 @@ test.serial('Redirects are limited by default', async (test) => {
     StatusCode: 200,
     Payload: JSON.stringify({
       headers: { location: '/two' },
-      statusCode: 302
-    })
+      statusCode: 302,
+    }),
   });
 
   test.context.invoke.onSecondCall().callsArgWith(1, null, {
     StatusCode: 200,
     Payload: JSON.stringify({
       headers: { location: '/three' },
-      statusCode: 302
-    })
+      statusCode: 302,
+    }),
   });
 
   test.context.invoke.onThirdCall().callsArgWith(1, new Error('off the deep end!'));
@@ -136,7 +136,7 @@ test.serial('Redirects are limited by default', async (test) => {
   test.is(error.message, 'Exceeded maximum number of redirects.');
   test.is(error.config.url, 'lambda://test/two');
   test.is(error.response.status, 302);
-  test.is(error.response.headers['location'], '/three');
+  test.is(error.response.headers.location, '/three');
   test.true(server.isDone());
 });
 
@@ -150,8 +150,8 @@ test.serial('Redirects can be explicitly limited', async (test) => {
     StatusCode: 200,
     Payload: JSON.stringify({
       headers: { location: '/two' },
-      statusCode: 302
-    })
+      statusCode: 302,
+    }),
   });
 
   test.context.invoke.onThirdCall().callsArgWith(1, new Error('off the deep end!'));
@@ -161,6 +161,6 @@ test.serial('Redirects can be explicitly limited', async (test) => {
   test.is(error.message, 'Exceeded maximum number of redirects.');
   test.is(error.config.url, 'lambda://test/one');
   test.is(error.response.status, 302);
-  test.is(error.response.headers['location'], '/two');
+  test.is(error.response.headers.location, '/two');
   test.true(server.isDone());
 });

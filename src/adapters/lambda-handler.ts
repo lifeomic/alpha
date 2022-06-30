@@ -1,12 +1,12 @@
 import { chainAdapters } from './helpers/chainAdapters';
 import { isAbsoluteURL } from './helpers/isAbsoluteURL';
 import { lambdaEvent } from './helpers/lambdaEvent';
-import { lambdaResponse } from './helpers/lambdaResponse';
+import { lambdaResponse, Payload } from './helpers/lambdaResponse';
 import { promisify } from './helpers/promisify';
 import { RequestError } from './helpers/requestError';
 import { AlphaOptions, AlphaAdapter, HandlerRequest } from '../types';
 import { v4 as uuid } from 'uuid';
-import { Context } from 'aws-lambda';
+import { Context, Handler } from 'aws-lambda';
 import { Alpha } from '../alpha';
 
 const createContext = (provided?: Partial<Context>): Context => {
@@ -20,33 +20,33 @@ const createContext = (provided?: Partial<Context>): Context => {
     logGroupName: '',
     logStreamName: '',
     getRemainingTimeInMillis: () => 0,
-    done(){},
-    fail(){},
-    succeed(){},
+    done: () => {},
+    fail: () => {},
+    succeed: () => {},
   };
   return Object.assign({}, defaultCtx, provided);
-}
+};
 
 const lambdaHandlerAdapter: AlphaAdapter = async (config) => {
   const request: HandlerRequest = {
     context: createContext(config.context),
-    event: lambdaEvent(config)
+    event: lambdaEvent(config),
   };
 
-  const handler = promisify(config.lambda!);
+  const handler = promisify(config.lambda as Handler);
 
   try {
-    const result = await handler(request.event, request.context as Context);
+    const result = await handler(request.event, request.context as Context) as Payload;
     return lambdaResponse(config, request, result);
   } catch (error: any | Error) {
-    throw new RequestError(error.message, config, request);
+    throw new RequestError(error.message as string, config, request);
   }
-}
+};
 
 const lambdaHandlerRequestInterceptor = (config: AlphaOptions) => chainAdapters(
   config,
-  (config) => !isAbsoluteURL(config.url!) && config.lambda,
-  lambdaHandlerAdapter
+  (config) => !isAbsoluteURL(config.url as string) && config.lambda,
+  lambdaHandlerAdapter,
 );
 
 export const setup = (client: Alpha) => {
