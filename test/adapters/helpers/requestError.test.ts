@@ -1,5 +1,3 @@
-import test from 'ava';
-
 import { isAxiosError, isAlphaRequestError } from '../../../src';
 
 class FakeError {
@@ -7,24 +5,24 @@ class FakeError {
   isAlphaRequestError = true;
 }
 
-test('will return if an error isAxiosError', (t) => {
-  t.true(isAxiosError({ isAxiosError: true }));
+test('will return if an error isAxiosError', () => {
+  expect(isAxiosError({ isAxiosError: true })).toBe(true);
 
-  t.false(isAxiosError({ isAxiosError: false }));
-  t.false(isAxiosError({}));
-  t.false(isAxiosError(''));
-  t.false(isAxiosError(123));
-  t.false(isAxiosError(true));
-  t.false(isAxiosError(FakeError));
+  expect(isAxiosError({ isAxiosError: false })).toBe(false);
+  expect(isAxiosError({})).toBe(false);
+  expect(isAxiosError('')).toBe(false);
+  expect(isAxiosError(123)).toBe(false);
+  expect(isAxiosError(true)).toBe(false);
+  expect(isAxiosError(FakeError)).toBe(false);
 });
 
-test('will return if an error isAlphaRequestError', (t) => {
-  t.true(isAlphaRequestError({ isAlphaRequestError: true }));
+test('will return if an error isAlphaRequestError', () => {
+  expect(isAlphaRequestError({ isAlphaRequestError: true })).toBe(true);
 
-  t.false(isAlphaRequestError({ isAlphaRequestError: false }));
-  t.false(isAlphaRequestError({}));
-  t.false(isAlphaRequestError(''));
-  t.false(isAlphaRequestError(123));
-  t.false(isAlphaRequestError(true));
-  t.false(isAlphaRequestError(FakeError));
+  expect(isAlphaRequestError({ isAlphaRequestError: false })).toBe(false);
+  expect(isAlphaRequestError({})).toBe(false);
+  expect(isAlphaRequestError('')).toBe(false);
+  expect(isAlphaRequestError(123)).toBe(false);
+  expect(isAlphaRequestError(true)).toBe(false);
+  expect(isAlphaRequestError(FakeError)).toBe(false);
 });

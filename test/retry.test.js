@@ -1,20 +1,19 @@
 const { Alpha } = require('../src');
 const nock = require('nock');
-const test = require('ava');
 
-test.before(() => {
+beforeAll(() => {
   nock.disableNetConnect();
 });
 
-test.after(() => {
+afterAll(() => {
   nock.enableNetConnect();
 });
 
-test.afterEach.always(() => {
+afterEach(() => {
   nock.cleanAll();
 });
 
-test.serial('Making a request with retries enabled should succeed if the number of failed requests is less than the number of attempts', async (test) => {
+test('Making a request with retries enabled should succeed if the number of failed requests is less than the number of attempts', async () => {
   const server = nock('http://example.com')
     .get('/some/path')
     .reply(503)
@@ -26,12 +25,12 @@ test.serial('Making a request with retries enabled should succeed if the number 
   const alpha = new Alpha('http://example.com', { retry: true });
   const response = await alpha.get('/some/path');
 
-  test.is(response.data, 'hello!');
-  test.is(response.status, 200);
-  test.true(server.isDone());
+  expect(response.data).toBe('hello!');
+  expect(response.status).toBe(200);
+  expect(server.isDone()).toBe(true);
 });
 
-test.serial('Making a request with retries enabled and a custom retry condition should success if the number of failed requests is less than the number of attempts', async (test) => {
+test('Making a request with retries enabled and a custom retry condition should success if the number of failed requests is less than the number of attempts', async () => {
   const server = nock('http://example.com')
     .get('/some/path')
     .reply(404)
@@ -47,12 +46,12 @@ test.serial('Making a request with retries enabled and a custom retry condition 
   });
   const response = await alpha.get('/some/path');
 
-  test.is(response.data, 'hello!');
-  test.is(response.status, 200);
-  test.true(server.isDone());
+  expect(response.data).toBe('hello!');
+  expect(response.status).toBe(200);
+  expect(server.isDone()).toBe(true);
 });
 
-test.serial('Making a request with retries enabled and a custom retry condition should fail for an error that is not retryable', async (test) => {
+test('Making a request with retries enabled and a custom retry condition should fail for an error that is not retryable', async () => {
   const server = nock('http://example.com')
     .get('/some/path')
     .reply(403);
@@ -62,25 +61,29 @@ test.serial('Making a request with retries enabled and a custom retry condition 
       retryCondition: (error) => error.response.status === 404,
     },
   });
-  const err = await test.throwsAsync(alpha.get('/some/path'));
-  test.is(err.response.status, 403);
+  const promise = alpha.get('/some/path');
+  await expect(promise).rejects.toThrow();
+  const err = await promise.catch((error) => error);
+  expect(err.response.status).toBe(403);
 
-  test.true(server.isDone());
+  expect(server.isDone()).toBe(true);
 });
 
-test.serial('Making a request with retries enabled should fail for an error that is not retryable', async (test) => {
+test('Making a request with retries enabled should fail for an error that is not retryable', async () => {
   const server = nock('http://example.com')
     .get('/some/path')
     .reply(403);
 
   const alpha = new Alpha('http://example.com', { retry: true });
-  const err = await test.throwsAsync(alpha.get('/some/path'));
-  test.is(err.response.status, 403);
+  const promise = alpha.get('/some/path');
+  await expect(promise).rejects.toThrow();
+  const err = await promise.catch((error) => error);
+  expect(err.response.status).toBe(403);
 
-  test.true(server.isDone());
+  expect(server.isDone()).toBe(true);
 });
 
-test.serial('Making a request with retries enabled should fail when the number of requests exceeds the configured number of attempts', async (test) => {
+test('Making a request with retries enabled should fail when the number of requests exceeds the configured number of attempts', async () => {
   const server = nock('http://example.com')
     .get('/some/path')
     .reply(503)
@@ -92,9 +95,11 @@ test.serial('Making a request with retries enabled should fail when the number o
     .reply(200, 'hello!', { 'test-header': 'some value' });
 
   const alpha = new Alpha('http://example.com', { retry: { attempts: 2 } });
-  const err = await test.throwsAsync(alpha.get('/some/path'));
-  test.is(err.response.status, 503);
+  const promise = alpha.get('/some/path');
+  await expect(promise).rejects.toThrow();
+  const err = await promise.catch((error) => error);
+  expect(err.response.status).toBe(503);
 
   // Should not be done because we exceeded number of attempts
-  test.true(!server.isDone());
+  expect(!server.isDone()).toBe(true);
 });

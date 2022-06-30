@@ -11,9 +11,9 @@ jobs:
     environment: npm
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
-          node-version: 12
+          node-version: 18
           registry-url: https://registry.npmjs.org
           cache: 'yarn'
       - run: yarn install --frozen-lockfile
@@ -25,3 +25,9 @@ jobs:
         run: |
           echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
           yarn semantic-release
+      - name: Coverage Report
+        uses: coverallsapp/github-action@v1.1.2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: coverage/lcov.info
+          flag-name: master

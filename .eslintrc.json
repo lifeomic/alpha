@@ -1,7 +1,6 @@
 {
   "extends": [
-    "@lifeomic/standards/javascript",
-    "@lifeomic/standards/typescript"
+    "@lifeomic/standards"
   ],
   "env": {
     "node": true,

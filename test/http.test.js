@@ -1,20 +1,19 @@
 const { Alpha } = require('../src');
 const nock = require('nock');
-const test = require('ava');
 
-test.before(() => {
+beforeAll(() => {
   nock.disableNetConnect();
 });
 
-test.after(() => {
+afterAll(() => {
   nock.enableNetConnect();
 });
 
-test.afterEach.always(() => {
+afterEach(() => {
   nock.cleanAll();
 });
 
-test.serial('Making a GET request with the http protocol performs a normal HTTP request', async (test) => {
+test('Making a GET request with the http protocol performs a normal HTTP request', async () => {
   const server = nock('http://example.com')
     .get('/some/path')
     .reply(200, 'hello!', { 'test-header': 'some value' });
@@ -22,18 +21,15 @@ test.serial('Making a GET request with the http protocol performs a normal HTTP 
   const alpha = new Alpha('http://example.com');
   const response = await alpha.get('/some/path');
 
-  test.is(response.data, 'hello!');
-  test.is(response.status, 200);
+  expect(response.data).toBe('hello!');
+  expect(response.status).toBe(200);
 
-  test.deepEqual(
-    response.headers,
-    { 'test-header': 'some value' },
-  );
+  expect(response.headers).toEqual({ 'test-header': 'some value' });
 
-  test.true(server.isDone());
+  expect(server.isDone()).toBe(true);
 });
 
-test.serial('Making a GET request with the https protocol performs a normal HTTPS request', async (test) => {
+test('Making a GET request with the https protocol performs a normal HTTPS request', async () => {
   const server = nock('https://example.com')
     .get('/some/path')
     .reply(200, 'hello!', { 'test-header': 'some value' });
@@ -41,13 +37,10 @@ test.serial('Making a GET request with the https protocol performs a normal HTTP
   const alpha = new Alpha('https://example.com');
   const response = await alpha.get('/some/path');
 
-  test.is(response.data, 'hello!');
-  test.is(response.status, 200);
+  expect(response.data).toBe('hello!');
+  expect(response.status).toBe(200);
 
-  test.deepEqual(
-    response.headers,
-    { 'test-header': 'some value' },
-  );
+  expect(response.headers).toEqual({ 'test-header': 'some value' });
 
-  test.true(server.isDone());
+  expect(server.isDone()).toBe(true);
 });

@@ -1,17 +1,14 @@
-import test from 'ava';
-import { Alpha } from '../src';
-import sinon from 'sinon';
+import { Alpha, AlphaOptions } from '../src';
 import { Handler } from 'aws-lambda';
-import { AlphaOptions } from '../src/types';
 
-const handler: Handler = sinon.stub();
+const handler: Handler = jest.fn();
 const config: AlphaOptions = {};
 
-test('constructor types', (t) => {
-  t.notThrows(() => new Alpha());
-  t.notThrows(() => new Alpha(''));
-  t.notThrows(() => new Alpha('', config));
-  t.notThrows(() => new Alpha(handler));
-  t.notThrows(() => new Alpha(handler, config));
-  t.notThrows(() => new Alpha(config));
+test('constructor types', () => {
+  expect(() => new Alpha()).not.toThrow();
+  expect(() => new Alpha('')).not.toThrow();
+  expect(() => new Alpha('', config)).not.toThrow();
+  expect(() => new Alpha(handler)).not.toThrow();
+  expect(() => new Alpha(handler, config)).not.toThrow();
+  expect(() => new Alpha(config)).not.toThrow();
 });

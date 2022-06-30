@@ -1,49 +1,48 @@
 const { Alpha } = require('../src');
 const { Axios } = require('axios');
 const nock = require('nock');
-const test = require('ava');
 
-test.before(() => {
+beforeAll(() => {
   nock.disableNetConnect();
 });
 
-test.after(() => {
+afterAll(() => {
   nock.enableNetConnect();
 });
 
-test.afterEach.always(() => {
+afterEach(() => {
   nock.cleanAll();
 });
 
-test.serial('Creating a client with no options creates a standard Axios client', async (test) => {
+test('Creating a client with no options creates a standard Axios client', async () => {
   const server = nock('http://localhost')
     .get('/some/path')
     .reply(200, 'hello!');
 
   const client = new Alpha();
-  test.true(client instanceof Axios);
+  expect(client instanceof Axios).toBe(true);
 
   const response = await client.get('/some/path');
 
-  test.is(response.status, 200);
-  test.true(server.isDone());
+  expect(response.status).toBe(200);
+  expect(server.isDone()).toBe(true);
 });
 
-test.serial('Creating a client with a target binds the client to the target', async (test) => {
+test('Creating a client with a target binds the client to the target', async () => {
   const server = nock('http://example.com')
     .get('/some/path')
     .reply(200, 'hello!');
 
   const client = new Alpha('http://example.com');
-  test.true(client instanceof Axios);
+  expect(client instanceof Axios).toBe(true);
 
   const response = await client.get('/some/path');
 
-  test.is(response.status, 200);
-  test.true(server.isDone());
+  expect(response.status).toBe(200);
+  expect(server.isDone()).toBe(true);
 });
 
-test.serial('Creating a client with configuration options sets the default client options', async (test) => {
+test('Creating a client with configuration options sets the default client options', async () => {
   const server = nock('http://localhost')
     .get('/some/path?foo=bar')
     .matchHeader('Accept', 'application/json')
@@ -59,16 +58,16 @@ test.serial('Creating a client with configuration options sets the default clien
   };
 
   const client = new Alpha(options);
-  test.true(client instanceof Axios);
+  expect(client instanceof Axios).toBe(true);
 
   const response = await client.get('/some/path');
 
-  test.is(response.data.message, 'hello!');
-  test.is(response.status, 200);
-  test.true(server.isDone());
+  expect(response.data.message).toBe('hello!');
+  expect(response.status).toBe(200);
+  expect(server.isDone()).toBe(true);
 });
 
-test.serial('Creating a client with a target and configuration options binds the client to the target and set the defaults', async (test) => {
+test('Creating a client with a target and configuration options binds the client to the target and set the defaults', async () => {
   const server = nock('http://example.com')
     .get('/some/path')
     .matchHeader('Accept', 'application/json')
@@ -81,16 +80,16 @@ test.serial('Creating a client with a target and configuration options binds the
   };
 
   const client = new Alpha('http://example.com', options);
-  test.true(client instanceof Axios);
+  expect(client instanceof Axios).toBe(true);
 
   const response = await client.get('/some/path');
 
-  test.is(response.data.message, 'hello!');
-  test.is(response.status, 200);
-  test.true(server.isDone());
+  expect(response.data.message).toBe('hello!');
+  expect(response.status).toBe(200);
+  expect(server.isDone()).toBe(true);
 });
 
-test.serial('A custom status validator can be used with the client', async (test) => {
+test('A custom status validator can be used with the client', async () => {
   const server = nock('http://example.com')
     .get('/')
     .reply(302, { location: '/redirect' });
@@ -100,8 +99,7 @@ test.serial('A custom status validator can be used with the client', async (test
   };
 
   const client = new Alpha('http://example.com', options);
-  const error = await test.throwsAsync(client.get('/'));
+  await expect(client.get('/')).rejects.toThrow('Request failed with status code 302');
 
-  test.is(error.message, 'Request failed with status code 302');
-  test.true(server.isDone());
+  expect(server.isDone()).toBe(true);
 });

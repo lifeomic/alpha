@@ -1,7 +1,5 @@
 const { Alpha } = require('../src');
 const nock = require('nock');
-const sinon = require('sinon');
-const test = require('ava');
 
 const response = {
   headers: { 'test-header': 'some value' },
@@ -11,14 +9,14 @@ const response = {
 
 const event = {
   body: '',
-  headers: sinon.match.object,
+  headers: expect.any(Object),
   httpMethod: 'GET',
   path: '/some/path',
   queryStringParameters: {},
-  multiValueHeaders: sinon.match.object,
-  requestContext: {
-    requestId: sinon.match.string,
-  },
+  multiValueHeaders: expect.any(Object),
+  requestContext: expect.objectContaining({
+    requestId: expect.any(String),
+  }),
 };
 
 const contextKeys = [
@@ -36,29 +34,34 @@ const contextKeys = [
   'succeed',
 ];
 
-test.before(() => {
+let ctx;
+
+beforeAll(() => {
   nock.disableNetConnect();
 });
 
-test.after(() => {
+afterAll(() => {
   nock.enableNetConnect();
 });
 
-test.beforeEach((test) => {
-  test.context.handler = sinon.stub();
-  test.context.client = new Alpha(test.context.handler);
+beforeEach(() => {
+  ctx = {};
+  ctx.handler = jest.fn();
+  ctx.client = new Alpha(ctx.handler);
 });
 
-const setupHandler = (t, expectedEvent, response, useCallback = false) => {
-  t.context.handler.callsFake((event, context, cb) => {
-    sinon.assert.match(cb, sinon.match.func);
-    sinon.assert.match(event, sinon.match(event));
-    sinon.assert.match(Object.keys(context), sinon.match.array.contains(contextKeys));
-    t.is(context.getRemainingTimeInMillis(), 0);
-    t.is(context.done(), undefined);
-    t.is(context.fail(), undefined);
-    t.is(context.succeed(), undefined);
-    t.regex(context.awsRequestId, /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/);
+const setupHandler = (ctx, expectedEvent, response, useCallback = false) => {
+  ctx.handler.mockImplementation((event, context, cb) => {
+    expect(cb).toStrictEqual(expect.any(Function));
+    expect(event).toBe(event);
+    expect(Object.keys(context).sort()).toEqual(contextKeys.sort());
+    expect(context.getRemainingTimeInMillis()).toBe(0);
+    expect(context.done()).toBe(undefined);
+    expect(context.fail()).toBe(undefined);
+    expect(context.succeed()).toBe(undefined);
+    expect(context.awsRequestId).toMatch(
+      /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/,
+    );
     if (useCallback) {
       cb(undefined, response);
     } else {
@@ -67,136 +70,126 @@ const setupHandler = (t, expectedEvent, response, useCallback = false) => {
   });
 };
 
-test('provides a mock context', async (test) => {
-  setupHandler(test, event, response);
-  const result = await test.context.client.get('/some/path');
+test('provides a mock context', async () => {
+  setupHandler(ctx, event, response);
+  const result = await ctx.client.get('/some/path');
 
-  test.is(result.status, 200);
-  test.deepEqual(result.headers, response.headers);
-  test.is(result.data, response.body);
+  expect(result.status).toBe(200);
+  expect(result.headers).toEqual(response.headers);
+  expect(result.data).toBe(response.body);
 });
 
-test('works with a callback style handler that executes the callback async', async (test) => {
-  setupHandler(test, event, response, true);
-  const result = await test.context.client.get('/some/path');
+test('works with a callback style handler that executes the callback async', async () => {
+  setupHandler(ctx, event, response, true);
+  const result = await ctx.client.get('/some/path');
 
-  test.is(result.status, 200);
-  test.deepEqual(result.headers, response.headers);
-  test.is(result.data, response.body);
+  expect(result.status).toBe(200);
+  expect(result.headers).toEqual(response.headers);
+  expect(result.data).toBe(response.body);
 });
 
 const setupHandlerBehavior = ({ handlerStub, isCallbackStyleHandler, error, response }) => {
   if (isCallbackStyleHandler) {
-    handlerStub.callsArgWith(2, error, response);
+    handlerStub.mockImplementationOnce((req, config, cb) => cb(error, response));
   } else {
-    error ? handlerStub.rejects(error) : handlerStub.resolves(response);
+    error ? handlerStub.mockRejectedValueOnce(error) : handlerStub.mockResolvedValueOnce(response);
   }
 };
 
 const registerSpecs = (isCallbackStyleHandler) => {
-  test(`Making a GET request to a local handler invokes the handler (callbackStyle=${isCallbackStyleHandler})`, async (test) => {
+  test(`Making a GET request to a local handler invokes the handler (callbackStyle=${isCallbackStyleHandler})`, async () => {
     setupHandlerBehavior({
-      handlerStub: test.context.handler,
+      handlerStub: ctx.handler,
       isCallbackStyleHandler,
       response,
     });
-    const result = await test.context.client.get('/some/path');
+    const result = await ctx.client.get('/some/path');
 
-    test.is(result.status, 200);
-    test.deepEqual(result.headers, response.headers);
-    test.is(result.data, response.body);
+    expect(result.status).toBe(200);
+    expect(result.headers).toEqual(response.headers);
+    expect(result.data).toBe(response.body);
 
-    sinon.assert.calledWithExactly(
-      test.context.handler,
-      sinon.match(event),
-      sinon.match.object,
-      sinon.match.func,
-    );
+    expect(ctx.handler).toBeCalledWith(expect.objectContaining(event), expect.any(Object), expect.any(Function));
   });
 
-  test(`Making a POST request to a local handler invokes the handler (callbackStyle=${isCallbackStyleHandler})`, async (test) => {
+  test(`Making a POST request to a local handler invokes the handler (callbackStyle=${isCallbackStyleHandler})`, async () => {
     setupHandlerBehavior({
-      handlerStub: test.context.handler,
+      handlerStub: ctx.handler,
       isCallbackStyleHandler,
       response,
     });
-    const result = await test.context.client.post('/some/path', { data: 'test' }, {
+    const result = await ctx.client.post('/some/path', { data: 'test' }, {
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
-    test.is(result.status, 200);
-    test.deepEqual(result.headers, response.headers);
-    test.is(result.data, response.body);
+    expect(result.status).toBe(200);
+    expect(result.headers).toEqual(response.headers);
+    expect(result.data).toBe(response.body);
 
     const event = {
       body: JSON.stringify({ data: 'test' }),
-      headers: sinon.match.object,
+      headers: expect.any(Object),
       httpMethod: 'POST',
       path: '/some/path',
       queryStringParameters: {},
-      requestContext: {
-        requestId: sinon.match.string,
-      },
-      multiValueHeaders: sinon.match.object,
+      requestContext: expect.objectContaining({
+        requestId: expect.any(String),
+      }),
+      multiValueHeaders: expect.any(Object),
     };
 
-    sinon.assert.calledWithExactly(
-      test.context.handler,
-      sinon.match(event),
-      sinon.match.object,
-      sinon.match.func,
-    );
+    expect(ctx.handler).toBeCalledWith(expect.objectContaining(event), expect.any(Object), expect.any(Function));
   });
 
-  test(`When a local handler returns an error the request fails (callbackStyle=${isCallbackStyleHandler})`, async (test) => {
+  test(`When a local handler returns an error the request fails (callbackStyle=${isCallbackStyleHandler})`, async () => {
     const failure = new Error('simulated failure');
     setupHandlerBehavior({
-      handlerStub: test.context.handler,
+      handlerStub: ctx.handler,
       error: failure,
       isCallbackStyleHandler,
     });
 
-    const error = await test.throwsAsync(test.context.client.get('/some/path'));
+    const promise = ctx.client.get('/some/path');
+    await expect(promise).rejects.toThrow(failure.message);
+    const error = await promise.catch((error) => error);
 
-    test.is(error.message, failure.message);
+    expect(error.config).toBeTruthy();
+    expect(error.config.url).toBe('/some/path');
 
-    test.truthy(error.config);
-    test.is(error.config.url, '/some/path');
+    expect(error.response).toBe(undefined);
 
-    test.is(error.response, undefined);
+    expect(error.request).toBeTruthy();
+    expect(error.request.event.body).toBe('');
+    expect(error.request.event.headers).toBeTruthy();
+    expect(error.request.event.httpMethod).toBe('GET');
+    expect(error.request.event.path).toBe('/some/path');
+    expect(error.request.event.queryStringParameters).toEqual({});
 
-    test.truthy(error.request);
-    test.is(error.request.event.body, '');
-    test.truthy(error.request.event.headers);
-    test.is(error.request.event.httpMethod, 'GET');
-    test.is(error.request.event.path, '/some/path');
-    test.deepEqual(error.request.event.queryStringParameters, {});
-
-    test.false(Object.keys(error).includes('code'));
-    test.true(test.context.handler.called);
+    expect(Object.keys(error).includes('code')).toBe(false);
+    expect(ctx.handler).toBeCalled();
   });
 
-  test(`When status validation is disable errors are not thrown (callbackStyle=${isCallbackStyleHandler})`, async (test) => {
+  test(`When status validation is disable errors are not thrown (callbackStyle=${isCallbackStyleHandler})`, async () => {
     const response = {
       body: 'error!',
       statusCode: 400,
     };
 
     setupHandlerBehavior({
-      handlerStub: test.context.handler,
+      handlerStub: ctx.handler,
       response,
       isCallbackStyleHandler,
     });
 
-    const result = await test.context.client.get('/some/path', { validateStatus: false });
+    const result = await ctx.client.get('/some/path', { validateStatus: false });
 
-    test.is(result.status, response.statusCode);
-    test.is(result.data, response.body);
+    expect(result.status).toBe(response.statusCode);
+    expect(result.data).toBe(response.body);
   });
 
-  test(`Redirects are automaticaly followed (301) (callbackStyle=${isCallbackStyleHandler})`, async (test) => {
+  test(`Redirects are automatically followed (301) (callbackStyle=${isCallbackStyleHandler})`, async () => {
     const redirect = {
       headers: { location: '/other/path' },
       statusCode: 301,
@@ -208,56 +201,46 @@ const registerSpecs = (isCallbackStyleHandler) => {
     };
 
     setupHandlerBehavior({
-      handlerStub: test.context.handler.onFirstCall(),
+      handlerStub: ctx.handler,
       response: redirect,
       isCallbackStyleHandler,
     });
     setupHandlerBehavior({
-      handlerStub: test.context.handler.onSecondCall(),
+      handlerStub: ctx.handler,
       response,
       isCallbackStyleHandler,
     });
 
-    const result = await test.context.client.get('/some/path');
+    const result = await ctx.client.get('/some/path');
 
-    test.is(result.status, 200);
-    test.is(result.data, response.body);
+    expect(result.status).toBe(200);
+    expect(result.data).toBe(response.body);
 
-    sinon.assert.calledWithExactly(
-      test.context.handler.firstCall,
-      sinon.match({
-        body: '',
-        headers: sinon.match.object,
-        httpMethod: 'GET',
-        path: '/some/path',
-        queryStringParameters: {},
-        multiValueHeaders: sinon.match.object,
-        requestContext: {
-          requestId: sinon.match.string,
-        },
+    expect(ctx.handler).toBeCalledWith(expect.objectContaining({
+      body: '',
+      headers: expect.any(Object),
+      httpMethod: 'GET',
+      path: '/some/path',
+      queryStringParameters: {},
+      multiValueHeaders: expect.any(Object),
+      requestContext: expect.objectContaining({
+        requestId: expect.any(String),
       }),
-      sinon.match.object,
-      sinon.match.func,
-    );
-    sinon.assert.calledWithExactly(
-      test.context.handler.secondCall,
-      sinon.match({
-        body: '',
-        headers: sinon.match.object,
-        httpMethod: 'GET',
-        path: '/other/path',
-        queryStringParameters: {},
-        multiValueHeaders: sinon.match.object,
-        requestContext: {
-          requestId: sinon.match.string,
-        },
+    }), expect.any(Object), expect.any(Function));
+    expect(ctx.handler).toBeCalledWith(expect.objectContaining({
+      body: '',
+      headers: expect.any(Object),
+      httpMethod: 'GET',
+      path: '/other/path',
+      queryStringParameters: {},
+      multiValueHeaders: expect.any(Object),
+      requestContext: expect.objectContaining({
+        requestId: expect.any(String),
       }),
-      sinon.match.object,
-      sinon.match.func,
-    );
+    }), expect.any(Object), expect.any(Function));
   });
 
-  test(`Redirects are automaticaly followed (302) (callbackStyle=${isCallbackStyleHandler})`, async (test) => {
+  test(`Redirects are automatically followed (302) (callbackStyle=${isCallbackStyleHandler})`, async () => {
     const redirect = {
       headers: { location: '/other/path' },
       statusCode: 302,
@@ -269,56 +252,46 @@ const registerSpecs = (isCallbackStyleHandler) => {
     };
 
     setupHandlerBehavior({
-      handlerStub: test.context.handler.onFirstCall(),
+      handlerStub: ctx.handler,
       response: redirect,
       isCallbackStyleHandler,
     });
     setupHandlerBehavior({
-      handlerStub: test.context.handler.onSecondCall(),
+      handlerStub: ctx.handler,
       response,
       isCallbackStyleHandler,
     });
 
-    const result = await test.context.client.get('/some/path');
+    const result = await ctx.client.get('/some/path');
 
-    test.is(result.status, 200);
-    test.is(result.data, response.body);
+    expect(result.status).toBe(200);
+    expect(result.data).toBe(response.body);
 
-    sinon.assert.calledWithExactly(
-      test.context.handler.firstCall,
-      sinon.match({
-        body: '',
-        headers: sinon.match.object,
-        httpMethod: 'GET',
-        path: '/some/path',
-        queryStringParameters: {},
-        multiValueHeaders: sinon.match.object,
-        requestContext: {
-          requestId: sinon.match.string,
-        },
+    expect(ctx.handler).toBeCalledWith(expect.objectContaining({
+      body: '',
+      headers: expect.any(Object),
+      httpMethod: 'GET',
+      path: '/some/path',
+      queryStringParameters: {},
+      multiValueHeaders: expect.any(Object),
+      requestContext: expect.objectContaining({
+        requestId: expect.any(String),
       }),
-      sinon.match.object,
-      sinon.match.func,
-    );
-    sinon.assert.calledWithExactly(
-      test.context.handler.secondCall,
-      sinon.match({
-        body: '',
-        headers: sinon.match.object,
-        httpMethod: 'GET',
-        path: '/other/path',
-        queryStringParameters: {},
-        multiValueHeaders: sinon.match.object,
-        requestContext: {
-          requestId: sinon.match.string,
-        },
+    }), expect.any(Object), expect.any(Function));
+    expect(ctx.handler).toBeCalledWith(expect.objectContaining({
+      body: '',
+      headers: expect.any(Object),
+      httpMethod: 'GET',
+      path: '/other/path',
+      queryStringParameters: {},
+      multiValueHeaders: expect.any(Object),
+      requestContext: expect.objectContaining({
+        requestId: expect.any(String),
       }),
-      sinon.match.object,
-      sinon.match.func,
-    );
+    }), expect.any(Object), expect.any(Function));
   });
 
-  test(`Binary content is base64 encoded (callbackStyle=${isCallbackStyleHandler})`, async (test) => {
+  test(`Binary content is base64 encoded (callbackStyle=${isCallbackStyleHandler})`, async () => {
     const content = Buffer.from('hello!');
 
     const response = {
@@ -326,33 +299,28 @@ const registerSpecs = (isCallbackStyleHandler) => {
     };
 
     setupHandlerBehavior({
-      handlerStub: test.context.handler,
+      handlerStub: ctx.handler,
       response,
       isCallbackStyleHandler,
     });
-    const result = await test.context.client.put('/some/path', content);
+    const result = await ctx.client.put('/some/path', content);
 
-    test.is(result.status, 204);
+    expect(result.status).toBe(204);
 
     const event = {
       body: content.toString('base64'),
-      headers: sinon.match.object,
+      headers: expect.any(Object),
       httpMethod: 'PUT',
       isBase64Encoded: true,
       path: '/some/path',
       queryStringParameters: {},
-      multiValueHeaders: sinon.match.object,
-      requestContext: {
-        requestId: sinon.match.string,
-      },
+      multiValueHeaders: expect.any(Object),
+      requestContext: expect.objectContaining({
+        requestId: expect.any(String),
+      }),
     };
 
-    sinon.assert.calledWithExactly(
-      test.context.handler,
-      sinon.match(event),
-      sinon.match.object,
-      sinon.match.func,
-    );
+    expect(ctx.handler).toBeCalledWith(expect.objectContaining(event), expect.any(Object), expect.any(Function));
   });
 };
 
