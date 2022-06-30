@@ -1,5 +1,6 @@
 import get from 'lodash/get';
 import { lambdaEvent } from '../src/adapters/helpers/lambdaEvent';
+import { AlphaOptions } from '../src';
 
 const duplicateParams = '/lifeomic/dstu3/Questionnaire?pageSize=25&_tag=http%3A%2F%2Flifeomic.com%2Ffhir%2Fquestionnaire-type%7Csurvey-form&_tag=http%3A%2F%2Flifeomic.com%2Ffhir%2Fdataset%7C0bb18fef-4e2d-4b91-a623-09527265a8b3&_tag=http%3A%2F%2Flifeomic.com%2Ffhir%2Fprimary%7C0343bfcf-4e2d-4b91-a623-095272783bf3';
 const params = '/lifeomic/dstu3/Questionnaire?pageSize=25&_tag=http%3A%2F%2Flifeomic.com%2Ffhir%2Fquestionnaire-type%7Csurvey-form&test=diffValue';
@@ -10,7 +11,7 @@ const noParams = '/lifeomic/dstu3/Questionnaire';
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 const lambda = 'lambda://service:deployed/';
-const config = {
+const config: AlphaOptions = {
   method: 'get',
   headers: {},
   url: '',
@@ -90,7 +91,7 @@ test('handles null keys', () => {
 });
 
 test('Adds content-type to multiValueHeaders', () => {
-  const config = {
+  const config: AlphaOptions = {
     data: JSON.stringify({ data: 'test' }),
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
