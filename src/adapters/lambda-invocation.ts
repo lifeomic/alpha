@@ -1,6 +1,6 @@
 import assert from 'assert';
-import AWS from 'aws-sdk';
-import { InvocationRequest, InvocationResponse } from 'aws-sdk/clients/lambda';
+import { InvocationRequest, InvocationResponse, Lambda, LambdaClientConfig } from '@aws-sdk/client-lambda';
+import { NodeHttpHandler } from '@aws-sdk/node-http-handler';
 import { isAbsoluteURL } from './helpers/isAbsoluteURL';
 import { chainAdapters } from './helpers/chainAdapters';
 import { lambdaEvent } from './helpers/lambdaEvent';
@@ -9,10 +9,11 @@ import { parseLambdaUrl } from './helpers/parseLambdaUrl';
 import { RequestError } from './helpers/requestError';
 import { AlphaOptions, AlphaAdapter } from '../types';
 import { Alpha } from '../alpha';
+import { AbortController } from '@aws-sdk/abort-controller';
 
 const lambdaInvocationAdapter: AlphaAdapter = async (config) => {
-  const Lambda = config.Lambda || AWS.Lambda;
-  const lambdaOptions: AWS.Lambda.Types.ClientConfiguration = {
+  const LambdaClass = config.Lambda || Lambda;
+  const lambdaOptions: LambdaClientConfig = {
     endpoint: config.lambdaEndpoint || process.env.LAMBDA_ENDPOINT,
   };
 
@@ -20,13 +21,13 @@ const lambdaInvocationAdapter: AlphaAdapter = async (config) => {
     // Set some low level HTTP client timeout options
     // so that the system level resources will be
     // cleaned up quickly
-    lambdaOptions.httpOptions = {
-      connectTimeout: config.timeout,
-      timeout: config.timeout,
-    };
+    lambdaOptions.requestHandler = new NodeHttpHandler({
+      connectionTimeout: config.timeout,
+      socketTimeout: config.timeout,
+    });
   }
 
-  const lambda = new Lambda(lambdaOptions);
+  const lambda = new LambdaClass(lambdaOptions);
   if (config.baseURL && !isAbsoluteURL(config.url as string)) {
     config.url = `${config.baseURL}${config.url}`;
   }
@@ -40,14 +41,15 @@ const lambdaInvocationAdapter: AlphaAdapter = async (config) => {
   const request: InvocationRequest = {
     FunctionName: functionName,
     InvocationType: 'RequestResponse',
-    Payload: JSON.stringify(lambdaEvent(config, path)),
+    Payload: Buffer.from(JSON.stringify(lambdaEvent(config, path))),
   };
 
   if (functionQualifier) {
     request.Qualifier = functionQualifier;
   }
 
-  const awsRequest = lambda.invoke(request);
+  const abortController = new AbortController();
+  const awsRequest = lambda.invoke(request, { abortSignal: abortController.signal });
   const result = await new Promise<InvocationResponse>((resolve, reject) => {
     let timeout: NodeJS.Timeout | undefined;
 
@@ -60,7 +62,7 @@ const lambdaInvocationAdapter: AlphaAdapter = async (config) => {
         requestError.isLambdaInvokeTimeout = true;
         reject(requestError);
 
-        awsRequest.abort();
+        abortController.abort();
       }, config.timeout);
     }
 
@@ -69,7 +71,7 @@ const lambdaInvocationAdapter: AlphaAdapter = async (config) => {
     };
 
     const execute = async () => {
-      const result = await awsRequest.promise();
+      const result = await awsRequest;
       if (timeout) clearTimeout(timeout);
       resolve(result);
     };
@@ -79,7 +81,7 @@ const lambdaInvocationAdapter: AlphaAdapter = async (config) => {
     });
   });
 
-  const payload = result.Payload && JSON.parse(result.Payload as string) as Payload | undefined;
+  const payload = result.Payload && JSON.parse(Buffer.from(result.Payload).toString('utf-8')) as Payload | undefined;
   if (!payload) {
     const message = `Unexpected Payload shape from ${config.url}. The full response was\n${JSON.stringify(result, null, '  ')}`;
     throw new RequestError(message, config, request);

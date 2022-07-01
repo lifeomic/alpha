@@ -1,4 +1,4 @@
-import { InvocationRequest, InvocationResponse } from 'aws-sdk/clients/lambda';
+import { InvocationRequest, InvocationResponse } from '@aws-sdk/client-lambda';
 import { HandlerRequest, AlphaOptions } from '../../types';
 import { AxiosError, AxiosResponse } from 'axios';
 

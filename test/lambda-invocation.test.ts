@@ -1,13 +1,15 @@
 import { Alpha } from '../src';
-import AWS_SDK, { AWSError, Lambda } from 'aws-sdk';
-import AWS from 'aws-sdk-mock';
 import nock from 'nock';
-import { InvocationRequest, InvocationResponse } from 'aws-sdk/clients/lambda';
+import { Lambda, InvokeCommand, InvokeCommandInput } from '@aws-sdk/client-lambda';
 import { AxiosRequestConfig } from 'axios';
+import { mockClient } from 'aws-sdk-client-mock';
+import { prepResponse, createResponse } from './utils';
+
+const mockLambda = mockClient(Lambda);
+const FakeLambda = jest.fn() as jest.MockedClass<typeof Lambda>;
 
 interface TestContext {
   alpha: Alpha;
-  invoke: jest.MockedFn<(params: InvocationRequest, cb: (err: AWSError | null | undefined, data: InvocationResponse) => void) => void>;
   abort: jest.MockedFn<() => void>;
 }
 let ctx: TestContext;
@@ -23,26 +25,34 @@ afterAll(() => {
 beforeEach(() => {
   ctx = {} as TestContext;
   ctx.alpha = new Alpha('lambda://test-function', { adapter: undefined });
-  ctx.invoke = jest.fn();
-  AWS.mock('Lambda', 'invoke', ctx.invoke);
-  jest.spyOn(AWS_SDK, 'Lambda');
   ctx.abort = jest.fn();
+  FakeLambda.mockReturnValue(new Lambda({}));
 });
 
 afterEach(() => {
-  jest.restoreAllMocks();
-  AWS.restore();
+  mockLambda.reset();
 });
 
+const getIn = (
+  call = 0,
+): InvokeCommandInput => {
+  const calls = mockLambda.commandCalls(InvokeCommand);
+  return calls[call].firstArg.input;
+};
+
+const getPayload = (cmd: InvokeCommandInput) => {
+  return JSON.parse(Buffer.from(cmd.Payload as Uint8Array).toString('utf-8'));
+};
+
 test('Making a GET request with the lambda protocol invokes the lambda function', async () => {
-  ctx.invoke.mockImplementation((req, cb) => cb(null, {
+  createResponse(mockLambda, {
     StatusCode: 200,
-    Payload: JSON.stringify({
+    Payload: {
       body: 'hello!',
       headers: { 'test-header': 'some value' },
       statusCode: 200,
-    }),
-  }));
+    },
+  });
 
   const response = await ctx.alpha.get('/some/path?param1=value1', { params: { param2: 'value2' } });
 
@@ -50,13 +60,15 @@ test('Making a GET request with the lambda protocol invokes the lambda function'
   expect(response.status).toBe(200);
   expect(response.headers).toEqual({ 'test-header': 'some value' });
 
-  expect(ctx.invoke).toBeCalledWith({
+  const cmdInput = getIn();
+
+  expect(cmdInput).toEqual({
     FunctionName: 'test-function',
     InvocationType: 'RequestResponse',
-    Payload: expect.any(String),
-  }, expect.any(Function));
+    Payload: expect.any(Buffer),
+  });
 
-  const payload = JSON.parse(ctx.invoke.mock.calls[0][0].Payload as string);
+  const payload = getPayload(cmdInput);
 
   expect(payload.body).toBe('');
   expect(payload.headers).toBeTruthy();
@@ -66,14 +78,14 @@ test('Making a GET request with the lambda protocol invokes the lambda function'
 });
 
 test('Making a GET request with responseType \'arraybuffer\' returns the correct body type', async () => {
-  ctx.invoke.mockImplementation((req, cb) => cb(null, {
+  createResponse(mockLambda, {
     StatusCode: 200,
-    Payload: JSON.stringify({
+    Payload: {
       body: 'hello!',
       headers: { 'test-header': 'some value' },
       statusCode: 200,
-    }),
-  }));
+    },
+  });
 
   const response = await ctx.alpha.get<Buffer>('/some/path?param1=value1', {
     params: { param2: 'value2' },
@@ -88,14 +100,14 @@ test('Making a GET request with responseType \'arraybuffer\' returns the correct
 });
 
 test('Making a GET request with responseType \'stream\' throws an unsupported error', async () => {
-  ctx.invoke.mockImplementation((req, cb) => cb(null, {
+  createResponse(mockLambda, {
     StatusCode: 200,
-    Payload: JSON.stringify({
+    Payload: {
       body: 'hello!',
       headers: { 'test-header': 'some value' },
       statusCode: 200,
-    }),
-  }));
+    },
+  });
 
   const response = ctx.alpha.get('/some/path?param1=value1', {
     params: { param2: 'value2' },
@@ -121,14 +133,14 @@ test('Invalid URLs cause Errors to be thrown', async () => {
 const testLambdaWithQualifier = async (qualifier: string) => {
   // Override the shared alpha client to include a qualifier
   ctx.alpha = new Alpha(`lambda://test-function:${qualifier}`);
-  ctx.invoke.mockImplementation((req, cb) => cb(null, {
+  createResponse(mockLambda, {
     StatusCode: 200,
-    Payload: JSON.stringify({
+    Payload: {
       body: 'hello!',
       headers: { 'test-header': 'some value' },
       statusCode: 200,
-    }),
-  }));
+    },
+  });
 
   const response = await ctx.alpha.get('/some/path');
 
@@ -136,14 +148,15 @@ const testLambdaWithQualifier = async (qualifier: string) => {
   expect(response.status).toBe(200);
   expect(response.headers).toEqual({ 'test-header': 'some value' });
 
-  expect(ctx.invoke).toBeCalledWith({
+  const cmdInput = getIn();
+  expect(cmdInput).toEqual({
     FunctionName: 'test-function',
     InvocationType: 'RequestResponse',
     Qualifier: qualifier,
-    Payload: expect.any(String),
-  }, expect.any(Function));
+    Payload: expect.any(Buffer),
+  });
 
-  const payload = JSON.parse(ctx.invoke.mock.calls[0][0].Payload as string);
+  const payload = getPayload(cmdInput);
 
   expect(payload.body).toBe('');
   expect(payload.headers).toBeTruthy();
@@ -165,14 +178,14 @@ test('Making a GET request with the lambda protocol with an explicit $LATEST qua
 });
 
 test('When a lambda function returns an error code an error is thrown', async () => {
-  ctx.invoke.mockImplementation((req, cb) => cb(null, {
+  createResponse(mockLambda, {
     StatusCode: 200,
-    Payload: JSON.stringify({
+    Payload: {
       body: { error: 'Bad request.' },
       headers: {},
       statusCode: 400,
-    }),
-  }));
+    },
+  });
 
   const promise = ctx.alpha.get('/some/path');
   await expect(promise).rejects.toThrow('Request failed with status code 400');
@@ -198,17 +211,17 @@ test('When a lambda function returns an error code an error is thrown', async ()
   expect(payload.queryStringParameters).toEqual({});
 
   expect(Object.keys(error as Object).includes('code')).toBe(false);
-  expect(ctx.invoke).toBeCalled();
+  expect(mockLambda.commandCalls(InvokeCommand)).toHaveLength(1);
 });
 
 test('When status validation is disabled errors are not thrown', async () => {
-  ctx.invoke.mockImplementation((req, cb) => cb(null, {
+  createResponse(mockLambda, {
     StatusCode: 200,
-    Payload: JSON.stringify({
+    Payload: {
       body: 'error!',
       statusCode: 400,
-    }),
-  }));
+    },
+  });
 
   const response = await ctx.alpha.get('/some/path', { validateStatus: undefined });
 
@@ -218,11 +231,11 @@ test('When status validation is disabled errors are not thrown', async () => {
 
 test('When a lambda function returns an Unhandled FunctionError an error is thrown', async () => {
   const errorMessage = 'A failure';
-  ctx.invoke.mockImplementation((req, cb) => cb(null, {
+  createResponse(mockLambda, {
     StatusCode: 200,
     FunctionError: 'Unhandled',
-    Payload: JSON.stringify({ errorMessage }),
-  }));
+    Payload: { errorMessage },
+  });
 
   const promise = ctx.alpha.get('/some/path');
   await expect(promise).rejects.toThrow(errorMessage);
@@ -244,16 +257,16 @@ test('When a lambda function returns an Unhandled FunctionError an error is thro
   expect(payload.queryStringParameters).toEqual({});
 
   expect(Object.keys(error as Object).includes('code')).toBe(false);
-  expect(ctx.invoke).toBeCalled();
+  expect(mockLambda.commandCalls(InvokeCommand)).toHaveLength(1);
 });
 
 test('When a lambda function returns a Handled FunctionError an error is thrown', async () => {
   const errorMessage = 'A failure';
-  ctx.invoke.mockImplementation((req, cb) => cb(null, {
+  createResponse(mockLambda, {
     StatusCode: 200,
     FunctionError: 'Handled',
-    Payload: JSON.stringify({ errorMessage }),
-  }));
+    Payload: { errorMessage },
+  });
 
   const promise = ctx.alpha.get('/some/path');
   await expect(promise).rejects.toThrow(errorMessage);
@@ -275,14 +288,14 @@ test('When a lambda function returns a Handled FunctionError an error is thrown'
   expect(payload.queryStringParameters).toEqual({});
 
   expect(Object.keys(error as Object).includes('code')).toBe(false);
-  expect(ctx.invoke).toBeCalled();
+  expect(mockLambda.commandCalls(InvokeCommand)).toHaveLength(1);
 });
 
 test('When the Payload attribute is null an error is thrown', async () => {
   const response = {
     StatusCode: 500,
   };
-  ctx.invoke.mockImplementation((req, cb) => cb(null, response));
+  createResponse(mockLambda, response);
 
   const promise = ctx.alpha.get('/some/path');
   await expect(promise).rejects.toThrow(`Unexpected Payload shape from lambda://test-function/some/path. The full response was\n${JSON.stringify(response, null, '  ')}`);
@@ -304,37 +317,39 @@ test('When the Payload attribute is null an error is thrown', async () => {
   expect(payload.queryStringParameters).toEqual({});
 
   expect(Object.keys(error as Object).includes('code')).toBe(false);
-  expect(ctx.invoke).toBeCalled();
+  expect(mockLambda.commandCalls(InvokeCommand)).toHaveLength(1);
 });
 
-test('Redirects are automatically followed (301)', async () => {
-  ctx.invoke.mockImplementationOnce((req, cb) => cb(null, {
-    StatusCode: 200,
-    Payload: JSON.stringify({
-      headers: { location: '/redirect' },
-      statusCode: 301,
-    }),
-  }));
-  ctx.invoke.mockImplementationOnce((req, cb) => cb(null, {
-    StatusCode: 200,
-    Payload: JSON.stringify({
-      body: 'we made it alive!',
-      statusCode: 200,
-    }),
-  }));
+test.each([301, 302])('Redirects are automatically followed (%i)', async (redirectCode) => {
+  mockLambda.on(InvokeCommand)
+    .resolvesOnce(prepResponse({
+      StatusCode: 200,
+      Payload: {
+        headers: { location: '/redirect' },
+        statusCode: redirectCode,
+      },
+    }))
+    .resolvesOnce(prepResponse({
+      StatusCode: 200,
+      Payload: {
+        body: 'we made it alive!',
+        statusCode: 200,
+      },
+    }));
 
   const response = await ctx.alpha.get('/some/path');
 
   expect(response.status).toBe(200);
   expect(response.data).toBe('we made it alive!');
 
-  expect(ctx.invoke).toBeCalledWith({
+  let cmdIn = getIn();
+  expect(cmdIn).toEqual({
     FunctionName: 'test-function',
     InvocationType: 'RequestResponse',
-    Payload: expect.any(String),
-  }, expect.any(Function));
+    Payload: expect.any(Buffer),
+  });
 
-  let payload = JSON.parse(ctx.invoke.mock.calls[0][0].Payload as string);
+  let payload = getPayload(cmdIn);
 
   expect(payload.body).toBe('');
   expect(payload.headers).toBeTruthy();
@@ -342,63 +357,15 @@ test('Redirects are automatically followed (301)', async () => {
   expect(payload.path).toBe('/some/path');
   expect(payload.queryStringParameters).toEqual({});
 
-  expect(ctx.invoke).toBeCalledWith({
+  cmdIn = getIn(1);
+
+  expect(cmdIn).toEqual({
     FunctionName: 'test-function',
     InvocationType: 'RequestResponse',
-    Payload: expect.any(String),
-  }, expect.any(Function));
+    Payload: expect.any(Buffer),
+  });
 
-  payload = JSON.parse(ctx.invoke.mock.calls[1][0].Payload as string);
-
-  expect(payload.body).toBe('');
-  expect(payload.headers).toBeTruthy();
-  expect(payload.httpMethod).toBe('GET');
-  expect(payload.path).toBe('/redirect');
-  expect(payload.queryStringParameters).toEqual({});
-});
-
-test('Redirects are automatically followed (302)', async () => {
-  ctx.invoke.mockImplementationOnce((req, cb) => cb(null, {
-    StatusCode: 200,
-    Payload: JSON.stringify({
-      headers: { location: '/redirect' },
-      statusCode: 302,
-    }),
-  }));
-  ctx.invoke.mockImplementationOnce((req, cb) => cb(null, {
-    StatusCode: 200,
-    Payload: JSON.stringify({
-      body: 'we made it alive!',
-      statusCode: 200,
-    }),
-  }));
-
-  const response = await ctx.alpha.get('/some/path');
-
-  expect(response.status).toBe(200);
-  expect(response.data).toBe('we made it alive!');
-
-  expect(ctx.invoke).toBeCalledWith({
-    FunctionName: 'test-function',
-    InvocationType: 'RequestResponse',
-    Payload: expect.any(String),
-  }, expect.any(Function));
-
-  let payload = JSON.parse(ctx.invoke.mock.calls[0][0].Payload as string);
-
-  expect(payload.body).toBe('');
-  expect(payload.headers).toBeTruthy();
-  expect(payload.httpMethod).toBe('GET');
-  expect(payload.path).toBe('/some/path');
-  expect(payload.queryStringParameters).toEqual({});
-
-  expect(ctx.invoke).toBeCalledWith({
-    FunctionName: 'test-function',
-    InvocationType: 'RequestResponse',
-    Payload: expect.any(String),
-  }, expect.any(Function));
-
-  payload = JSON.parse(ctx.invoke.mock.calls[1][0].Payload as string);
+  payload = getPayload(cmdIn);
 
   expect(payload.body).toBe('');
   expect(payload.headers).toBeTruthy();
@@ -408,26 +375,26 @@ test('Redirects are automatically followed (302)', async () => {
 });
 
 test('Binary content is base64 encoded', async () => {
-  ctx.invoke.mockImplementation((req, cb) => cb(null, {
+  createResponse(mockLambda, {
     StatusCode: 200,
-    Payload: JSON.stringify({ statusCode: 200 }),
-  }));
+    Payload: { statusCode: 200 },
+  });
 
   const content = Buffer.from('hello!');
   const response = await ctx.alpha.put('/some/path', content);
 
   expect(response.status).toBe(200);
 
-  expect(ctx.invoke).toBeCalledWith(
+  const cmdIn = getIn();
+  expect(cmdIn).toEqual(
     {
       FunctionName: 'test-function',
       InvocationType: 'RequestResponse',
-      Payload: expect.any(String),
+      Payload: expect.any(Buffer),
     },
-    expect.any(Function),
   );
 
-  const payload = JSON.parse(ctx.invoke.mock.calls[0][0].Payload as string);
+  const payload = getPayload(cmdIn);
 
   expect(payload.body).toBe(content.toString('base64'));
   expect(payload.headers).toBeTruthy();
@@ -438,68 +405,66 @@ test('Binary content is base64 encoded', async () => {
 });
 
 const delayedLambda = (delay: number, errorToThrow?: any) => {
-  return class OneSecondAWSLambda {
-    invoke () {
-      return {
-        abort: ctx.abort,
-        promise: () => {
-          return new Promise((resolve, reject) => {
-            if (errorToThrow) {
-              return reject(errorToThrow);
-            }
-            setTimeout(() => {
-              resolve({
-                StatusCode: 200,
-                Payload: JSON.stringify({
-                  body: 'hello!',
-                  headers: { 'test-header': 'some value' },
-                  statusCode: 200,
-                }),
-              });
-            }, delay);
-          });
-        },
-      };
+  mockLambda.on(InvokeCommand).callsFake(() => new Promise((resolve, reject) => {
+    if (errorToThrow) {
+      return reject(errorToThrow);
     }
-  } as any as typeof Lambda;
+    setTimeout(() => {
+      resolve({
+        StatusCode: 200,
+        Payload: Buffer.from(JSON.stringify({
+          body: 'hello!',
+          headers: { 'test-header': 'some value' },
+          statusCode: 200,
+        })),
+      });
+    }, delay);
+  }));
+
+  return FakeLambda;
 };
 
 test('timeout values are provided to the HTTP client used by the Lambda client', async () => {
-  ctx.invoke.mockImplementation((req, cb) => cb(null, {
+  const FakeLambda = jest.fn() as jest.MockedClass<typeof Lambda>;
+  FakeLambda.mockReturnValue(new Lambda({}));
+  createResponse(mockLambda, {
     StatusCode: 200,
-    Payload: JSON.stringify({
+    Payload: {
       body: 'hello!',
       headers: { 'test-header': 'some value' },
       statusCode: 200,
-    }),
-  }));
-
-  await ctx.alpha.get('/some/path', { timeout: 5 });
-
-  expect(AWS_SDK.Lambda).toBeCalledTimes(1);
-  expect(AWS_SDK.Lambda).toBeCalledWith({
-    httpOptions: {
-      connectTimeout: 5,
-      timeout: 5,
     },
   });
+
+  await ctx.alpha.get('/some/path', { timeout: 5, Lambda: FakeLambda } as any as AxiosRequestConfig);
+
+  expect(FakeLambda).toBeCalledTimes(1);
+  const { requestHandler } = FakeLambda.mock.calls[0][0];
+  const config = await (requestHandler as any).configProvider;
+  expect(config).toEqual(expect.objectContaining({
+    connectionTimeout: 5,
+    socketTimeout: 5,
+  }));
 });
 
 test('A timeout can be configured for the invoked lambda function', async () => {
+  delayedLambda(1000);
   const promise = ctx.alpha.get('/some/path', {
-    Lambda: delayedLambda(1000), // lambda will take 1000 ms
+    Lambda: FakeLambda, // lambda will take 1000 ms
     timeout: 5, // timeout at 5 ms
   } as any as AxiosRequestConfig);
   await expect(promise).rejects.toThrow();
   const error = await promise.catch((err) => err);
 
   expect((error as any).code).toBe('ECONNABORTED');
-  expect(ctx.abort).toBeCalledTimes(1);
+  const { abortSignal } = mockLambda.commandCalls(InvokeCommand)[0].lastArg;
+  expect(abortSignal).toHaveProperty('_aborted', true);
 });
 
 test('A configured timeout does not hinder normal lambda function invocation behavior', async () => {
+  delayedLambda(1);
   const response = await ctx.alpha.get('/some/path', {
-    Lambda: delayedLambda(1),
+    Lambda: FakeLambda,
     timeout: 10,
   } as any as AxiosRequestConfig);
   expect(response.data).toBe('hello!');
@@ -520,8 +485,9 @@ test('A configured timeout does not eat lambda function invocation errors', asyn
   jest.useFakeTimers();
   jest.spyOn(global, 'setTimeout');
   jest.spyOn(global, 'clearTimeout');
+  delayedLambda(1, new Error('Other error'));
   const promise = ctx.alpha.get('/some/path', {
-    Lambda: delayedLambda(1, new Error('Other error')),
+    Lambda: FakeLambda,
     timeout: 1000,
   } as any as AxiosRequestConfig);
   await expect(promise).rejects.toThrow('Other error');
@@ -532,27 +498,29 @@ test('A configured timeout does not eat lambda function invocation errors', asyn
 });
 
 test('lambda function invocation errors are re-thrown', async () => {
+  delayedLambda(1, new Error('Other error'));
   await expect(ctx.alpha.get('/some/path', {
-    Lambda: delayedLambda(1, new Error('Other error')),
+    Lambda: FakeLambda,
   } as any as AxiosRequestConfig)).rejects.toThrow('Other error');
 });
 
 test('lambdaEndpoint config option is provided to the Lambda client', async () => {
   const alpha = new Alpha('lambda://test-function', {
     lambdaEndpoint: 'http://test-endpoint',
-  });
-  ctx.invoke.mockImplementation((req, cb) => cb(null, {
+    Lambda: FakeLambda,
+  } as any as AxiosRequestConfig);
+  createResponse(mockLambda, {
     StatusCode: 200,
-    Payload: JSON.stringify({
+    Payload: {
       body: 'test',
       statusCode: 200,
-    }),
-  }));
+    },
+  });
 
   const response = await alpha.get('/test');
 
   expect(response.data).toBe('test');
   expect(response.status).toBe(200);
 
-  expect(AWS_SDK.Lambda).toBeCalledWith({ endpoint: 'http://test-endpoint' });
+  expect(FakeLambda).toBeCalledWith({ endpoint: 'http://test-endpoint' });
 });
