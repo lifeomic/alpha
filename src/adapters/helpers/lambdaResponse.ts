@@ -3,7 +3,7 @@ import { RequestError } from './requestError';
 import { TextEncoder } from 'util';
 
 import type { AlphaOptions } from '../../types';
-import type { InvocationRequest } from 'aws-sdk/clients/lambda';
+import type { InvocationRequest } from '@aws-sdk/client-lambda';
 import type { AxiosResponse } from 'axios';
 import { HandlerRequest } from '../../types';
 

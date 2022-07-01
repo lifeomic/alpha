@@ -1,5 +1,5 @@
 import type { AxiosPromise, AxiosRequestConfig } from 'axios';
-import type AWSLambda from 'aws-sdk/clients/lambda';
+import type { Lambda } from '@aws-sdk/client-lambda';
 import type { Context, Handler } from 'aws-lambda';
 
 export interface RetryOptions {
@@ -17,7 +17,7 @@ export interface AlphaOptions extends AxiosRequestConfig {
    * (Optional) The AWS endpoint to use when invoking the target Lambda function.
    */
   lambdaEndpoint?: string;
-  Lambda?: typeof AWSLambda;
+  Lambda?: typeof Lambda;
 }
 
 export interface AlphaAdapter {

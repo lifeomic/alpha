@@ -9,7 +9,7 @@ import { Handler } from 'aws-lambda';
 import { adapters } from './adapters';
 import { RequestError } from './adapters/helpers/requestError';
 import { resolve } from './resolve';
-import { InvocationRequest } from 'aws-sdk/clients/lambda';
+import { InvocationRequest } from '@aws-sdk/client-lambda';
 
 const ALPHA_CONFIG = ['adapter', 'lambda', 'Lambda', 'retry', '__retryCount'];
 

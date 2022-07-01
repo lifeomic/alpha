@@ -29,7 +29,6 @@ const config: Config.InitialOptions = {
   clearMocks: true,
   resetMocks: true,
   restoreMocks: true,
-  setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
   testMatch: [
     '<rootDir>/test/**/*.test.ts',
   ],

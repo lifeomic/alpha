@@ -1,26 +1,26 @@
 import { Alpha } from '../src';
-import AWS from 'aws-sdk-mock';
 import nock from 'nock';
-import { InvocationRequest, InvocationResponse } from 'aws-sdk/clients/lambda';
-import { AWSError } from 'aws-sdk';
+import { InvokeCommand, Lambda } from '@aws-sdk/client-lambda';
+import { mockClient } from 'aws-sdk-client-mock';
+import { createResponse, prepResponse } from './utils';
+
+const mockLambda = mockClient(Lambda);
 
 beforeAll(() => nock.disableNetConnect());
 afterAll(() => nock.enableNetConnect());
 
 interface TestContext {
   alpha: Alpha;
-  invoke: jest.MockedFn<(params: InvocationRequest, cb: (err: Error | AWSError | null | undefined, data?: InvocationResponse) => void) => void>;
 }
+
 let ctx: TestContext;
 beforeEach(() => {
   ctx = {} as TestContext;
   ctx.alpha = new Alpha();
-  ctx.invoke = jest.fn();
-  AWS.mock('Lambda', 'invoke', ctx.invoke);
 });
 
 afterEach(() => {
-  AWS.restore();
+  mockLambda.reset();
   nock.cleanAll();
 });
 
@@ -29,16 +29,13 @@ test('A Lambda can redirect to HTTP', async () => {
     .get('/')
     .reply(200, 'we made it alive!');
 
-  ctx.invoke
-    .mockImplementation((req, cb) => {
-      cb(null, {
-        StatusCode: 200,
-        Payload: JSON.stringify({
-          headers: { location: 'http://example.com' },
-          statusCode: 302,
-        }),
-      });
-    });
+  createResponse(mockLambda, {
+    StatusCode: 200,
+    Payload: {
+      headers: { location: 'http://example.com' },
+      statusCode: 302,
+    },
+  });
 
   const response = await ctx.alpha.get('lambda://test');
 
@@ -48,78 +45,65 @@ test('A Lambda can redirect to HTTP', async () => {
 });
 
 test('A Lambda can redirect to a relative URL', async () => {
-  ctx.invoke
-    .mockImplementationOnce((req, cb) => {
-      cb(null, {
-        StatusCode: 200,
-        Payload: JSON.stringify({
-          headers: { location: '/some/path' },
-          statusCode: 302,
-        }),
-      });
-    })
-    .mockImplementationOnce((req, cb) => {
-      cb(null, {
-        StatusCode: 200,
-        Payload: JSON.stringify({
-          body: 'we made it alive!',
-          statusCode: 200,
-        }),
-      });
-    })
-    .mockImplementationOnce((req, cb) => {
-      cb(new Error('off the deep end!'));
-    });
+  mockLambda.on(InvokeCommand)
+    .resolvesOnce(prepResponse({
+      StatusCode: 200,
+      Payload: {
+        headers: { location: '/some/path' },
+        statusCode: 302,
+      },
+    }))
+    .resolvesOnce(prepResponse({
+      StatusCode: 200,
+      Payload: {
+        body: 'we made it alive!',
+        statusCode: 200,
+      },
+    }))
+    .rejects(new Error('off the deep end!'));
 
   const response = await ctx.alpha.get('lambda://test');
 
   expect(response.status).toBe(200);
   expect(response.data).toBe('we made it alive!');
-  expect(ctx.invoke).toBeCalledTimes(2);
+  expect(mockLambda.commandCalls(InvokeCommand)).toHaveLength(2);
 });
 
 test('A Lambda can redirect to a qualified Lambda URL', async () => {
-  ctx.invoke
-    .mockImplementationOnce((req, cb) => {
-      cb(null, {
-        StatusCode: 200,
-        Payload: JSON.stringify({
-          headers: { location: 'lambda://test:deployed/some/path' },
-          statusCode: 302,
-        }),
-      });
-    })
-    .mockImplementationOnce((req, cb) => {
-      cb(null, {
-        StatusCode: 200,
-        Payload: JSON.stringify({
-          body: 'we made it alive!',
-          statusCode: 200,
-        }),
-      });
-    });
+  mockLambda.on(InvokeCommand)
+    .resolvesOnce(prepResponse({
+      StatusCode: 200,
+      Payload: {
+        headers: { location: 'lambda://test:deployed/some/path' },
+        statusCode: 302,
+      },
+    }))
+    .resolvesOnce(prepResponse({
+      StatusCode: 200,
+      Payload: {
+        body: 'we made it alive!',
+        statusCode: 200,
+      },
+    }));
 
   const response = await ctx.alpha.get('lambda://test');
 
   expect(response.status).toBe(200);
   expect(response.data).toBe('we made it alive!');
-  expect(ctx.invoke).toBeCalledTimes(2);
+  expect(mockLambda.commandCalls(InvokeCommand)).toHaveLength(2);
 });
 
 test('An HTTP endpoint can redirect to a Lambda', async () => {
   const server = nock('http://example.com')
     .get('/')
     .reply(302, undefined, { location: 'lambda://test' });
-  ctx.invoke
-    .mockImplementation((req, cb) => {
-      cb(null, {
-        StatusCode: 200,
-        Payload: JSON.stringify({
-          body: 'we made it alive!',
-          statusCode: 200,
-        }),
-      });
-    });
+  createResponse(mockLambda, {
+    StatusCode: 200,
+    Payload: {
+      body: 'we made it alive!',
+      statusCode: 200,
+    },
+  });
 
   const response = await ctx.alpha.get('http://example.com');
 
@@ -134,28 +118,22 @@ test('Redirects are limited by default', async () => {
     .get('/one').reply(302, undefined, { location: '/two' })
     .get('/two').reply(302, undefined, { location: '/three' })
     .get('/three').reply(302, undefined, { location: 'lambda://test/one' });
-  ctx.invoke
-    .mockImplementationOnce((req, cb) => {
-      cb(null, {
-        StatusCode: 200,
-        Payload: JSON.stringify({
-          headers: { location: '/two' },
-          statusCode: 302,
-        }),
-      });
-    })
-    .mockImplementationOnce((req, cb) => {
-      cb(null, {
-        StatusCode: 200,
-        Payload: JSON.stringify({
-          headers: { location: '/three' },
-          statusCode: 302,
-        }),
-      });
-    })
-    .mockImplementationOnce((req, cb) => {
-      cb(new Error('off the deep end!'));
-    });
+  mockLambda.on(InvokeCommand)
+    .resolvesOnce(prepResponse({
+      StatusCode: 200,
+      Payload:{
+        headers: { location: '/two' },
+        statusCode: 302,
+      },
+    }))
+    .resolvesOnce(prepResponse({
+      StatusCode: 200,
+      Payload: {
+        headers: { location: '/three' },
+        statusCode: 302,
+      },
+    }))
+    .rejectsOnce(new Error('off the deep end!'));
 
   const promise = ctx.alpha.get('http://example.com');
   await expect(promise).rejects.toThrow('Exceeded maximum number of redirects.');
@@ -173,20 +151,16 @@ test('Redirects can be explicitly limited', async () => {
     .get('/one').reply(302, undefined, { location: '/two' })
     .get('/two').reply(302, undefined, { location: 'lambda://test/one' });
 
-  ctx.invoke
-    .mockImplementationOnce((req, cb) => {
-      cb(null, {
-        StatusCode: 200,
-        Payload: JSON.stringify({
-          headers: { location: '/two' },
-          statusCode: 302,
-        }),
-      });
-    })
-    .mockImplementationOnce(() => {})
-    .mockImplementationOnce((req, cb) => {
-      cb(new Error('off the deep end!'));
-    });
+  mockLambda.on(InvokeCommand)
+    .resolvesOnce(prepResponse({
+      StatusCode: 200,
+      Payload: {
+        headers: { location: '/two' },
+        statusCode: 302,
+      },
+    }))
+    .callsFakeOnce(() => {})
+    .rejectsOnce(new Error('off the deep end!'));
 
   const promise = ctx.alpha.get('http://example.com', { maxRedirects: 3 });
   await expect(promise).rejects.toThrow('Exceeded maximum number of redirects.');
