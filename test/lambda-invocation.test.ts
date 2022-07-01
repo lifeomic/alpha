@@ -6,6 +6,7 @@ import { mockClient } from 'aws-sdk-client-mock';
 import { prepResponse, createResponse } from './utils';
 
 const mockLambda = mockClient(Lambda);
+const FakeLambda = jest.fn() as jest.MockedClass<typeof Lambda>;
 
 interface TestContext {
   alpha: Alpha;
@@ -25,6 +26,7 @@ beforeEach(() => {
   ctx = {} as TestContext;
   ctx.alpha = new Alpha('lambda://test-function', { adapter: undefined });
   ctx.abort = jest.fn();
+  FakeLambda.mockReturnValue(new Lambda({}));
 });
 
 afterEach(() => {
@@ -403,9 +405,6 @@ test('Binary content is base64 encoded', async () => {
 });
 
 const delayedLambda = (delay: number, errorToThrow?: any) => {
-  const FakeLambda = jest.fn() as jest.MockedClass<typeof Lambda>;
-  FakeLambda.mockReturnValue(new Lambda({}));
-
   mockLambda.on(InvokeCommand).callsFake(() => new Promise((resolve, reject) => {
     if (errorToThrow) {
       return reject(errorToThrow);
@@ -449,9 +448,9 @@ test('timeout values are provided to the HTTP client used by the Lambda client',
 });
 
 test('A timeout can be configured for the invoked lambda function', async () => {
-  const Lambda = delayedLambda(1000);
+  delayedLambda(1000);
   const promise = ctx.alpha.get('/some/path', {
-    Lambda, // lambda will take 1000 ms
+    Lambda: FakeLambda, // lambda will take 1000 ms
     timeout: 5, // timeout at 5 ms
   } as any as AxiosRequestConfig);
   await expect(promise).rejects.toThrow();
@@ -463,8 +462,9 @@ test('A timeout can be configured for the invoked lambda function', async () => 
 });
 
 test('A configured timeout does not hinder normal lambda function invocation behavior', async () => {
+  delayedLambda(1);
   const response = await ctx.alpha.get('/some/path', {
-    Lambda: delayedLambda(1),
+    Lambda: FakeLambda,
     timeout: 10,
   } as any as AxiosRequestConfig);
   expect(response.data).toBe('hello!');
@@ -485,8 +485,9 @@ test('A configured timeout does not eat lambda function invocation errors', asyn
   jest.useFakeTimers();
   jest.spyOn(global, 'setTimeout');
   jest.spyOn(global, 'clearTimeout');
+  delayedLambda(1, new Error('Other error'));
   const promise = ctx.alpha.get('/some/path', {
-    Lambda: delayedLambda(1, new Error('Other error')),
+    Lambda: FakeLambda,
     timeout: 1000,
   } as any as AxiosRequestConfig);
   await expect(promise).rejects.toThrow('Other error');
@@ -497,14 +498,13 @@ test('A configured timeout does not eat lambda function invocation errors', asyn
 });
 
 test('lambda function invocation errors are re-thrown', async () => {
+  delayedLambda(1, new Error('Other error'));
   await expect(ctx.alpha.get('/some/path', {
-    Lambda: delayedLambda(1, new Error('Other error')),
+    Lambda: FakeLambda,
   } as any as AxiosRequestConfig)).rejects.toThrow('Other error');
 });
 
 test('lambdaEndpoint config option is provided to the Lambda client', async () => {
-  const FakeLambda = jest.fn() as jest.MockedClass<typeof Lambda>;
-  FakeLambda.mockReturnValue(new Lambda({}));
   const alpha = new Alpha('lambda://test-function', {
     lambdaEndpoint: 'http://test-endpoint',
     Lambda: FakeLambda,

@@ -2,7 +2,7 @@ import type { Config } from '@jest/types';
 import inspector from 'inspector';
 
 // If we are debugging then extend the timeout to max value, otherwise use the default.
-const testTimeout = inspector.url() ? 1e8 : undefined;
+const testTimeout = inspector.url() ? 1e8 : 10e3;
 
 const config: Config.InitialOptions = {
   preset: '@lifeomic/jest-config',
