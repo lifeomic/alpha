@@ -108,13 +108,4 @@ export class Alpha extends Axios {
   patch<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
     return super.patch(url, data, config);
   }
-  postForm<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
-    return super.postForm(url, data, config);
-  }
-  putForm<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
-    return super.putForm(url, data, config);
-  }
-  patchForm<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
-    return super.patchForm(url, data, config);
-  }
 }

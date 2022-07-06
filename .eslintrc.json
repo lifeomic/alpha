@@ -9,7 +9,7 @@
   },
   "ignorePatterns": [
     "/lib/",
-    "src/adapters/helpers/lambdaURLGrammar.js"
+    "src/utils/lambdaURLGrammar.js"
   ],
   "rules": {
     "@typescript-eslint/restrict-template-expressions": "off"

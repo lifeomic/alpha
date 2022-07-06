@@ -54,13 +54,4 @@ test('overloaded method signatures', async () => {
 
   await expect(alpha.patch(path, data, options)).resolves.toEqual(expect.objectContaining(expected));
   expect(handler).toBeCalledWith(expect.objectContaining({ path, httpMethod: 'PATCH' }), expect.any(Object), expect.any(Function));
-
-  await expect(alpha.postForm(path, data, options)).resolves.toEqual(expect.objectContaining(expected));
-  expect(handler).toBeCalledWith(expect.objectContaining({ path, httpMethod: 'POST' }), expect.any(Object), expect.any(Function));
-
-  await expect(alpha.putForm(path, data, options)).resolves.toEqual(expect.objectContaining(expected));
-  expect(handler).toBeCalledWith(expect.objectContaining({ path, httpMethod: 'PUT' }), expect.any(Object), expect.any(Function));
-
-  await expect(alpha.patchForm(path, data, options)).resolves.toEqual(expect.objectContaining(expected));
-  expect(handler).toBeCalledWith(expect.objectContaining({ path, httpMethod: 'PATCH' }), expect.any(Object), expect.any(Function));
 });
