@@ -1,12 +1,13 @@
 import pick from 'lodash/pick';
 import merge from 'lodash/merge';
 
-import axios, { Axios, AxiosAdapter, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { Axios, AxiosAdapter, AxiosResponse } from 'axios';
 import cloneDeep from 'lodash/cloneDeep';
 import { AlphaOptions, HandlerRequest } from './types';
 import { Handler } from 'aws-lambda';
 
 import { adapters } from './adapters';
+import { interceptors } from './interceptors';
 import { RequestError } from './adapters/helpers/requestError';
 import { resolve } from './resolve';
 import { InvocationRequest } from '@aws-sdk/client-lambda';
@@ -57,9 +58,10 @@ export class Alpha extends Axios {
     const options = merge({}, axios.defaults, tmpOptions);
     super(options);
     adapters.forEach((adapter) => adapter(this));
+    interceptors.forEach((adapter) => adapter(this));
   }
 
-  async request <T = any, R = AxiosResponse<T>>(config: AxiosRequestConfig): Promise<R> {
+  async request <T = any, R = AxiosResponse<T>>(config: AlphaOptions): Promise<R> {
     const maxRedirects = config.maxRedirects ?? 5;
     // Need to override the default redirect logic to allow different adapters
     // to interact.
@@ -83,5 +85,36 @@ export class Alpha extends Axios {
     }
 
     return response as R;
+  }
+
+  get<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
+    return super.get(url, config);
+  }
+  delete<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
+    return super.delete(url, config);
+  }
+  head<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
+    return super.head(url, config);
+  }
+  options<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
+    return super.options(url, config);
+  }
+  post<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
+    return super.post(url, data, config);
+  }
+  put<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
+    return super.put(url, data, config);
+  }
+  patch<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
+    return super.patch(url, data, config);
+  }
+  postForm<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
+    return super.postForm(url, data, config);
+  }
+  putForm<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
+    return super.putForm(url, data, config);
+  }
+  patchForm<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
+    return super.patchForm(url, data, config);
   }
 }

@@ -1,5 +1,5 @@
 import { chainAdapters } from './helpers/chainAdapters';
-import { isAbsoluteURL } from './helpers/isAbsoluteURL';
+import { isAbsoluteURL } from '../utils/url';
 import { lambdaEvent } from './helpers/lambdaEvent';
 import { lambdaResponse, Payload } from './helpers/lambdaResponse';
 import { promisify } from './helpers/promisify';
