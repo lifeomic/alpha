@@ -8,8 +8,16 @@
     "resolveJsonModule": true,
     "strict": true,
     "target": "es2020",
-    "types": ["node", "jest"]
+    "types": ["node", "jest"],
   },
+  "files": [
+    "types/axiosTypes.d.ts"
+  ],
+  "include": [
+    "./*.ts",
+    "./src/**/*.ts",
+    "./test/**/*.ts"
+  ],
   "exclude": [
     "./node_modules"
   ]

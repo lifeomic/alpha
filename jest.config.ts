@@ -33,7 +33,7 @@ const config: Config.InitialOptions = {
     '<rootDir>/test/**/*.test.ts',
   ],
   verbose: true,
-  maxWorkers: 1,
+  maxWorkers: '50%',
   testTimeout,
 };
 

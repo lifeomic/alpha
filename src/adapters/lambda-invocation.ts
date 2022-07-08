@@ -1,11 +1,10 @@
 import assert from 'assert';
 import { InvocationRequest, InvocationResponse, Lambda, LambdaClientConfig } from '@aws-sdk/client-lambda';
 import { NodeHttpHandler } from '@aws-sdk/node-http-handler';
-import { isAbsoluteURL } from './helpers/isAbsoluteURL';
 import { chainAdapters } from './helpers/chainAdapters';
 import { lambdaEvent } from './helpers/lambdaEvent';
 import { lambdaResponse, Payload } from './helpers/lambdaResponse';
-import { parseLambdaUrl } from './helpers/parseLambdaUrl';
+import { parseLambdaUrl, isAbsoluteURL } from '../utils/url';
 import { RequestError } from './helpers/requestError';
 import { AlphaOptions, AlphaAdapter } from '../types';
 import { Alpha } from '../alpha';

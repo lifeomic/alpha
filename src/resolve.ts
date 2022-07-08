@@ -4,8 +4,7 @@
 // edge cases. We remove the lambda qualifier to allow whatwg-url to handle
 // the URL resolution nuances and then reinsert the lambda qualifier (if
 // present).
-import { isAbsoluteURL } from './adapters/helpers/isAbsoluteURL';
-import { parseLambdaUrl } from './adapters/helpers/parseLambdaUrl';
+import { isAbsoluteURL, LambdaUrl, parseLambdaUrl } from './utils/url';
 import { URL } from 'url';
 
 export const resolve = (url: string, base: string) => {
@@ -30,6 +29,6 @@ export const resolve = (url: string, base: string) => {
   const sanitizedBase = `lambda://${lambdaParts.name}:0${lambdaParts.path}`;
   const resolved = new URL(url, sanitizedBase).toString();
 
-  lambdaParts = parseLambdaUrl(resolved);
+  lambdaParts = parseLambdaUrl(resolved) as LambdaUrl;
   return `lambda://${lambdaParts.name}${qualifier}${lambdaParts.path}`;
 };
