@@ -3,7 +3,7 @@ import merge from 'lodash/merge';
 
 import axios, { Axios, AxiosAdapter, AxiosResponse } from 'axios';
 import cloneDeep from 'lodash/cloneDeep';
-import { AlphaOptions, HandlerRequest } from './types';
+import { AlphaOptions, AlphaResponse, HandlerRequest } from './types';
 import { Handler } from 'aws-lambda';
 
 import { adapters } from './adapters';
@@ -87,25 +87,25 @@ export class Alpha extends Axios {
     return response as R;
   }
 
-  get<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
+  get<T = any, R = AlphaResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
     return super.get(url, config);
   }
-  delete<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
+  delete<T = any, R = AlphaResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
     return super.delete(url, config);
   }
-  head<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
+  head<T = any, R = AlphaResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
     return super.head(url, config);
   }
-  options<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
+  options<T = any, R = AlphaResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
     return super.options(url, config);
   }
-  post<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
+  post<T = any, R = AlphaResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
     return super.post(url, data, config);
   }
-  put<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
+  put<T = any, R = AlphaResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
     return super.put(url, data, config);
   }
-  patch<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
+  patch<T = any, R = AlphaResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
     return super.patch(url, data, config);
   }
 }
