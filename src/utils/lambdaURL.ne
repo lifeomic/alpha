@@ -1,3 +1,5 @@
+@preprocessor typescript
+
 @{%
 const flattenDeep = require('lodash/flattenDeep');
 const get = require('lodash/get');
