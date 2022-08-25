@@ -8,3 +8,4 @@ node_modules/
 /src/**/*.d.ts
 .idea
 yarn-error.log
+src/utils/lambdaURLGrammar.ts

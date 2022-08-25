@@ -18,7 +18,7 @@
     "url": "https://github.com/lifeomic/alpha.git"
   },
   "scripts": {
-    "buildGrammar": "nearleyc src/utils/lambdaURL.ne -o src/utils/lambdaURLGrammar.js",
+    "buildGrammar": "nearleyc src/utils/lambdaURL.ne -o src/utils/lambdaURLGrammar.ts",
     "lint": "eslint .",
     "postlint": "yarn tsc",
     "lint:fix": "eslint --fix .",

@@ -1,11 +1,9 @@
-import nearley, { CompiledRules } from 'nearley';
+import nearley from 'nearley';
+import grammar from './lambdaURLGrammar';
 
 const WITH_SCHEME = /^[a-z][a-z\d+\-.]*:\/\//i;
 
 export const isAbsoluteURL = (url: string) => WITH_SCHEME.test(url) || url.startsWith('//');
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const grammar = require('./lambdaURLGrammar') as CompiledRules;
 
 export const isLambdaUrl = (url: string) => !!url.match(/^lambda:\/\//);
 
