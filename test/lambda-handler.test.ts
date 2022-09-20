@@ -35,11 +35,8 @@ const contextKeys = [
   'succeed',
 ];
 
-interface TestContext {
-  handler: jest.MockedFn<Handler>;
-  client: Alpha;
-}
-let ctx: TestContext ;
+const handler = jest.fn() as jest.MockedFn<Handler>;
+let client: Alpha;
 
 beforeAll(() => {
   nock.disableNetConnect();
@@ -50,13 +47,11 @@ afterAll(() => {
 });
 
 beforeEach(() => {
-  ctx = {} as TestContext;
-  ctx.handler = jest.fn();
-  ctx.client = new Alpha(ctx.handler);
+  client = new Alpha(handler, { awsSdkVersion: 3 });
 });
 
 const setupHandler = (expectedEvent: any, response: any, useCallback = false) => {
-  ctx.handler.mockImplementation((event, context, cb) => {
+  handler.mockImplementation((event, context, cb) => {
     expect(cb).toStrictEqual(expect.any(Function));
     expect(event).toBe(event);
     expect(Object.keys(context).sort()).toEqual(contextKeys.sort());
@@ -77,7 +72,7 @@ const setupHandler = (expectedEvent: any, response: any, useCallback = false) =>
 
 test('provides a mock context', async () => {
   setupHandler(event, response);
-  const result = await ctx.client.get('/some/path');
+  const result = await client.get('/some/path');
 
   expect(result.status).toBe(200);
   expect(result.headers).toEqual(response.headers);
@@ -86,7 +81,7 @@ test('provides a mock context', async () => {
 
 test('works with a callback style handler that executes the callback async', async () => {
   setupHandler(event, response, true);
-  const result = await ctx.client.get('/some/path');
+  const result = await client.get('/some/path');
 
   expect(result.status).toBe(200);
   expect(result.headers).toEqual(response.headers);
@@ -111,26 +106,26 @@ const setupHandlerBehavior = ({ handlerStub, isCallbackStyleHandler, error, resp
 const registerSpecs = (isCallbackStyleHandler: boolean) => {
   test(`Making a GET request to a local handler invokes the handler (callbackStyle=${isCallbackStyleHandler})`, async () => {
     setupHandlerBehavior({
-      handlerStub: ctx.handler,
+      handlerStub: handler,
       isCallbackStyleHandler,
       response,
     });
-    const result = await ctx.client.get('/some/path');
+    const result = await client.get('/some/path');
 
     expect(result.status).toBe(200);
     expect(result.headers).toEqual(response.headers);
     expect(result.data).toBe(response.body);
 
-    expect(ctx.handler).toBeCalledWith(expect.objectContaining(event), expect.any(Object), expect.any(Function));
+    expect(handler).toBeCalledWith(expect.objectContaining(event), expect.any(Object), expect.any(Function));
   });
 
   test(`Making a POST request to a local handler invokes the handler (callbackStyle=${isCallbackStyleHandler})`, async () => {
     setupHandlerBehavior({
-      handlerStub: ctx.handler,
+      handlerStub: handler,
       isCallbackStyleHandler,
       response,
     });
-    const result = await ctx.client.post('/some/path', { data: 'test' }, {
+    const result = await client.post('/some/path', { data: 'test' }, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -152,18 +147,18 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
       multiValueHeaders: expect.any(Object),
     };
 
-    expect(ctx.handler).toBeCalledWith(expect.objectContaining(event), expect.any(Object), expect.any(Function));
+    expect(handler).toBeCalledWith(expect.objectContaining(event), expect.any(Object), expect.any(Function));
   });
 
   test(`When a local handler returns an error the request fails (callbackStyle=${isCallbackStyleHandler})`, async () => {
     const failure = new Error('simulated failure');
     setupHandlerBehavior({
-      handlerStub: ctx.handler,
+      handlerStub: handler,
       error: failure,
       isCallbackStyleHandler,
     });
 
-    const promise = ctx.client.get('/some/path');
+    const promise = client.get('/some/path');
     await expect(promise).rejects.toThrow(failure.message);
     const error = await promise.catch((error) => error);
 
@@ -180,7 +175,7 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
     expect(error.request.event.queryStringParameters).toEqual({});
 
     expect(Object.keys(error as Object).includes('code')).toBe(false);
-    expect(ctx.handler).toBeCalled();
+    expect(handler).toBeCalled();
   });
 
   test(`When status validation is disable errors are not thrown (callbackStyle=${isCallbackStyleHandler})`, async () => {
@@ -190,12 +185,12 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
     };
 
     setupHandlerBehavior({
-      handlerStub: ctx.handler,
+      handlerStub: handler,
       response,
       isCallbackStyleHandler,
     });
 
-    const result = await ctx.client.get('/some/path', { validateStatus: undefined });
+    const result = await client.get('/some/path', { validateStatus: undefined });
 
     expect(result.status).toBe(response.statusCode);
     expect(result.data).toBe(response.body);
@@ -213,22 +208,22 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
     };
 
     setupHandlerBehavior({
-      handlerStub: ctx.handler,
+      handlerStub: handler,
       response: redirect,
       isCallbackStyleHandler,
     });
     setupHandlerBehavior({
-      handlerStub: ctx.handler,
+      handlerStub: handler,
       response,
       isCallbackStyleHandler,
     });
 
-    const result = await ctx.client.get('/some/path');
+    const result = await client.get('/some/path');
 
     expect(result.status).toBe(200);
     expect(result.data).toBe(response.body);
 
-    expect(ctx.handler).toBeCalledWith(expect.objectContaining({
+    expect(handler).toBeCalledWith(expect.objectContaining({
       body: '',
       headers: expect.any(Object),
       httpMethod: 'GET',
@@ -239,7 +234,7 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
         requestId: expect.any(String),
       }),
     }), expect.any(Object), expect.any(Function));
-    expect(ctx.handler).toBeCalledWith(expect.objectContaining({
+    expect(handler).toBeCalledWith(expect.objectContaining({
       body: '',
       headers: expect.any(Object),
       httpMethod: 'GET',
@@ -264,22 +259,22 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
     };
 
     setupHandlerBehavior({
-      handlerStub: ctx.handler,
+      handlerStub: handler,
       response: redirect,
       isCallbackStyleHandler,
     });
     setupHandlerBehavior({
-      handlerStub: ctx.handler,
+      handlerStub: handler,
       response,
       isCallbackStyleHandler,
     });
 
-    const result = await ctx.client.get('/some/path');
+    const result = await client.get('/some/path');
 
     expect(result.status).toBe(200);
     expect(result.data).toBe(response.body);
 
-    expect(ctx.handler).toBeCalledWith(expect.objectContaining({
+    expect(handler).toBeCalledWith(expect.objectContaining({
       body: '',
       headers: expect.any(Object),
       httpMethod: 'GET',
@@ -290,7 +285,7 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
         requestId: expect.any(String),
       }),
     }), expect.any(Object), expect.any(Function));
-    expect(ctx.handler).toBeCalledWith(expect.objectContaining({
+    expect(handler).toBeCalledWith(expect.objectContaining({
       body: '',
       headers: expect.any(Object),
       httpMethod: 'GET',
@@ -311,11 +306,11 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
     };
 
     setupHandlerBehavior({
-      handlerStub: ctx.handler,
+      handlerStub: handler,
       response,
       isCallbackStyleHandler,
     });
-    const result = await ctx.client.put('/some/path', content);
+    const result = await client.put('/some/path', content);
 
     expect(result.status).toBe(204);
 
@@ -332,7 +327,7 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
       }),
     };
 
-    expect(ctx.handler).toBeCalledWith(expect.objectContaining(event), expect.any(Object), expect.any(Function));
+    expect(handler).toBeCalledWith(expect.objectContaining(event), expect.any(Object), expect.any(Function));
   });
 };
 

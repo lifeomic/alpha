@@ -11,7 +11,7 @@ const config: Config.InitialOptions = {
     '^.+\\.tsx?$': [
       '@swc/jest',
       {
-        jsc: { target: 'es2019' },
+        jsc: { target: 'es2022' },
       },
     ],
   },

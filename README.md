@@ -80,13 +80,21 @@ const alpha = new Alpha('http://example.com', { retry: true });
 
 ```javascript
 // Retry failed requests using custom settings
-const alpha = new Alpha('http://example.com', { retry: {
+const alpha = new Alpha('http://example.com', {
+  retry: {
     attempts: 3,        // The number of attempts to make (default 3)
     factor: 2,          // The factor to use for the exponential backoff delay (default 2)
     maxTimeout: 10000,  // The max timeout in milliseconds to delay before the next attempt (default 10000)
-    retryCondition: function (error) { } // If function result is truthy, the error will be retried (default is retry network and 5xx errors)
-  });
+    retryCondition: function (error) {
+    } // If function result is truthy, the error will be retried (default is retry network and 5xx errors)
+  }
+});
 ```
+
+#### AWS SDK versions
+
+Alpha works with `aws-sdk` and `@aws-sdk/client-lambda`.  If both SDKs are available, then the version can be
+specified with the `awsSdkVersion` option, `2|3`.
 
 #### Mocking Lambda
 
@@ -94,23 +102,14 @@ To redirect the Lambda requests to a mocked implementation, either set the
 `LAMBDA_ENDPOINT` environment variable, or use the `lambdaEndpoint` config option:
 
 ```javascript
-const alpha = new Alpha('lambda:my-lambda', { 
+const alpha = new Alpha('lambda:my-lambda', {
   lambdaEndpoint: 'http://localstack:4566'
 });
 ```
 
 The value of this option will be used when creating the AWS Lambda client.
 
-### `Alpha.dockerLambda(options, clientOptions)`
-
-Creates an `Alpha` client instance that dispatches requests to
-[`docker-lambda`][docker-lambda]. This facilitates testing Lambda services in a
-full mock Lambda environment running in a docker container. The `options` are
-passed to the [`docker-lambda`][docker-lambda] library and the `clientOptions`
-configure the `Alpha` client instance that is created.
-
 [api-gateway]: https://aws.amazon.com/documentation/apigateway/ "AWS API Gateway"
 [axios]: https://github.com/mzabriskie/axios "Axios"
-[docker-lambda]: https://github.com/lambci/docker-lambda "docker-lambda"
 [lambda]: https://aws.amazon.com/documentation/lambda/ "AWS Lambda"
 [lambda-alias]: https://docs.aws.amazon.com/lambda/latest/dg/versioning-aliases.html "AWS Lambda Versioning / Aliases"

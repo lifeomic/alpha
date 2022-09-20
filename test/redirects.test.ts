@@ -9,14 +9,11 @@ const mockLambda = mockClient(Lambda);
 beforeAll(() => nock.disableNetConnect());
 afterAll(() => nock.enableNetConnect());
 
-interface TestContext {
-  alpha: Alpha;
-}
-
-let ctx: TestContext;
+let alpha: Alpha;
 beforeEach(() => {
-  ctx = {} as TestContext;
-  ctx.alpha = new Alpha();
+  alpha = new Alpha({
+    awsSdkVersion: 3,
+  });
 });
 
 afterEach(() => {
@@ -37,7 +34,7 @@ test('A Lambda can redirect to HTTP', async () => {
     },
   });
 
-  const response = await ctx.alpha.get('lambda://test');
+  const response = await alpha.get('lambda://test');
 
   expect(response.status).toBe(200);
   expect(response.data).toBe('we made it alive!');
@@ -62,7 +59,7 @@ test('A Lambda can redirect to a relative URL', async () => {
     }))
     .rejects(new Error('off the deep end!'));
 
-  const response = await ctx.alpha.get('lambda://test');
+  const response = await alpha.get('lambda://test');
 
   expect(response.status).toBe(200);
   expect(response.data).toBe('we made it alive!');
@@ -86,7 +83,7 @@ test('A Lambda can redirect to a qualified Lambda URL', async () => {
       },
     }));
 
-  const response = await ctx.alpha.get('lambda://test');
+  const response = await alpha.get('lambda://test');
 
   expect(response.status).toBe(200);
   expect(response.data).toBe('we made it alive!');
@@ -105,7 +102,7 @@ test('An HTTP endpoint can redirect to a Lambda', async () => {
     },
   });
 
-  const response = await ctx.alpha.get('http://example.com');
+  const response = await alpha.get('http://example.com');
 
   expect(response.status).toBe(200);
   expect(response.data).toBe('we made it alive!');
@@ -135,7 +132,7 @@ test('Redirects are limited by default', async () => {
     }))
     .rejectsOnce(new Error('off the deep end!'));
 
-  const promise = ctx.alpha.get('http://example.com');
+  const promise = alpha.get('http://example.com');
   await expect(promise).rejects.toThrow('Exceeded maximum number of redirects.');
   const error = await promise.catch((error) => error);
 
@@ -162,7 +159,7 @@ test('Redirects can be explicitly limited', async () => {
     .callsFakeOnce(() => {})
     .rejectsOnce(new Error('off the deep end!'));
 
-  const promise = ctx.alpha.get('http://example.com', { maxRedirects: 3 });
+  const promise = alpha.get('http://example.com', { maxRedirects: 3 });
   await expect(promise).rejects.toThrow('Exceeded maximum number of redirects.');
   const error = await promise.catch((error) => error);
 

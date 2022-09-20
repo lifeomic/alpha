@@ -3,7 +3,6 @@ import { RequestError } from './requestError';
 import { TextEncoder } from 'util';
 
 import type { AlphaOptions } from '../../types';
-import type { InvocationRequest } from '@aws-sdk/client-lambda';
 import type { AxiosResponse } from 'axios';
 import { HandlerRequest } from '../../types';
 
@@ -23,9 +22,9 @@ const payloadToData = (config: AlphaOptions, payload: Payload) => {
   }
 };
 
-export const lambdaResponse = (
+export const lambdaResponse = <Request extends Record<string, any> = Record<string, any>>(
   config: AlphaOptions,
-  request: InvocationRequest | HandlerRequest,
+  request: Request | HandlerRequest,
   payload: Payload,
 ): AxiosResponse => {
   const data = payloadToData(config, payload);

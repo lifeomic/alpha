@@ -1,7 +1,6 @@
 import { Sha256 } from '@aws-crypto/sha256-browser';
 import { SignatureV4 } from '@aws-sdk/signature-v4';
 import { parseUrl } from '@aws-sdk/url-parser';
-import { defaultProvider } from '@aws-sdk/credential-provider-node';
 import {
   HttpRequest,
   HeaderBag,
@@ -15,6 +14,10 @@ import type { Alpha } from '../alpha';
 import type { AlphaInterceptor, AlphaOptions } from '../types';
 import { matchHost } from '../utils/aws';
 import { isLambdaUrl, LambdaUrl, parseLambdaUrl } from '../utils/url';
+import { moduleExists } from '../utils/modules';
+
+const awsCredentialsProviderV3 = '@aws-sdk/credential-provider-node';
+const awsCredentialsProviderV2 = 'aws-sdk/lib/config';
 
 // All values need to be lowercase because SignatureV4 converts the headers to lowercase before calling has.
 const unsignableHeaders = new Set([
@@ -51,7 +54,8 @@ const getHeaders = (hostname: string, { headers: baseHeaders }: AlphaOptions) =>
 };
 
 const awsV4Signature: AlphaInterceptor = async (config) => {
-  if (!config.signAwsV4) {
+  const { awsSdkVersion, signAwsV4 } = config;
+  if (!signAwsV4) {
     return config;
   }
 
@@ -63,14 +67,25 @@ const awsV4Signature: AlphaInterceptor = async (config) => {
   const { hostname, protocol, pathname: path, port } = new URL(fullPath);
 
   const { serviceCode, regionCode } = matchHost(hostname);
+  let credentialsProvider;
+
+  if (awsSdkVersion === 3 || (!awsSdkVersion && await moduleExists(awsCredentialsProviderV3))) {
+    ({ credentialsProvider } = await import('../awsV3/credentialsV3'));
+  } else if (awsSdkVersion === 2 || (!awsSdkVersion && await moduleExists(awsCredentialsProviderV2))) {
+    ({ credentialsProvider } = await import('../awsV2/credentialsV2'));
+  }
+
+  if (!credentialsProvider) {
+    throw new Error(`Missing module ${awsCredentialsProviderV3} or ${awsCredentialsProviderV2}`);
+  }
 
   const {
-    credentials = defaultProvider(),
+    credentials = credentialsProvider,
     service = serviceCode,
     region = regionCode,
     sha256 = Sha256,
     ...optionals
-  } = config.signAwsV4;
+  } = signAwsV4;
 
   const signer = new SignatureV4({
     credentials,

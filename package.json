@@ -29,6 +29,12 @@
     "clean": "yarn tsc --build --clean"
   },
   "devDependencies": {
+    "@aws-crypto/sha256-browser": "^2.0.1",
+    "@aws-sdk/abort-controller": "^3.162.0",
+    "@aws-sdk/client-lambda": "^3.162.0",
+    "@aws-sdk/credential-provider-node": "^3.162.0",
+    "@aws-sdk/node-http-handler": "^3.162.0",
+    "@aws-sdk/signature-v4": "^3.162.0",
     "@lifeomic/eslint-config-standards": "^3.0.0",
     "@lifeomic/jest-config": "^1.1.2",
     "@lifeomic/typescript-config": "^1.0.3",
@@ -40,7 +46,9 @@
     "@types/node": "^14.14.25",
     "@types/url-parse": "^1.4.8",
     "@types/uuid": "^8.3.4",
+    "aws-sdk": "^2.1206.0",
     "aws-sdk-client-mock": "^1.0.0",
+    "aws-sdk-mock": "^4.5.0",
     "axios": "^0.27.2",
     "conventional-changelog-conventionalcommits": "^4.0.0",
     "coveralls": "^3.1.0",
@@ -53,12 +61,6 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@aws-crypto/sha256-browser": "^2.0.1",
-    "@aws-sdk/abort-controller": "^3.110.0",
-    "@aws-sdk/client-lambda": "^3.118.1",
-    "@aws-sdk/credential-provider-node": "^3.121.0",
-    "@aws-sdk/node-http-handler": "^3.118.1",
-    "@aws-sdk/signature-v4": "^3.110.0",
     "@types/aws-lambda": "^8.10.101",
     "lodash": "^4.17.21",
     "nearley": "2",
@@ -66,7 +68,7 @@
     "uuid": "^8.3.2"
   },
   "peerDependencies": {
-    "axios": "0.24.x || 0.25.x || 0.26.x || 0.27.x"
+    "axios": "*"
   },
   "publishConfig": {
     "access": "public"

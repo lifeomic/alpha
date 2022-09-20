@@ -2,13 +2,15 @@ import { Handler } from 'aws-lambda';
 import { Credentials } from '@aws-sdk/types';
 
 import { Alpha, AlphaOptions } from '../../src';
+import * as rawModules from '../../src/utils/modules';
+import { MockProxy } from 'jest-mock-extended';
+
+jest.mock('../../src/utils/modules');
 
 const handler: jest.MockedFn<Handler> = jest.fn();
 
 const host = 'lambda:deployed';
 const path = '/some/path';
-
-const alpha = new Alpha(handler, { baseURL: `lambda://${host}` });
 
 const response = {
   headers: { 'test-header': 'some value' },
@@ -42,35 +44,77 @@ const matchingObj = expect.objectContaining({
   }),
 });
 
-test.each<AlphaOptions | undefined>([
-  undefined,
-  { signAwsV4: { credentials } },
-  { headers: { host } },
-  { headers: { Host: host } },
-])('%# will add v4 signature to requests', async (
-  {
-    signAwsV4 = {},
-    ...options
-  } = {},
-) => {
-  await expect(alpha.get(path, { signAwsV4, ...options })).resolves
-    .toEqual(expect.objectContaining(expectedResponse));
+describe.each<2|3>([
+  2,
+  3,
+])('aws-sdk v%d', (awsSdkVersion) => {
+  const alpha = new Alpha(handler, { baseURL: `lambda://${host}`, awsSdkVersion });
 
-  expect(handler).toBeCalledWith(matchingObj, expect.any(Object), expect.any(Function));
+  test.each<AlphaOptions | undefined>([
+    undefined,
+    { signAwsV4: { credentials } },
+    { headers: { host } },
+    { headers: { Host: host } },
+  ])('%# will add v4 signature to requests', async (
+    {
+      signAwsV4 = {},
+      ...options
+    } = {},
+  ) => {
+    await expect(alpha.get(path, { signAwsV4, ...options })).resolves
+      .toEqual(expect.objectContaining(expectedResponse));
+
+    expect(handler).toBeCalledWith(matchingObj, expect.any(Object), expect.any(Function));
+  });
+
+  test('will get port', async () => {
+    const alpha = new Alpha(handler, { baseURL: 'https://www.lifeomic.com:80', awsSdkVersion });
+    await expect(alpha.get(path, { signAwsV4: {} })).resolves
+      .toEqual(expect.objectContaining(expectedResponse));
+
+    expect(handler).toBeCalledWith(matchingObj, expect.any(Object), expect.any(Function));
+  });
+
+  test('will not sign requests without config', async () => {
+    const alpha = new Alpha(handler, { awsSdkVersion });
+    await expect(alpha.get(path)).resolves
+      .toEqual(expect.objectContaining(expectedResponse));
+
+    expect(handler).not.toBeCalledWith(matchingObj, expect.any(Object), expect.any(Function));
+  });
 });
 
-test('will get port', async () => {
-  const alpha = new Alpha(handler, { baseURL: 'https://www.lifeomic.com:80' });
-  await expect(alpha.get(path, { signAwsV4: {} })).resolves
-    .toEqual(expect.objectContaining(expectedResponse));
+describe('mocked moduleExists', () => {
+  const alpha = new Alpha(handler, { baseURL: `lambda://${host}`, signAwsV4: {} });
 
-  expect(handler).toBeCalledWith(matchingObj, expect.any(Object), expect.any(Function));
-});
+  const awsCredentialsProviderV3 = '@aws-sdk/credential-provider-node';
+  const awsCredentialsProviderV2 = 'aws-sdk/lib/config';
 
-test('will not sign requests without config', async () => {
-  const alpha = new Alpha(handler);
-  await expect(alpha.get(path)).resolves
-    .toEqual(expect.objectContaining(expectedResponse));
+  test('will throw if no module found', async () => {
+    const { moduleExists } = rawModules as MockProxy<typeof rawModules>;
+    moduleExists.mockResolvedValue(false);
+    await expect(alpha.get(path)).rejects.toThrowError();
 
-  expect(handler).not.toBeCalledWith(matchingObj, expect.any(Object), expect.any(Function));
+    expect(handler).not.toBeCalled();
+    expect(moduleExists).toHaveBeenCalledWith(awsCredentialsProviderV3);
+    expect(moduleExists).toHaveBeenCalledWith(awsCredentialsProviderV2);
+  });
+
+  test('will make calls to the right aws sdk', async () => {
+    const { moduleExists } = rawModules as MockProxy<typeof rawModules>;
+    moduleExists.mockResolvedValueOnce(true);
+    await expect(alpha.get(path)).resolves
+      .toEqual(expect.objectContaining(expectedResponse));
+
+    expect(moduleExists).toHaveBeenCalledWith(awsCredentialsProviderV3);
+    expect(moduleExists).not.toHaveBeenCalledWith(awsCredentialsProviderV2);
+
+    moduleExists.mockReset();
+    moduleExists.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    await expect(alpha.get(path)).resolves
+      .toEqual(expect.objectContaining(expectedResponse));
+
+    expect(moduleExists).toHaveBeenCalledWith(awsCredentialsProviderV3);
+    expect(moduleExists).toHaveBeenCalledWith(awsCredentialsProviderV2);
+  });
 });

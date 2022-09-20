@@ -1,7 +1,6 @@
 import { Alpha } from '../src';
 import nock from 'nock';
 import { InvokeCommand, Lambda } from '@aws-sdk/client-lambda';
-import { AxiosRequestConfig } from 'axios';
 import { mockClient } from 'aws-sdk-client-mock';
 
 const mockLambda = mockClient(Lambda);
@@ -27,6 +26,7 @@ test('Lambda invocations should be retried after a timeout without a custom retr
   // Don't provide any response to invoke to mimic is not ever responding
   const alpha = new Alpha('lambda://test-function', {
     Lambda: FakeLambda,
+    awsSdkVersion: 3,
   });
 
   mockLambda.on(InvokeCommand).callsFake(() => new Promise(() => {}));
@@ -37,7 +37,7 @@ test('Lambda invocations should be retried after a timeout without a custom retr
       attempts: 2,
       factor: 1,
     },
-  } as any as AxiosRequestConfig);
+  });
 
   await expect(request).rejects.toThrow();
   expect(mockLambda.commandCalls(InvokeCommand)).toHaveLength(3);
