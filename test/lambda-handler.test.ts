@@ -334,6 +334,29 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
 
     expect(ctx.handler).toBeCalledWith(expect.objectContaining(event), expect.any(Object), expect.any(Function));
   });
+
+  test(`When a local handler returns an error the request fails with a response (callbackStyle=${isCallbackStyleHandler})`, async () => {
+    const failure = new Error('simulated failure');
+    const failureResponse = {
+      status: 400,
+      data: {
+        error: 'simulated failure response',
+      },
+    };
+    (failure as any).response = failureResponse;
+
+    setupHandlerBehavior({
+      handlerStub: ctx.handler,
+      error: failure,
+      isCallbackStyleHandler,
+    });
+
+    const promise = ctx.client.get('/some/path');
+    await expect(promise).rejects.toThrow(failure.message);
+    const error = await promise.catch((error) => error);
+
+    expect(error.response).toBe(failureResponse);
+  });
 };
 
 registerSpecs(true);
