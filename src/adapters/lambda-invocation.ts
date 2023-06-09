@@ -79,6 +79,7 @@ const lambdaInvocationAdapter: AlphaAdapter = async (config) => {
       reject(error);
     });
   });
+  lambda.destroy();
 
   const payload = result.Payload && JSON.parse(Buffer.from(result.Payload).toString('utf-8')) as Payload | undefined;
   if (!payload) {
