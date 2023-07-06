@@ -59,6 +59,7 @@
     "@aws-sdk/credential-provider-node": "^3.121.0",
     "@aws-sdk/node-http-handler": "^3.118.1",
     "@aws-sdk/signature-v4": "^3.110.0",
+    "@aws-sdk/url-parser": "^3.357.0",
     "@types/aws-lambda": "^8.10.101",
     "lodash": "^4.17.21",
     "nearley": "2",
