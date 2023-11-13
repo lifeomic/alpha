@@ -7,8 +7,12 @@
 import { isAbsoluteURL, LambdaUrl, parseLambdaUrl } from './utils/url';
 import { URL } from 'url';
 
-export const resolve = (url: string, base: string) => {
+export const resolve = (url: string, base?: string) => {
   if (isAbsoluteURL(url)) {
+    return url;
+  }
+
+  if (!base) {
     return url;
   }
 

@@ -1,4 +1,4 @@
-import { AxiosRequestHeaders } from 'axios';
+import { AxiosRequestHeaders, AxiosHeaders } from 'axios';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 
 /**
@@ -7,7 +7,7 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
  * https://github.com/apollographql/apollo-server/issues/5504
  */
 export type ToProxyHeaders = Pick<APIGatewayProxyEvent, 'multiValueHeaders' | 'headers'>;
-export const toProxyHeaders = (headers: AxiosRequestHeaders = {}): ToProxyHeaders => {
+export const toProxyHeaders = (headers: AxiosRequestHeaders = new AxiosHeaders()): ToProxyHeaders => {
   const response: ToProxyHeaders = {
     multiValueHeaders: {},
     headers: {},

@@ -1,9 +1,10 @@
 import isBoolean from 'lodash/isBoolean';
 import defaults from 'lodash/defaults';
+import _get from 'lodash/get';
+import _inRange from 'lodash/inRange';
 import { RequestError } from './helpers/requestError';
 import type { AlphaOptions } from '../types';
 import type { Alpha } from '../alpha';
-import { AxiosError } from 'axios';
 
 export interface RetryOptions {
   attempts: number;
@@ -17,11 +18,20 @@ export interface RetryAlphaOptions extends Omit<AlphaOptions, 'retry'> {
   retry: RetryOptions;
 }
 
-const isRetryableError = (error: any | RequestError) => {
+const isServerSideError = (error: RequestError) => {
+  return (
+    error.response
+    && (
+      _inRange(_get(error.response, 'StatusCode', 0) as number, 500, 600)
+      || _inRange(_get(error.response, 'status', 0) as number, 500, 600)
+    )
+  );
+};
+
+const isRetryableError = (error: RequestError) => {
   if (error.isLambdaInvokeTimeout) return true;
 
-  return error.code !== 'ECONNABORTED' &&
-    (!error.response || (error.response.status >= 500 && error.response.status <= 599));
+  return error.code !== 'ECONNABORTED' && isServerSideError(error);
 };
 
 const DEFAULTS = {
@@ -57,8 +67,8 @@ const exponentialBackoff = (config: RetryAlphaOptions) => {
 export const setup = (client: Alpha) => {
   client.interceptors.response.use(
     undefined,
-    async (err: any | AxiosError) => {
-      if (!('config' in err && err.config.retry)) {
+    async (err: any) => {
+      if (!('config' in err && err.config?.retry)) {
         return Promise.reject(err);
       }
 

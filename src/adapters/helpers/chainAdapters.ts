@@ -1,4 +1,4 @@
-import axios, { AxiosAdapter } from 'axios';
+import axios, { getAdapter } from 'axios';
 import type { AlphaOptions, AlphaAdapter } from '../../types';
 
 export type Predicate = (config: AlphaOptions) => any;
@@ -8,7 +8,7 @@ export const chainAdapters = (
   predicate: Predicate,
   adapter: AlphaAdapter,
 ) => {
-  const nextAdapter = config.adapter || axios.defaults.adapter as AxiosAdapter;
+  const nextAdapter = getAdapter(config.adapter || axios.defaults.adapter);
 
   config.adapter = async (config) => {
     if (predicate(config)) {

@@ -1,5 +1,5 @@
-import { Alpha } from '../src';
-import { Axios } from 'axios';
+import { Alpha, type AlphaOptions } from '../src';
+import { Axios, AxiosHeaders } from 'axios';
 import nock from 'nock';
 
 beforeAll(() => {
@@ -13,6 +13,12 @@ afterAll(() => {
 afterEach(() => {
   nock.cleanAll();
 });
+
+const defaultOptions: AlphaOptions = {
+  headers: new AxiosHeaders({
+    'Accept': 'application/json',
+  }),
+};
 
 test('Creating a client with no options creates a standard Axios client', async () => {
   const server = nock('http://localhost')
@@ -52,9 +58,7 @@ test('Creating a client with configuration options sets the default client optio
     params: {
       foo: 'bar',
     },
-    headers: {
-      'Accept': 'application/json',
-    },
+    ...defaultOptions,
   };
 
   const client = new Alpha(options);
@@ -73,13 +77,7 @@ test('Creating a client with a target and configuration options binds the client
     .matchHeader('Accept', 'application/json')
     .reply(200, { message: 'hello!' });
 
-  const options = {
-    headers: {
-      'Accept': 'application/json',
-    },
-  };
-
-  const client = new Alpha('http://example.com', options);
+  const client = new Alpha('http://example.com', defaultOptions);
   expect(client instanceof Axios).toBe(true);
 
   const response = await client.get('/some/path');
@@ -95,6 +93,7 @@ test('A custom status validator can be used with the client', async () => {
     .reply(302, { location: '/redirect' });
 
   const options = {
+    ...defaultOptions,
     validateStatus: (status: number) => status >= 200 && status < 300,
   };
 

@@ -1,6 +1,6 @@
 import { Alpha } from '../src';
 import nock from 'nock';
-import { AxiosError } from 'axios';
+import { AxiosError, AxiosHeaders } from 'axios';
 
 beforeAll(() => {
   nock.disableNetConnect();
@@ -14,6 +14,8 @@ afterEach(() => {
   nock.cleanAll();
 });
 
+const defaultOptions = { headers: new AxiosHeaders() };
+
 test('Making a request with retries enabled should succeed if the number of failed requests is less than the number of attempts', async () => {
   const server = nock('http://example.com')
     .get('/some/path')
@@ -23,7 +25,7 @@ test('Making a request with retries enabled should succeed if the number of fail
     .get('/some/path')
     .reply(200, 'hello!', { 'test-header': 'some value' });
 
-  const alpha = new Alpha('http://example.com', { retry: true });
+  const alpha = new Alpha('http://example.com', { ...defaultOptions, retry: true });
   const response = await alpha.get('/some/path');
 
   expect(response.data).toBe('hello!');
@@ -41,6 +43,7 @@ test('Making a request with retries enabled and a custom retry condition should 
     .reply(200, 'hello!', { 'test-header': 'some value' });
 
   const alpha = new Alpha('http://example.com', {
+    ...defaultOptions,
     retry: {
       retryCondition: (error) => (error as AxiosError).response!.status === 404,
     },
@@ -58,6 +61,7 @@ test('Making a request with retries enabled and a custom retry condition should 
     .reply(403);
 
   const alpha = new Alpha('http://example.com', {
+    ...defaultOptions,
     retry: {
       retryCondition: (error) => (error as AxiosError).response!.status === 404,
     },
@@ -75,7 +79,7 @@ test('Making a request with retries enabled should fail for an error that is not
     .get('/some/path')
     .reply(403);
 
-  const alpha = new Alpha('http://example.com', { retry: true });
+  const alpha = new Alpha('http://example.com', { ...defaultOptions, retry: true });
   const promise = alpha.get('/some/path');
   await expect(promise).rejects.toThrow();
   const err = await promise.catch((error) => error);
@@ -95,7 +99,7 @@ test('Making a request with retries enabled should fail when the number of reque
     .get('/some/path')
     .reply(200, 'hello!', { 'test-header': 'some value' });
 
-  const alpha = new Alpha('http://example.com', { retry: { attempts: 2 } });
+  const alpha = new Alpha('http://example.com', { ...defaultOptions, retry: { attempts: 2 } });
   const promise = alpha.get('/some/path');
   await expect(promise).rejects.toThrow();
   const err = await promise.catch((error) => error);

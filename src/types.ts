@@ -1,4 +1,4 @@
-import type { AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios';
+import type { AxiosPromise, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import type { Lambda } from '@aws-sdk/client-lambda';
 import type { Context, Handler } from 'aws-lambda';
 import { SignatureV4CryptoInit, SignatureV4Init } from '@aws-sdk/signature-v4';
@@ -21,7 +21,7 @@ export type SignAwsV4Config =
   & Omit<SignatureV4Constructor, SignatureV4Optionals>
   & Partial<Pick<SignatureV4Constructor, SignatureV4Optionals>>;
 
-export interface AlphaOptions<D = any> extends AxiosRequestConfig<D> {
+export interface AlphaOptions<D = any> extends InternalAxiosRequestConfig<D> {
   retry?: RetryOptions | boolean;
   lambda?: Handler;
   context?: Context;
