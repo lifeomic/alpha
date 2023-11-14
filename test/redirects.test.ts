@@ -3,10 +3,8 @@ import nock from 'nock';
 import { InvokeCommand, Lambda } from '@aws-sdk/client-lambda';
 import { mockClient } from 'aws-sdk-client-mock';
 import { createResponse, prepResponse } from './utils';
-import { AxiosHeaders } from 'axios';
 
 const mockLambda = mockClient(Lambda);
-const defaultOptions = { headers: new AxiosHeaders() };
 
 beforeAll(() => nock.disableNetConnect());
 afterAll(() => nock.enableNetConnect());
@@ -164,7 +162,7 @@ test('Redirects can be explicitly limited', async () => {
     .callsFakeOnce(() => {})
     .rejectsOnce(new Error('off the deep end!'));
 
-  const promise = ctx.alpha.get('http://example.com', { ...defaultOptions, maxRedirects: 3 });
+  const promise = ctx.alpha.get('http://example.com', { maxRedirects: 3 });
   await expect(promise).rejects.toThrow('Exceeded maximum number of redirects.');
   const error = await promise.catch((error) => error);
 

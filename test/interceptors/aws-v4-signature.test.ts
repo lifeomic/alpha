@@ -1,4 +1,3 @@
-import { AxiosHeaders } from 'axios';
 import { Handler } from 'aws-lambda';
 import { Credentials } from '@aws-sdk/types';
 
@@ -9,8 +8,7 @@ const handler: jest.MockedFn<Handler> = jest.fn();
 const host = 'lambda:deployed';
 const path = '/some/path';
 
-const defaultOptions = { headers: new AxiosHeaders() };
-const alpha = new Alpha(handler, { baseURL: `lambda://${host}`, ...defaultOptions });
+const alpha = new Alpha(handler, { baseURL: `lambda://${host}` });
 
 const response = {
   headers: { 'test-header': 'some value' },
@@ -23,6 +21,7 @@ const expectedResponse = {
   status: response.statusCode,
   statusText: 'OK',
   headers: response.headers,
+  config: expect.anything(),
 };
 
 const credentials: Credentials = {
@@ -46,33 +45,32 @@ const matchingObj = expect.objectContaining({
 
 test.each<AlphaOptions | undefined>([
   undefined,
-  { signAwsV4: { credentials }, ...defaultOptions },
-  { headers: new AxiosHeaders({ host }) },
-  { headers: new AxiosHeaders({ Host: host }) },
+  { signAwsV4: { credentials } },
+  { headers: { host } },
+  { headers: { Host: host } },
 ])('%# will add v4 signature to requests', async (
   {
     signAwsV4 = {},
     ...options
-  } = defaultOptions,
+  } = {},
 ) => {
   await expect(alpha.get(path, { signAwsV4, ...options })).resolves
-    .toEqual(expect.objectContaining(expectedResponse));
+    .toMatchObject(expectedResponse);
 
   expect(handler).toHaveBeenCalledWith(matchingObj, expect.any(Object), expect.any(Function));
 });
 
 test('will get port', async () => {
-  const alpha = new Alpha(handler, { baseURL: 'https://www.lifeomic.com:80', ...defaultOptions });
-  await expect(alpha.get(path, { signAwsV4: {}, ...defaultOptions })).resolves
-    .toEqual(expect.objectContaining(expectedResponse));
+  const alpha = new Alpha(handler, { baseURL: 'https://www.lifeomic.com:80' });
+  await expect(alpha.get(path, { signAwsV4: {} })).resolves
+    .toMatchObject(expectedResponse);
 
   expect(handler).toHaveBeenCalledWith(matchingObj, expect.any(Object), expect.any(Function));
 });
 
 test('will not sign requests without config', async () => {
   const alpha = new Alpha(handler);
-  await expect(alpha.get(path)).resolves
-    .toEqual(expect.objectContaining(expectedResponse));
+  await expect(alpha.get(path)).resolves.toMatchObject(expectedResponse);
 
   expect(handler).not.toHaveBeenCalledWith(matchingObj, expect.any(Object), expect.any(Function));
 });

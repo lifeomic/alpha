@@ -5,10 +5,9 @@ import inspector from 'inspector';
 const testTimeout = inspector.url() ? 1e8 : 10e3;
 
 const config: Config.InitialOptions = {
-  preset: '@lifeomic/jest-config',
   testEnvironment: 'node',
   transform: {
-    '^.+\\.tsx?$': [
+    '^.+\\.(j|t)s$': [
       '@swc/jest',
       {
         jsc: { target: 'es2019' },
@@ -35,6 +34,8 @@ const config: Config.InitialOptions = {
   verbose: true,
   maxWorkers: '50%',
   testTimeout,
+  // need to transform imported js file using ESM
+  transformIgnorePatterns: ['/node_modules/(?!(axios)/)'],
 };
 
 export default config;

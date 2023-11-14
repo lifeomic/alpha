@@ -4,7 +4,7 @@ import { Handler } from 'aws-lambda';
 import { AxiosHeaders } from 'axios';
 
 const response = {
-  headers: { 'test-header': 'some value' },
+  headers: new AxiosHeaders({ 'test-header': 'some value' }),
   body: 'hello!',
   statusCode: 200,
 };

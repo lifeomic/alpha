@@ -1,3 +1,4 @@
+import { AxiosHeaders } from 'axios';
 import { Alpha } from '../src';
 import nock from 'nock';
 
@@ -24,7 +25,7 @@ test('Making a GET request with the http protocol performs a normal HTTP request
   expect(response.data).toBe('hello!');
   expect(response.status).toBe(200);
 
-  expect(response.headers).toEqual({ 'test-header': 'some value' });
+  expect(response.headers).toEqual(new AxiosHeaders({ 'test-header': 'some value' }));
 
   expect(server.isDone()).toBe(true);
 });
@@ -40,7 +41,7 @@ test('Making a GET request with the https protocol performs a normal HTTPS reque
   expect(response.data).toBe('hello!');
   expect(response.status).toBe(200);
 
-  expect(response.headers).toEqual({ 'test-header': 'some value' });
+  expect(response.headers).toEqual(new AxiosHeaders({ 'test-header': 'some value' }));
 
   expect(server.isDone()).toBe(true);
 });

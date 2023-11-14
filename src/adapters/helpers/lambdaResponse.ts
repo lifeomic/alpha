@@ -5,7 +5,7 @@ import { TextEncoder } from 'util';
 import type { AlphaOptions } from '../../types';
 import type { InvocationRequest } from '@aws-sdk/client-lambda';
 import type { AxiosResponse } from 'axios';
-import { HandlerRequest } from '../../types';
+import { type AlphaResponse, HandlerRequest } from '../../types';
 
 export interface Payload {
   body: string;
@@ -27,10 +27,10 @@ export const lambdaResponse = (
   config: AlphaOptions,
   request: InvocationRequest | HandlerRequest,
   payload: Payload,
-): AxiosResponse => {
+): AlphaResponse => {
   const data = payloadToData(config, payload);
 
-  const response: AxiosResponse = {
+  const response: AlphaResponse = {
     config,
     data,
     headers: payload.headers,

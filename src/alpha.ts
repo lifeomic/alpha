@@ -88,7 +88,7 @@ export class Alpha extends Axios {
   }
 
   get<T = any, R = AlphaResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
-    return super.get(url, config);
+    return super.get<T, R, D>(url, config);
   }
   delete<T = any, R = AlphaResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
     return super.delete(url, config);

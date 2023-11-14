@@ -1,13 +1,12 @@
 import { Alpha } from '../src';
 import nock from 'nock';
 import { Lambda, InvokeCommand, InvokeCommandInput } from '@aws-sdk/client-lambda';
-import { AxiosHeaders } from 'axios';
 import { mockClient } from 'aws-sdk-client-mock';
 import { prepResponse, createResponse } from './utils';
+import { AxiosHeaders } from 'axios';
 
 const mockLambda = mockClient(Lambda);
 const FakeLambda = jest.fn() as jest.MockedClass<typeof Lambda>;
-const defaultOptions = { headers: new AxiosHeaders() };
 
 interface TestContext {
   alpha: Alpha;
@@ -25,7 +24,7 @@ afterAll(() => {
 
 beforeEach(() => {
   ctx = {} as TestContext;
-  ctx.alpha = new Alpha('lambda://test-function', { adapter: undefined, ...defaultOptions });
+  ctx.alpha = new Alpha('lambda://test-function', { adapter: undefined });
   ctx.abort = jest.fn();
   FakeLambda.mockReturnValue(new Lambda({}));
 });
@@ -55,11 +54,11 @@ test('Making a GET request with the lambda protocol invokes the lambda function'
     },
   });
 
-  const response = await ctx.alpha.get('/some/path?param1=value1', { params: { param2: 'value2' }, ...defaultOptions });
+  const response = await ctx.alpha.get('/some/path?param1=value1', { params: { param2: 'value2' } });
 
   expect(response.data).toBe('hello!');
   expect(response.status).toBe(200);
-  expect(response.headers).toEqual({ 'test-header': 'some value' });
+  expect(response.headers).toEqual(new AxiosHeaders({ 'test-header': 'some value' }));
 
   const cmdInput = getIn();
 
@@ -91,7 +90,6 @@ test('Making a GET request with responseType \'arraybuffer\' returns the correct
   const response = await ctx.alpha.get<Buffer>('/some/path?param1=value1', {
     params: { param2: 'value2' },
     responseType: 'arraybuffer',
-    ...defaultOptions,
   });
 
   // Assert that the right type is returned
@@ -114,7 +112,6 @@ test('Making a GET request with responseType \'stream\' throws an unsupported er
   const response = ctx.alpha.get('/some/path?param1=value1', {
     params: { param2: 'value2' },
     responseType: 'stream',
-    ...defaultOptions,
   });
   await expect(response).rejects.toThrow('Unhandled responseType requested: stream');
 });
@@ -149,7 +146,7 @@ const testLambdaWithQualifier = async (qualifier: string) => {
 
   expect(response.data).toBe('hello!');
   expect(response.status).toBe(200);
-  expect(response.headers).toEqual({ 'test-header': 'some value' });
+  expect(response.headers).toEqual(new AxiosHeaders({ 'test-header': 'some value' }));
 
   const cmdInput = getIn();
   expect(cmdInput).toEqual({
@@ -198,7 +195,7 @@ test('When a lambda function returns an error code an error is thrown', async ()
   expect(error.config.url).toBe('lambda://test-function/some/path');
 
   expect(error.response.status).toBe(400);
-  expect(error.response.headers).toEqual({});
+  expect(error.response.headers).toEqual(new AxiosHeaders({}));
   expect(error.response.data).toEqual({ error: 'Bad request.' });
 
   expect(error.request.FunctionName).toBe('test-function');
@@ -226,7 +223,7 @@ test('When status validation is disabled errors are not thrown', async () => {
     },
   });
 
-  const response = await ctx.alpha.get('/some/path', { validateStatus: undefined, ...defaultOptions });
+  const response = await ctx.alpha.get('/some/path', { validateStatus: undefined });
 
   expect(response.status).toBe(400);
   expect(response.data).toBe('error!');
@@ -439,7 +436,7 @@ test('timeout values are provided to the HTTP client used by the Lambda client',
     },
   });
 
-  await ctx.alpha.get('/some/path', { timeout: 5, Lambda: FakeLambda, ...defaultOptions });
+  await ctx.alpha.get('/some/path', { timeout: 5, Lambda: FakeLambda });
 
   expect(FakeLambda).toHaveBeenCalledTimes(1);
   const { requestHandler } = FakeLambda.mock.calls[0][0];
@@ -455,7 +452,6 @@ test('A timeout can be configured for the invoked lambda function', async () => 
   const promise = ctx.alpha.get('/some/path', {
     Lambda: FakeLambda, // lambda will take 1000 ms
     timeout: 5, // timeout at 5 ms
-    ...defaultOptions,
   });
   await expect(promise).rejects.toThrow();
   const error = await promise.catch((err) => err);
@@ -470,11 +466,10 @@ test('A configured timeout does not hinder normal lambda function invocation beh
   const response = await ctx.alpha.get('/some/path', {
     Lambda: FakeLambda,
     timeout: 10,
-    ...defaultOptions,
   });
   expect(response.data).toBe('hello!');
   expect(response.status).toBe(200);
-  expect(response.headers).toEqual({ 'test-header': 'some value' });
+  expect(response.headers).toEqual(new AxiosHeaders({ 'test-header': 'some value' }));
 
   // By ending the test 10ms after the timeout, we ensure that the internal setTimeout firing doesn't
   // cause any negative side effects, such as attempting to abort after the lambda finished.
@@ -487,14 +482,13 @@ test('A configured timeout does not hinder normal lambda function invocation beh
 });
 
 test('A configured timeout does not eat lambda function invocation errors', async () => {
-  jest.useFakeTimers();
+  jest.useFakeTimers({ doNotFake: ['performance'] });
   jest.spyOn(global, 'setTimeout');
   jest.spyOn(global, 'clearTimeout');
   delayedLambda(1, new Error('Other error'));
   const promise = ctx.alpha.get('/some/path', {
     Lambda: FakeLambda,
     timeout: 1000,
-    ...defaultOptions,
   });
   await expect(promise).rejects.toThrow('Other error');
   expect(ctx.abort).not.toHaveBeenCalled();
@@ -507,7 +501,6 @@ test('lambda function invocation errors are re-thrown', async () => {
   delayedLambda(1, new Error('Other error'));
   await expect(ctx.alpha.get('/some/path', {
     Lambda: FakeLambda,
-    ...defaultOptions,
   })).rejects.toThrow('Other error');
 });
 
@@ -515,7 +508,6 @@ test('lambdaEndpoint config option is provided to the Lambda client', async () =
   const alpha = new Alpha('lambda://test-function', {
     lambdaEndpoint: 'http://test-endpoint',
     Lambda: FakeLambda,
-    ...defaultOptions,
   });
   createResponse(mockLambda, {
     StatusCode: 200,
