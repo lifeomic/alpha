@@ -6,11 +6,11 @@ import { lambdaEvent } from './helpers/lambdaEvent';
 import { lambdaResponse, Payload } from './helpers/lambdaResponse';
 import { parseLambdaUrl, isAbsoluteURL } from '../utils/url';
 import { RequestError } from './helpers/requestError';
-import { AlphaOptions, AlphaAdapter } from '../types';
+import { AlphaOptionsForLambda, AlphaAdapter } from '../types';
 import { Alpha } from '../alpha';
 import { AbortController } from '@aws-sdk/abort-controller';
 
-const lambdaInvocationAdapter: AlphaAdapter = async (config) => {
+const lambdaInvocationAdapter: AlphaAdapter<AlphaOptionsForLambda> = async (config) => {
   const LambdaClass = config.Lambda || Lambda;
   const lambdaOptions: LambdaClientConfig = {
     endpoint: config.lambdaEndpoint || process.env.LAMBDA_ENDPOINT,
@@ -101,7 +101,7 @@ const lambdaInvocationAdapter: AlphaAdapter = async (config) => {
   return lambdaResponse(config, request, payload);
 };
 
-const lambdaInvocationRequestInterceptor = (config: AlphaOptions) => {
+const lambdaInvocationRequestInterceptor = (config: AlphaOptionsForLambda) => {
   return chainAdapters(
     config,
     (config) => (config.url as string).startsWith('lambda:') || (config.baseURL?.startsWith('lambda:')),

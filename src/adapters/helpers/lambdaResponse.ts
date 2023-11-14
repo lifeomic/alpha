@@ -2,7 +2,7 @@ import http from 'http';
 import { RequestError } from './requestError';
 import { TextEncoder } from 'util';
 
-import type { AlphaOptions } from '../../types';
+import type { AlphaOptions, AlphaOptionsForLambda } from '../../types';
 import type { InvocationRequest } from '@aws-sdk/client-lambda';
 import type { AxiosResponse } from 'axios';
 import { type AlphaResponse, HandlerRequest } from '../../types';
@@ -24,7 +24,7 @@ const payloadToData = (config: AlphaOptions, payload: Payload) => {
 };
 
 export const lambdaResponse = (
-  config: AlphaOptions,
+  config: AlphaOptionsForLambda,
   request: InvocationRequest | HandlerRequest,
   payload: Payload,
 ): AlphaResponse => {

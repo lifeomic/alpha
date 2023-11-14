@@ -1,12 +1,12 @@
 import axios, { getAdapter } from 'axios';
-import type { AlphaOptions, AlphaAdapter } from '../../types';
+import type { AlphaOptionsForLambda, AlphaAdapter } from '../../types';
 
-export type Predicate = (config: AlphaOptions) => any;
+export type Predicate = (config: AlphaOptionsForLambda) => any;
 
 export const chainAdapters = (
-  config: AlphaOptions,
+  config: AlphaOptionsForLambda,
   predicate: Predicate,
-  adapter: AlphaAdapter,
+  adapter: AlphaAdapter<AlphaOptionsForLambda>,
 ) => {
   const nextAdapter = getAdapter(config.adapter || axios.defaults.adapter);
 

@@ -68,7 +68,7 @@ export const setup = (client: Alpha) => {
   client.interceptors.response.use(
     undefined,
     async (err: any) => {
-      if (!('config' in err && err.config?.retry)) {
+      if (!('config' in err && err.config.retry)) {
         return Promise.reject(err);
       }
 

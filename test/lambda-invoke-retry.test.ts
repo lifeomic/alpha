@@ -1,12 +1,10 @@
 import { Alpha } from '../src';
 import nock from 'nock';
 import { InvokeCommand, Lambda } from '@aws-sdk/client-lambda';
-import { AxiosHeaders } from 'axios';
 import { mockClient } from 'aws-sdk-client-mock';
 
 const mockLambda = mockClient(Lambda);
 const FakeLambda = jest.fn() as jest.MockedClass<typeof Lambda>;
-const defaultOptions = { headers: new AxiosHeaders() };
 
 beforeAll(() => {
   nock.disableNetConnect();
@@ -28,13 +26,11 @@ test('Lambda invocations should be retried after a timeout without a custom retr
   // Don't provide any response to invoke to mimic is not ever responding
   const alpha = new Alpha('lambda://test-function', {
     Lambda: FakeLambda,
-    ...defaultOptions,
   });
 
   mockLambda.on(InvokeCommand).callsFake(() => new Promise(() => {}));
 
   const request = alpha.get('/some/path', {
-    ...defaultOptions,
     timeout: 5,
     retry: {
       attempts: 2,

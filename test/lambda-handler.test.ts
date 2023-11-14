@@ -132,9 +132,9 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
       response,
     });
     const result = await ctx.client.post('/some/path', { data: 'test' }, {
-      headers: new AxiosHeaders({
+      headers: {
         'Content-Type': 'application/json',
-      }),
+      },
     });
 
     expect(result.status).toBe(200);
@@ -196,7 +196,7 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
       isCallbackStyleHandler,
     });
 
-    const result = await ctx.client.get('/some/path', { validateStatus: undefined, headers: new AxiosHeaders() });
+    const result = await ctx.client.get('/some/path', { validateStatus: undefined });
 
     expect(result.status).toBe(response.statusCode);
     expect(result.data).toBe(response.body);

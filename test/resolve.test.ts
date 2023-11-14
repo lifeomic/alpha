@@ -46,3 +46,9 @@ test('Resolving against a base URL that is merely a path returns the base path',
 
   expect(resolve(url, base)).toBe(url);
 });
+
+test('Resolving a URL w/o base simply returns URL', () => {
+  const url = '/url/path';
+
+  expect(resolve(url)).toBe(url);
+});

@@ -1,6 +1,6 @@
 import { InvocationRequest, InvocationResponse } from '@aws-sdk/client-lambda';
-import { HandlerRequest, AlphaOptions } from '../../types';
-import { AxiosError, AxiosResponse } from 'axios';
+import { HandlerRequest } from '../../types';
+import { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 export const isAxiosError = (err: any): err is AxiosError =>
   (typeof err === 'object') && !!err.isAxiosError;
@@ -15,7 +15,7 @@ export class RequestError extends Error implements Omit<AxiosError, 'response' |
 
   constructor (
     message: string,
-    public config: AlphaOptions,
+    public config: InternalAxiosRequestConfig,
     public request: InvocationRequest | HandlerRequest,
     public response?: InvocationResponse | AxiosResponse,
   ) {
