@@ -1,6 +1,6 @@
 import { Alpha } from '../src';
 import nock from 'nock';
-import { AxiosError, AxiosHeaders } from 'axios';
+import { AxiosError } from 'axios';
 
 beforeAll(() => {
   nock.disableNetConnect();
