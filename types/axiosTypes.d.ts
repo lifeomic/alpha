@@ -1,4 +1,4 @@
-declare module 'axios/lib/core/transformData' {
+declare module 'axios/unsafe/core/transformData.js' {
   import { AxiosRequestConfig } from 'axios';
 
   type TransformData = (
@@ -12,7 +12,7 @@ declare module 'axios/lib/core/transformData' {
   export default transformData;
 }
 
-declare module 'axios/lib/core/buildFullPath' {
+declare module 'axios/unsafe/core/buildFullPath.js' {
   import { AxiosRequestConfig } from 'axios';
   type BuildFullPath = (
     baseURL: AxiosRequestConfig['baseURL'],
@@ -24,7 +24,7 @@ declare module 'axios/lib/core/buildFullPath' {
   export default buildFullPath;
 }
 
-declare module 'axios/lib/helpers/buildURL' {
+declare module 'axios/unsafe/helpers/buildURL.js' {
   import { AxiosRequestConfig } from 'axios';
   type BuildURL = (
     path: string,

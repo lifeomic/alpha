@@ -6,11 +6,8 @@ import {
   HttpRequest,
   HeaderBag,
 } from '@aws-sdk/types';
-// @ts-expect-error internal API is not exported w/ types
 import buildURL from 'axios/unsafe/helpers/buildURL.js';
-// @ts-expect-error internal API is not exported w/ types
 import transformData from 'axios/unsafe/core/transformData.js';
-// @ts-expect-error internal API is not exported w/ types
 import buildFullPath from 'axios/unsafe/core/buildFullPath.js';
 
 import type { Alpha } from '../alpha';
