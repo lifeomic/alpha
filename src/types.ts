@@ -13,10 +13,6 @@ export interface RetryOptions {
 type SignatureV4Constructor = SignatureV4Init & SignatureV4CryptoInit;
 type SignatureV4Optionals = 'credentials' | 'region' | 'sha256' | 'service';
 
-export interface AlphaResponse<ResponseData = any, ConfigData = any> extends AxiosResponse<ResponseData> {
-  config: AlphaOptions<ConfigData> & InternalAxiosRequestConfig;
-}
-
 export type SignAwsV4Config =
   & Omit<SignatureV4Constructor, SignatureV4Optionals>
   & Partial<Pick<SignatureV4Constructor, SignatureV4Optionals>>;
@@ -37,6 +33,10 @@ export type InternalAlphaRequestConfig<D = any> = AlphaOptions<D> & InternalAxio
 
 export type AlphaAdapter<V = AlphaOptions> = (config: V) => AxiosPromise;
 export type AlphaInterceptor<V = AlphaOptions> = (config: V) => (Promise<V> | V);
+
+export interface AlphaResponse<ResponseData = any, ConfigData = any> extends AxiosResponse<ResponseData> {
+  config: InternalAlphaRequestConfig<ConfigData>;
+}
 
 export interface HandlerRequest<T = Record<string, any>> {
   event: T;
