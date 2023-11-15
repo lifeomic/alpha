@@ -1,9 +1,10 @@
 import { Alpha } from '../src';
 import nock from 'nock';
 import { Handler } from 'aws-lambda';
+import { AxiosHeaders } from 'axios';
 
 const response = {
-  headers: { 'test-header': 'some value' },
+  headers: new AxiosHeaders({ 'test-header': 'some value' }),
   body: 'hello!',
   statusCode: 200,
 };
@@ -121,7 +122,7 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
     expect(result.headers).toEqual(response.headers);
     expect(result.data).toBe(response.body);
 
-    expect(ctx.handler).toBeCalledWith(expect.objectContaining(event), expect.any(Object), expect.any(Function));
+    expect(ctx.handler).toHaveBeenCalledWith(expect.objectContaining(event), expect.any(Object), expect.any(Function));
   });
 
   test(`Making a POST request to a local handler invokes the handler (callbackStyle=${isCallbackStyleHandler})`, async () => {
@@ -152,7 +153,7 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
       multiValueHeaders: expect.any(Object),
     };
 
-    expect(ctx.handler).toBeCalledWith(expect.objectContaining(event), expect.any(Object), expect.any(Function));
+    expect(ctx.handler).toHaveBeenCalledWith(expect.objectContaining(event), expect.any(Object), expect.any(Function));
   });
 
   test(`When a local handler returns an error the request fails (callbackStyle=${isCallbackStyleHandler})`, async () => {
@@ -180,7 +181,7 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
     expect(error.request.event.queryStringParameters).toEqual({});
 
     expect(Object.keys(error as Object).includes('code')).toBe(false);
-    expect(ctx.handler).toBeCalled();
+    expect(ctx.handler).toHaveBeenCalled();
   });
 
   test(`When status validation is disable errors are not thrown (callbackStyle=${isCallbackStyleHandler})`, async () => {
@@ -228,7 +229,7 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
     expect(result.status).toBe(200);
     expect(result.data).toBe(response.body);
 
-    expect(ctx.handler).toBeCalledWith(expect.objectContaining({
+    expect(ctx.handler).toHaveBeenCalledWith(expect.objectContaining({
       body: '',
       headers: expect.any(Object),
       httpMethod: 'GET',
@@ -239,7 +240,7 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
         requestId: expect.any(String),
       }),
     }), expect.any(Object), expect.any(Function));
-    expect(ctx.handler).toBeCalledWith(expect.objectContaining({
+    expect(ctx.handler).toHaveBeenCalledWith(expect.objectContaining({
       body: '',
       headers: expect.any(Object),
       httpMethod: 'GET',
@@ -279,7 +280,7 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
     expect(result.status).toBe(200);
     expect(result.data).toBe(response.body);
 
-    expect(ctx.handler).toBeCalledWith(expect.objectContaining({
+    expect(ctx.handler).toHaveBeenCalledWith(expect.objectContaining({
       body: '',
       headers: expect.any(Object),
       httpMethod: 'GET',
@@ -290,7 +291,7 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
         requestId: expect.any(String),
       }),
     }), expect.any(Object), expect.any(Function));
-    expect(ctx.handler).toBeCalledWith(expect.objectContaining({
+    expect(ctx.handler).toHaveBeenCalledWith(expect.objectContaining({
       body: '',
       headers: expect.any(Object),
       httpMethod: 'GET',
@@ -332,7 +333,7 @@ const registerSpecs = (isCallbackStyleHandler: boolean) => {
       }),
     };
 
-    expect(ctx.handler).toBeCalledWith(expect.objectContaining(event), expect.any(Object), expect.any(Function));
+    expect(ctx.handler).toHaveBeenCalledWith(expect.objectContaining(event), expect.any(Object), expect.any(Function));
   });
 
   test(`When a local handler returns an error the request fails with a response (callbackStyle=${isCallbackStyleHandler})`, async () => {

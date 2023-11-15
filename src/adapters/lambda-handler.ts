@@ -4,7 +4,7 @@ import { lambdaEvent } from './helpers/lambdaEvent';
 import { lambdaResponse, Payload } from './helpers/lambdaResponse';
 import { promisify } from './helpers/promisify';
 import { RequestError } from './helpers/requestError';
-import { AlphaOptions, AlphaAdapter, HandlerRequest } from '../types';
+import { InternalAlphaRequestConfig, AlphaAdapter, HandlerRequest } from '../types';
 import { v4 as uuid } from 'uuid';
 import { Context, Handler } from 'aws-lambda';
 import { Alpha } from '../alpha';
@@ -39,12 +39,12 @@ const lambdaHandlerAdapter: AlphaAdapter = async (config) => {
   try {
     const result = await handler(request.event, request.context as Context) as Payload;
     return lambdaResponse(config, request, result);
-  } catch (error: any | Error) {
+  } catch (error: any) {
     throw new RequestError(error.message as string, config, request, error.response as AxiosResponse);
   }
 };
 
-const lambdaHandlerRequestInterceptor = (config: AlphaOptions) => chainAdapters(
+const lambdaHandlerRequestInterceptor = (config: InternalAlphaRequestConfig) => chainAdapters(
   config,
   (config) => !isAbsoluteURL(config.url as string) && config.lambda,
   lambdaHandlerAdapter,

@@ -31,27 +31,27 @@ test('constructor types', () => {
 test('overloaded method signatures', async () => {
   const path = `/${uuid()}`;
   handler.mockResolvedValue(response);
-  const options: AlphaOptions = {};
+  const options: AlphaOptions = config;
   const data = {};
   const alpha = new Alpha(handler);
-  await expect(alpha.get(path, options)).resolves.toEqual(expect.objectContaining(expected));
-  expect(handler).toBeCalledWith(expect.objectContaining({ path, httpMethod: 'GET' }), expect.any(Object), expect.any(Function));
+  await expect(alpha.get(path, options)).resolves.toMatchObject(expected);
+  expect(handler).toHaveBeenCalledWith(expect.objectContaining({ path, httpMethod: 'GET' }), expect.any(Object), expect.any(Function));
 
-  await expect(alpha.delete(path, options)).resolves.toEqual(expect.objectContaining(expected));
-  expect(handler).toBeCalledWith(expect.objectContaining({ path, httpMethod: 'DELETE' }), expect.any(Object), expect.any(Function));
+  await expect(alpha.delete(path, options)).resolves.toMatchObject(expected);
+  expect(handler).toHaveBeenCalledWith(expect.objectContaining({ path, httpMethod: 'DELETE' }), expect.any(Object), expect.any(Function));
 
-  await expect(alpha.head(path, options)).resolves.toEqual(expect.objectContaining(expected));
-  expect(handler).toBeCalledWith(expect.objectContaining({ path, httpMethod: 'HEAD' }), expect.any(Object), expect.any(Function));
+  await expect(alpha.head(path, options)).resolves.toMatchObject(expected);
+  expect(handler).toHaveBeenCalledWith(expect.objectContaining({ path, httpMethod: 'HEAD' }), expect.any(Object), expect.any(Function));
 
-  await expect(alpha.options(path, options)).resolves.toEqual(expect.objectContaining(expected));
-  expect(handler).toBeCalledWith(expect.objectContaining({ path, httpMethod: 'OPTIONS' }), expect.any(Object), expect.any(Function));
+  await expect(alpha.options(path, options)).resolves.toMatchObject(expected);
+  expect(handler).toHaveBeenCalledWith(expect.objectContaining({ path, httpMethod: 'OPTIONS' }), expect.any(Object), expect.any(Function));
 
-  await expect(alpha.post(path, data, options)).resolves.toEqual(expect.objectContaining(expected));
-  expect(handler).toBeCalledWith(expect.objectContaining({ path, httpMethod: 'POST' }), expect.any(Object), expect.any(Function));
+  await expect(alpha.post(path, data, options)).resolves.toMatchObject(expected);
+  expect(handler).toHaveBeenCalledWith(expect.objectContaining({ path, httpMethod: 'POST' }), expect.any(Object), expect.any(Function));
 
-  await expect(alpha.put(path, data, options)).resolves.toEqual(expect.objectContaining(expected));
-  expect(handler).toBeCalledWith(expect.objectContaining({ path, httpMethod: 'PUT' }), expect.any(Object), expect.any(Function));
+  await expect(alpha.put(path, data, options)).resolves.toMatchObject(expected);
+  expect(handler).toHaveBeenCalledWith(expect.objectContaining({ path, httpMethod: 'PUT' }), expect.any(Object), expect.any(Function));
 
-  await expect(alpha.patch(path, data, options)).resolves.toEqual(expect.objectContaining(expected));
-  expect(handler).toBeCalledWith(expect.objectContaining({ path, httpMethod: 'PATCH' }), expect.any(Object), expect.any(Function));
+  await expect(alpha.patch(path, data, options)).resolves.toMatchObject(expected);
+  expect(handler).toHaveBeenCalledWith(expect.objectContaining({ path, httpMethod: 'PATCH' }), expect.any(Object), expect.any(Function));
 });

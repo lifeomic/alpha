@@ -6,10 +6,9 @@ import {
   HttpRequest,
   HeaderBag,
 } from '@aws-sdk/types';
-
-import buildURL from 'axios/lib/helpers/buildURL';
-import transformData from 'axios/lib/core/transformData';
-import buildFullPath from 'axios/lib/core/buildFullPath';
+import buildURL from 'axios/unsafe/helpers/buildURL.js';
+import transformData from 'axios/unsafe/core/transformData.js';
+import buildFullPath from 'axios/unsafe/core/buildFullPath.js';
 
 import type { Alpha } from '../alpha';
 import type { AlphaInterceptor, AlphaOptions } from '../types';
@@ -37,7 +36,7 @@ const unsignableHeaders = new Set([
 ]);
 
 const combineParams = (url: string, { params, paramsSerializer }: AlphaOptions): HttpRequest['query'] => {
-  const fullUrl = buildURL(url, params, paramsSerializer);
+  const fullUrl: string = buildURL(url, params, paramsSerializer);
   const { query } = parseUrl(fullUrl);
   return query;
 };
@@ -55,7 +54,7 @@ const awsV4Signature: AlphaInterceptor = async (config) => {
     return config;
   }
 
-  let fullPath = buildFullPath(config.baseURL, config.url);
+  let fullPath: string = buildFullPath(config.baseURL, config.url);
   if (isLambdaUrl(fullPath)) {
     const lambdaUrl = parseLambdaUrl(fullPath) as LambdaUrl;
     fullPath = `lambda://${lambdaUrl.name}${lambdaUrl.path}`;

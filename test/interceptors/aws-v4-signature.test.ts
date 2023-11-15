@@ -21,6 +21,7 @@ const expectedResponse = {
   status: response.statusCode,
   statusText: 'OK',
   headers: response.headers,
+  config: expect.anything(),
 };
 
 const credentials: Credentials = {
@@ -54,23 +55,22 @@ test.each<AlphaOptions | undefined>([
   } = {},
 ) => {
   await expect(alpha.get(path, { signAwsV4, ...options })).resolves
-    .toEqual(expect.objectContaining(expectedResponse));
+    .toMatchObject(expectedResponse);
 
-  expect(handler).toBeCalledWith(matchingObj, expect.any(Object), expect.any(Function));
+  expect(handler).toHaveBeenCalledWith(matchingObj, expect.any(Object), expect.any(Function));
 });
 
 test('will get port', async () => {
   const alpha = new Alpha(handler, { baseURL: 'https://www.lifeomic.com:80' });
   await expect(alpha.get(path, { signAwsV4: {} })).resolves
-    .toEqual(expect.objectContaining(expectedResponse));
+    .toMatchObject(expectedResponse);
 
-  expect(handler).toBeCalledWith(matchingObj, expect.any(Object), expect.any(Function));
+  expect(handler).toHaveBeenCalledWith(matchingObj, expect.any(Object), expect.any(Function));
 });
 
 test('will not sign requests without config', async () => {
   const alpha = new Alpha(handler);
-  await expect(alpha.get(path)).resolves
-    .toEqual(expect.objectContaining(expectedResponse));
+  await expect(alpha.get(path)).resolves.toMatchObject(expectedResponse);
 
-  expect(handler).not.toBeCalledWith(matchingObj, expect.any(Object), expect.any(Function));
+  expect(handler).not.toHaveBeenCalledWith(matchingObj, expect.any(Object), expect.any(Function));
 });

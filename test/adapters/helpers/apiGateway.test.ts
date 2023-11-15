@@ -2,17 +2,16 @@ import { ToProxyHeaders, toProxyHeaders } from '../../../src/adapters/helpers/ap
 import { v4 as uuid } from 'uuid';
 import { AxiosRequestHeaders } from 'axios';
 
+// TODO support the use case that request header value could be undefined/null
 test('will convert header values', () => {
   expect(toProxyHeaders()).toEqual({ multiValueHeaders: {}, headers: {} });
   const multiStringHeader = [uuid(), ` ${uuid()}`, `${uuid()} `, uuid()];
+  // @ts-expect-error undefined is not allowed as header value, but it works
   const input: AxiosRequestHeaders = {
     stringHeader: uuid(),
     multiStringHeader: multiStringHeader.join(','),
-    // @ts-ignore
     numberHeader: 123456,
-    // @ts-ignore
     booleanHeader: true,
-    // @ts-ignore
     undefinedHeader: undefined,
   };
 
