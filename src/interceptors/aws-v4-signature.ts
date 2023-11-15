@@ -14,7 +14,7 @@ import transformData from 'axios/unsafe/core/transformData.js';
 import buildFullPath from 'axios/unsafe/core/buildFullPath.js';
 
 import type { Alpha } from '../alpha';
-import type { AlphaInterceptor, AlphaOptions, InternalAlphaRequestConfig } from '../types';
+import type { AlphaInterceptor, AlphaOptions } from '../types';
 import { matchHost } from '../utils/aws';
 import { isLambdaUrl, LambdaUrl, parseLambdaUrl } from '../utils/url';
 
@@ -52,7 +52,7 @@ const getHeaders = (hostname: string, { headers: baseHeaders }: AlphaOptions) =>
   return headers;
 };
 
-const awsV4Signature: AlphaInterceptor<InternalAlphaRequestConfig> = async (config) => {
+const awsV4Signature: AlphaInterceptor = async (config) => {
   if (!config.signAwsV4) {
     return config;
   }

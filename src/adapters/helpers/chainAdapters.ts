@@ -6,7 +6,7 @@ export type Predicate = (config: InternalAlphaRequestConfig) => any;
 export const chainAdapters = (
   config: InternalAlphaRequestConfig,
   predicate: Predicate,
-  adapter: AlphaAdapter<InternalAlphaRequestConfig>,
+  adapter: AlphaAdapter,
 ) => {
   const nextAdapter = getAdapter(config.adapter || axios.defaults.adapter);
 

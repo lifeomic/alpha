@@ -10,7 +10,7 @@ import { InternalAlphaRequestConfig, AlphaAdapter } from '../types';
 import { Alpha } from '../alpha';
 import { AbortController } from '@aws-sdk/abort-controller';
 
-const lambdaInvocationAdapter: AlphaAdapter<InternalAlphaRequestConfig> = async (config) => {
+const lambdaInvocationAdapter: AlphaAdapter = async (config) => {
   const LambdaClass = config.Lambda || Lambda;
   const lambdaOptions: LambdaClientConfig = {
     endpoint: config.lambdaEndpoint || process.env.LAMBDA_ENDPOINT,

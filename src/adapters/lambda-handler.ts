@@ -28,7 +28,7 @@ const createContext = (provided?: Partial<Context>): Context => {
   return Object.assign({}, defaultCtx, provided);
 };
 
-const lambdaHandlerAdapter: AlphaAdapter<InternalAlphaRequestConfig> = async (config) => {
+const lambdaHandlerAdapter: AlphaAdapter = async (config) => {
   const request: HandlerRequest = {
     context: createContext(config.context),
     event: lambdaEvent(config),

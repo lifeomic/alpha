@@ -31,8 +31,8 @@ export interface AlphaOptions<D = any> extends AxiosRequestConfig<D> {
 
 export type InternalAlphaRequestConfig<D = any> = AlphaOptions<D> & InternalAxiosRequestConfig;
 
-export type AlphaAdapter<V = AlphaOptions> = (config: V) => AxiosPromise;
-export type AlphaInterceptor<V = AlphaOptions> = (config: V) => (Promise<V> | V);
+export type AlphaAdapter = (config: InternalAlphaRequestConfig) => AxiosPromise;
+export type AlphaInterceptor = (config: InternalAlphaRequestConfig) => (Promise<InternalAlphaRequestConfig> | InternalAlphaRequestConfig);
 
 export interface AlphaResponse<ResponseData = any, ConfigData = any> extends AxiosResponse<ResponseData> {
   config: InternalAlphaRequestConfig<ConfigData>;
