@@ -49,6 +49,8 @@ const getHeaders = (hostname: string, { headers: baseHeaders }: AlphaOptions) =>
   return headers;
 };
 
+const defaultCredentials = defaultProvider({ maxRetries: 5 });
+
 const awsV4Signature: AlphaInterceptor = async (config) => {
   if (!config.signAwsV4) {
     return config;
@@ -64,7 +66,7 @@ const awsV4Signature: AlphaInterceptor = async (config) => {
   const { serviceCode, regionCode } = matchHost(hostname);
 
   const {
-    credentials = defaultProvider(),
+    credentials = defaultCredentials,
     service = serviceCode,
     region = regionCode,
     sha256 = Sha256,
