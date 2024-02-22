@@ -60,7 +60,7 @@
     "@aws-sdk/signature-v4": "^3.110.0",
     "@aws-sdk/url-parser": "^3.357.0",
     "@types/aws-lambda": "^8.10.101",
-    "axios": "^0.27.2",
+    "axios": "^0.28.0",
     "lodash": "^4.17.21",
     "nearley": "2",
     "url-parse": "^1.5.10",
