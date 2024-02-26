@@ -482,19 +482,19 @@ test('A configured timeout does not hinder normal lambda function invocation beh
 });
 
 test('A configured timeout does not eat lambda function invocation errors', async () => {
-  jest.useFakeTimers();
+  jest.useFakeTimers({ doNotFake: ['performance'] });
   jest.spyOn(global, 'setTimeout');
   jest.spyOn(global, 'clearTimeout');
   delayedLambda(1, new Error('Other error'));
   const promise = ctx.alpha.get('/some/path', {
     Lambda: FakeLambda,
     timeout: 1000,
-  } as any as AxiosRequestConfig);
+  });
   await expect(promise).rejects.toThrow('Other error');
-  expect(ctx.abort).not.toBeCalled();
+  expect(ctx.abort).not.toHaveBeenCalled();
 
-  expect(setTimeout).toBeCalledTimes(1);
-  expect(clearTimeout).toBeCalledTimes(1);
+  expect(setTimeout).toHaveBeenCalledTimes(1);
+  expect(clearTimeout).toHaveBeenCalledTimes(1);
 });
 
 test('lambda function invocation errors are re-thrown', async () => {
