@@ -524,3 +524,24 @@ test('lambdaEndpoint config option is provided to the Lambda client', async () =
 
   expect(FakeLambda).toHaveBeenCalledWith({ endpoint: 'http://test-endpoint' });
 });
+
+test('lambdaRegion config option is provided to the Lambda client', async () => {
+  const alpha = new Alpha('lambda://test-function', {
+    lambdaRegion: 'ap-southeast-2',
+    Lambda: FakeLambda,
+  });
+  createResponse(mockLambda, {
+    StatusCode: 200,
+    Payload: {
+      body: 'test',
+      statusCode: 200,
+    },
+  });
+
+  const response = await alpha.get('/test');
+
+  expect(response.data).toBe('test');
+  expect(response.status).toBe(200);
+
+  expect(FakeLambda).toHaveBeenCalledWith({ region: 'ap-southeast-2' });
+});
