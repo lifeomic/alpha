@@ -13,8 +13,14 @@ import { AbortController } from '@aws-sdk/abort-controller';
 const lambdaInvocationAdapter: AlphaAdapter = async (config) => {
   const LambdaClass = config.Lambda || Lambda;
   const lambdaOptions: LambdaClientConfig = {
+    region: config.lambdaRegion,
     endpoint: config.lambdaEndpoint || process.env.LAMBDA_ENDPOINT,
   };
+
+  if (config.lambdaRegion) {
+    // Allow the region to be controlled via config
+    lambdaOptions.region = config.lambdaRegion;
+  }
 
   if (config.timeout) {
     // Set some low level HTTP client timeout options

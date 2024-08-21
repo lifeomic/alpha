@@ -1,5 +1,5 @@
 import type { AxiosPromise, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import type { Lambda } from '@aws-sdk/client-lambda';
+import type { Lambda, LambdaClientConfig } from '@aws-sdk/client-lambda';
 import type { Context, Handler } from 'aws-lambda';
 import { SignatureV4CryptoInit, SignatureV4Init } from '@aws-sdk/signature-v4';
 
@@ -26,6 +26,10 @@ export interface AlphaOptions<D = any> extends AxiosRequestConfig<D> {
    * (Optional) The AWS endpoint to use when invoking the target Lambda function.
    */
   lambdaEndpoint?: string;
+  /**
+   * (Optional) The AWS region to use when invoking the target Lambda function.
+   */
+  lambdaRegion?: LambdaClientConfig['region'];
   Lambda?: typeof Lambda;
 }
 
