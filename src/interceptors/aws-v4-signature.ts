@@ -6,9 +6,6 @@ import {
   HttpRequest,
   HeaderBag,
 } from '@aws-sdk/types';
-import buildURL from 'axios/unsafe/helpers/buildURL.js';
-import transformData from 'axios/unsafe/core/transformData.js';
-import buildFullPath from 'axios/unsafe/core/buildFullPath.js';
 
 import type { Alpha } from '../alpha';
 import type { AlphaInterceptor, AlphaOptions } from '../types';
@@ -35,7 +32,11 @@ const unsignableHeaders = new Set([
   'range',
 ]);
 
-const combineParams = (url: string, { params, paramsSerializer }: AlphaOptions): HttpRequest['query'] => {
+const combineParams = async (url: string, { params, paramsSerializer }: AlphaOptions): Promise<HttpRequest['query']> => {
+  // buildURL is a ESM module, so we need to import it dynamically since
+  // we are in a CommonJS environment
+  const { default: buildURL } = await import('axios/unsafe/helpers/buildURL.js');
+
   const fullUrl: string = buildURL(url, params, paramsSerializer);
   const { query } = parseUrl(fullUrl);
   return query;
@@ -53,6 +54,12 @@ const awsV4Signature: AlphaInterceptor = async (config) => {
   if (!config.signAwsV4) {
     return config;
   }
+
+  // transformData and buildFullPath are ESM modules, so we need to import it
+  // dynamically since we are in a CommonJS environment
+  const { default: transformData } = await import('axios/unsafe/core/transformData.js');
+  const { default: buildFullPath } = await import('axios/unsafe/core/buildFullPath.js');
+
 
   let fullPath: string = buildFullPath(config.baseURL, config.url);
   if (isLambdaUrl(fullPath)) {
@@ -86,7 +93,7 @@ const awsV4Signature: AlphaInterceptor = async (config) => {
     path,
     port: port ? Number.parseInt(port) : undefined,
     headers: getHeaders(hostname, config),
-    query: combineParams(fullPath, config),
+    query: await combineParams(fullPath, config),
     body: transformData.call(config, config.data, config.headers, config.transformRequest),
   };
 
