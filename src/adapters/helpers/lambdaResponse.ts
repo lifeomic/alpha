@@ -18,8 +18,12 @@ const payloadToData = (config: AlphaOptions, payload: Payload) => {
   if (!config.responseType) return payload.body;
 
   switch (config.responseType) {
-    case 'arraybuffer': return new TextEncoder().encode(payload.body);
-    default: throw new Error('Unhandled responseType requested: ' + config.responseType);
+    case 'arraybuffer':
+      return new TextEncoder().encode(payload.body);
+    default:
+      throw new Error(
+        'Unhandled responseType requested: ' + config.responseType,
+      );
   }
 };
 
@@ -39,8 +43,18 @@ export const lambdaResponse = (
     statusText: http.STATUS_CODES[payload.statusCode] as string,
   };
 
-  if (typeof config.validateStatus === 'function' && !config.validateStatus(response.status)) {
-    throw new RequestError(`Request failed with status code ${response.status}`, config, request, response);
+  if (
+    typeof config.validateStatus === 'function' &&
+    !config.validateStatus(response.status)
+  ) {
+    throw new RequestError(
+      `Request${config.method ? ' ' + config.method.toUpperCase() : ''} ${
+        config.url
+      } failed with status code ${response.status}`,
+      config,
+      request,
+      response,
+    );
   }
 
   return response;
