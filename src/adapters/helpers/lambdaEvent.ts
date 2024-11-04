@@ -14,6 +14,15 @@ export const lambdaEvent = (config: AlphaOptions, relativeUrl?: string) => {
     querystringWithArraySupport,
   );
   const params = Object.assign({}, parts.query, config.params);
+  const multiValueQueryStringParameters: Record<string, any> = { ...params };
+
+  Object.keys(multiValueQueryStringParameters).forEach((key) => {
+    if (!Array.isArray(multiValueQueryStringParameters[key])) {
+      delete multiValueQueryStringParameters[key];
+    } else {
+      delete params[key];
+    }
+  });
 
   const httpMethod = (config.method as string).toUpperCase();
   const requestTime = new Date();
@@ -64,7 +73,7 @@ export const lambdaEvent = (config: AlphaOptions, relativeUrl?: string) => {
         userArn: null,
       },
     },
-    multiValueQueryStringParameters: null,
+    multiValueQueryStringParameters,
   };
 
   if (Buffer.isBuffer(event.body)) {
