@@ -19,6 +19,8 @@ export const lambdaEvent = (config: AlphaOptions, relativeUrl?: string) => {
   Object.keys(multiValueQueryStringParameters).forEach((key) => {
     if (!Array.isArray(multiValueQueryStringParameters[key])) {
       delete multiValueQueryStringParameters[key];
+    } else {
+      delete params[key];
     }
   });
 
@@ -71,10 +73,7 @@ export const lambdaEvent = (config: AlphaOptions, relativeUrl?: string) => {
         userArn: null,
       },
     },
-    multiValueQueryStringParameters:
-      Object.keys(multiValueQueryStringParameters).length > 0
-        ? multiValueQueryStringParameters
-        : null,
+    multiValueQueryStringParameters,
   };
 
   if (Buffer.isBuffer(event.body)) {
