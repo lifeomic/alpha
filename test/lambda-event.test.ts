@@ -57,7 +57,7 @@ test('Can parse URLs without duplicates', () => {
       pageSize: '25',
       test: 'diffValue',
     },
-    multiValueQueryStringParameters: {},
+    multiValueQueryStringParameters: null,
   }));
   assertRequestId(result);
 });

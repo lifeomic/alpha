@@ -73,7 +73,10 @@ export const lambdaEvent = (config: AlphaOptions, relativeUrl?: string) => {
         userArn: null,
       },
     },
-    multiValueQueryStringParameters,
+    multiValueQueryStringParameters:
+      Object.keys(multiValueQueryStringParameters).length > 0
+        ? multiValueQueryStringParameters
+        : null,
   };
 
   if (Buffer.isBuffer(event.body)) {
