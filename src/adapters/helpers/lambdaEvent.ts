@@ -13,16 +13,18 @@ export const lambdaEvent = (config: AlphaOptions, relativeUrl?: string) => {
     'http://fake',
     querystringWithArraySupport,
   );
-  const params = Object.assign({}, parts.query, config.params);
-  const multiValueQueryStringParameters: Record<string, any> = { ...params };
+  const params: Record<string, any> = Object.assign({}, parts.query, config.params);
+  let multiValueParams: Record<string, any[]> | null = null;
 
-  Object.keys(multiValueQueryStringParameters).forEach((key) => {
-    if (!Array.isArray(multiValueQueryStringParameters[key])) {
-      delete multiValueQueryStringParameters[key];
-    } else {
-      delete params[key];
-    }
-  });
+  const hasMultiValueParams = Object.values(params).some((value) => Array.isArray(value));
+
+  if (hasMultiValueParams) {
+    Object.entries(params).forEach(([key, value]) => {
+      multiValueParams = multiValueParams || {};
+      multiValueParams[key] = Array.isArray(value) ? value : [value];
+      params[key] = Array.isArray(value) ? value.join(',') : value;
+    });
+  }
 
   const httpMethod = (config.method as string).toUpperCase();
   const requestTime = new Date();
@@ -73,7 +75,7 @@ export const lambdaEvent = (config: AlphaOptions, relativeUrl?: string) => {
         userArn: null,
       },
     },
-    multiValueQueryStringParameters,
+    multiValueQueryStringParameters: multiValueParams,
   };
 
   if (Buffer.isBuffer(event.body)) {
