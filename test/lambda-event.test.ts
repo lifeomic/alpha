@@ -31,7 +31,6 @@ test('Can parse URLs with duplicate parameters', () => {
     httpMethod: 'GET',
     path: '/lifeomic/dstu3/Questionnaire',
     queryStringParameters: {
-      _tag: 'http://lifeomic.com/fhir/questionnaire-type|survey-form,http://lifeomic.com/fhir/dataset|0bb18fef-4e2d-4b91-a623-09527265a8b3,http://lifeomic.com/fhir/primary|0343bfcf-4e2d-4b91-a623-095272783bf3',
       pageSize: '25',
     },
     multiValueQueryStringParameters: {
@@ -40,7 +39,6 @@ test('Can parse URLs with duplicate parameters', () => {
         'http://lifeomic.com/fhir/dataset|0bb18fef-4e2d-4b91-a623-09527265a8b3',
         'http://lifeomic.com/fhir/primary|0343bfcf-4e2d-4b91-a623-095272783bf3',
       ],
-      pageSize: ['25'],
     },
   }));
   assertRequestId(result);
