@@ -21,8 +21,10 @@ export const lambdaEvent = (config: AlphaOptions, relativeUrl?: string) => {
   if (hasMultiValueParams) {
     Object.entries(params).forEach(([key, value]) => {
       multiValueParams = multiValueParams || {};
-      multiValueParams[key] = Array.isArray(value) ? value : [value];
-      params[key] = Array.isArray(value) ? value.join(',') : value;
+      if (Array.isArray(value)) {
+        multiValueParams[key] = value;
+        delete params[key];
+      }
     });
   }
 
