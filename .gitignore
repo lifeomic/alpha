@@ -9,3 +9,4 @@ node_modules/
 .idea
 yarn-error.log
 src/utils/lambdaURLGrammar.ts
+.tool-versions

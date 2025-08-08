@@ -6,23 +6,26 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
  * Needed for invoking @vendia/serverless-express handlers.
  * https://github.com/apollographql/apollo-server/issues/5504
  */
-export type ToProxyHeaders = Pick<APIGatewayProxyEvent, 'multiValueHeaders' | 'headers'>;
-export const toProxyHeaders = (headers: RawAxiosRequestHeaders = {}): ToProxyHeaders => {
+export type ToProxyHeaders = Pick<
+  APIGatewayProxyEvent,
+  'multiValueHeaders' | 'headers'
+>;
+export const toProxyHeaders = (
+  headers: RawAxiosRequestHeaders = {},
+): ToProxyHeaders => {
   const response: ToProxyHeaders = {
     multiValueHeaders: {},
     headers: {},
   };
-  Object.entries(headers).forEach(([key, value]) => {
+  for (const [key, value] of Object.entries(headers)) {
+    if (value === undefined) continue;
     if (typeof value === 'string') {
       response.headers[key] = value;
       response.multiValueHeaders[key] = value.split(',').map((v) => v.trim());
-    } else if (value !== undefined) {
-      response.headers[key] = `${value}`;
-      response.multiValueHeaders[key] = [`${value}`];
     } else {
-      response.headers[key] = value;
-      response.multiValueHeaders[key] = value;
+      response.headers[key] = String(value);
+      response.multiValueHeaders[key] = [String(value)];
     }
-  });
+  }
   return response;
 };
