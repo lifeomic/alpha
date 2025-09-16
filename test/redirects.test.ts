@@ -1,7 +1,7 @@
-import { Alpha } from '../src';
-import nock from 'nock';
 import { InvokeCommand, Lambda } from '@aws-sdk/client-lambda';
 import { mockClient } from 'aws-sdk-client-mock';
+import nock from 'nock';
+import { Alpha } from '../src';
 import { createResponse, prepResponse } from './utils';
 
 const mockLambda = mockClient(Lambda);
@@ -170,4 +170,21 @@ test('Redirects can be explicitly limited', async () => {
   expect(error.response.status).toBe(302);
   expect(error.response.headers.location).toBe('/two');
   expect(server.isDone()).toBe(true);
+});
+
+test('A Lambda should not follow a redirect back to itself', async () => {
+  createResponse(mockLambda, {
+    StatusCode: 200,
+    Payload: {
+      headers: { location: 'lambda://test' },
+      statusCode: 302,
+    },
+  });
+
+  const response = await ctx.alpha.get('lambda://test');
+
+  // The desired behavior is to receive the 302 response, not to recursively follow it.
+  expect(response.status).toBe(302);
+  // Ensure we only called the lambda once.
+  expect(mockLambda.commandCalls(InvokeCommand)).toHaveLength(1);
 });
