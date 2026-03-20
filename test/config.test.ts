@@ -19,7 +19,7 @@ test('Creating a client with no options creates a standard Axios client', async 
     .get('/some/path')
     .reply(200, 'hello!');
 
-  const client = new Alpha();
+  const client = new Alpha({ baseURL: 'http://localhost' });
   expect(client instanceof Axios).toBe(true);
 
   const response = await client.get('/some/path');
@@ -49,6 +49,7 @@ test('Creating a client with configuration options sets the default client optio
     .reply(200, { message: 'hello!' });
 
   const options = {
+    baseURL: 'http://localhost',
     params: {
       foo: 'bar',
     },
