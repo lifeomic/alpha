@@ -62,7 +62,7 @@
     "lodash": "^4.17.21",
     "nearley": "2",
     "url-parse": "^1.5.10",
-    "uuid": "^8.3.2"
+    "uuid": "^14.0.0"
   },
   "publishConfig": {
     "access": "public"
