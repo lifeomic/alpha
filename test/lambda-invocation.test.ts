@@ -644,6 +644,25 @@ describe('X-Ray tracing', () => {
     }
   });
 
+  test('a lambda:// invoke wraps the Lambda client when ALPHA_XRAY_TRACING is enabled', async () => {
+    process.env.ALPHA_XRAY_TRACING = 'true';
+    createResponse(mockLambda, {
+      StatusCode: 200,
+      Payload: {
+        body: 'hello!',
+        headers: { 'test-header': 'some value' },
+        statusCode: 200,
+      },
+    });
+
+    const response = await ctx.alpha.get('/some/path');
+
+    expect(response.data).toBe('hello!');
+    expect(response.status).toBe(200);
+    expect(mockCaptureAWSv3Client).toHaveBeenCalledTimes(1);
+    expect(mockCaptureAWSv3Client).toHaveBeenCalledWith(expect.any(Lambda));
+  });
+
   test('a lambda:// invoke wraps the Lambda client for tracing when X-Ray is active', async () => {
     process.env._X_AMZN_TRACE_ID = 'Root=1-5e1b4151-5ac6c58f5b3e6f6f00000000';
     createResponse(mockLambda, {

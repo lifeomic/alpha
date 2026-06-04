@@ -34,10 +34,9 @@ let contextMissingConfigured = false;
  *
  * Safety for untraced consumers is the priority here:
  *  - We only wrap when X-Ray is actually active (see `isXRayTracingActive`).
- *  - If the consumer has not pinned `AWS_XRAY_CONTEXT_MISSING`, we set the
- *    strategy to `LOG_ERROR` so a missing segment logs rather than throws. We
- *    never clobber a consumer's explicit choice (env var set, or their own
- *    `setContextMissingStrategy` call before any invoke).
+ *  - If `AWS_XRAY_CONTEXT_MISSING` is unset, we set the strategy to `LOG_ERROR`
+ *    so a missing segment logs rather than throws. Consumers that need a
+ *    different strategy should set that env var in the runtime environment.
  *  - Any failure while instrumenting falls back to the original, unwrapped
  *    client so tracing can never break a real invoke.
  */
