@@ -12,6 +12,16 @@ import {
   lambdaResponse,
   Payload,
 } from '../src/adapters/helpers/lambdaResponse';
+import { captureAWSv3Client } from 'aws-xray-sdk-core';
+
+jest.mock('aws-xray-sdk-core', () => ({
+  captureAWSv3Client: jest.fn((client) => client),
+  setContextMissingStrategy: jest.fn(),
+}));
+
+const mockCaptureAWSv3Client = captureAWSv3Client as jest.MockedFunction<
+  typeof captureAWSv3Client
+>;
 
 const mockLambda = mockClient(Lambda);
 const FakeLambda = jest.fn() as jest.MockedClass<typeof Lambda>;
@@ -607,4 +617,130 @@ test('lambdaRegion config option is provided to the Lambda client', async () => 
   expect(response.status).toBe(200);
 
   expect(FakeLambda).toHaveBeenCalledWith({ region: 'ap-southeast-2' });
+});
+
+describe('X-Ray tracing', () => {
+  const originalTraceId = process.env._X_AMZN_TRACE_ID;
+  const originalOptIn = process.env.ALPHA_XRAY_TRACING;
+
+  beforeEach(() => {
+    // `resetMocks: true` wipes implementations between tests, so (re)install
+    // the pass-through behavior captureAWSv3Client has by default.
+    mockCaptureAWSv3Client.mockImplementation((client) => client);
+    delete process.env._X_AMZN_TRACE_ID;
+    delete process.env.ALPHA_XRAY_TRACING;
+  });
+
+  afterAll(() => {
+    if (originalTraceId === undefined) {
+      delete process.env._X_AMZN_TRACE_ID;
+    } else {
+      process.env._X_AMZN_TRACE_ID = originalTraceId;
+    }
+    if (originalOptIn === undefined) {
+      delete process.env.ALPHA_XRAY_TRACING;
+    } else {
+      process.env.ALPHA_XRAY_TRACING = originalOptIn;
+    }
+  });
+
+  test('a lambda:// invoke wraps the Lambda client when ALPHA_XRAY_TRACING is enabled', async () => {
+    process.env.ALPHA_XRAY_TRACING = 'true';
+    createResponse(mockLambda, {
+      StatusCode: 200,
+      Payload: {
+        body: 'hello!',
+        headers: { 'test-header': 'some value' },
+        statusCode: 200,
+      },
+    });
+
+    const response = await ctx.alpha.get('/some/path');
+
+    expect(response.data).toBe('hello!');
+    expect(response.status).toBe(200);
+    expect(mockCaptureAWSv3Client).toHaveBeenCalledTimes(1);
+    expect(mockCaptureAWSv3Client).toHaveBeenCalledWith(expect.any(Lambda));
+  });
+
+  test('a lambda:// invoke wraps the Lambda client for tracing when X-Ray is active', async () => {
+    process.env._X_AMZN_TRACE_ID = 'Root=1-5e1b4151-5ac6c58f5b3e6f6f00000000';
+    createResponse(mockLambda, {
+      StatusCode: 200,
+      Payload: {
+        body: 'hello!',
+        headers: { 'test-header': 'some value' },
+        statusCode: 200,
+      },
+    });
+
+    const response = await ctx.alpha.get('/some/path');
+
+    // The downstream invoke still returns the expected payload...
+    expect(response.data).toBe('hello!');
+    expect(response.status).toBe(200);
+
+    // ...and the Lambda client used for the invoke was wrapped by X-Ray.
+    expect(mockCaptureAWSv3Client).toHaveBeenCalledTimes(1);
+    expect(mockCaptureAWSv3Client).toHaveBeenCalledWith(expect.any(Lambda));
+  });
+
+  test('an injected config.Lambda client is still wrapped for tracing', async () => {
+    process.env._X_AMZN_TRACE_ID = 'Root=1-5e1b4151-5ac6c58f5b3e6f6f00000000';
+    createResponse(mockLambda, {
+      StatusCode: 200,
+      Payload: {
+        body: 'test',
+        statusCode: 200,
+      },
+    });
+
+    const response = await ctx.alpha.get('/test', { Lambda: FakeLambda });
+
+    expect(response.data).toBe('test');
+    expect(FakeLambda).toHaveBeenCalledTimes(1);
+    // The instance produced by the injected class is what gets traced.
+    expect(mockCaptureAWSv3Client).toHaveBeenCalledTimes(1);
+    expect(mockCaptureAWSv3Client).toHaveBeenCalledWith(expect.any(Lambda));
+  });
+
+  test('the untraced path is safe: the client is not wrapped and the invoke succeeds', async () => {
+    // No _X_AMZN_TRACE_ID and no opt-in => tracing must be a no-op.
+    createResponse(mockLambda, {
+      StatusCode: 200,
+      Payload: {
+        body: 'hello!',
+        headers: { 'test-header': 'some value' },
+        statusCode: 200,
+      },
+    });
+
+    const response = await ctx.alpha.get('/some/path');
+
+    expect(response.data).toBe('hello!');
+    expect(response.status).toBe(200);
+    expect(mockCaptureAWSv3Client).not.toHaveBeenCalled();
+  });
+
+  test('instrumentation failures never break the invoke (falls back to the unwrapped client)', async () => {
+    process.env._X_AMZN_TRACE_ID = 'Root=1-5e1b4151-5ac6c58f5b3e6f6f00000000';
+    mockCaptureAWSv3Client.mockImplementation(() => {
+      throw new Error('boom');
+    });
+    createResponse(mockLambda, {
+      StatusCode: 200,
+      Payload: {
+        body: 'hello!',
+        statusCode: 200,
+      },
+    });
+
+    const response = await ctx.alpha.get('/some/path');
+
+    // The wrap was attempted but threw; the original client still serviced the
+    // invoke, so consumers are never broken by tracing.
+    expect(mockCaptureAWSv3Client).toHaveBeenCalledTimes(1);
+    expect(response.data).toBe('hello!');
+    expect(response.status).toBe(200);
+  });
 });

@@ -6,6 +6,7 @@ import { lambdaEvent } from './helpers/lambdaEvent';
 import { lambdaResponse, Payload } from './helpers/lambdaResponse';
 import { parseLambdaUrl, isAbsoluteURL } from '../utils/url';
 import { RequestError } from './helpers/requestError';
+import { captureLambdaClient } from './helpers/tracing';
 import { InternalAlphaRequestConfig, AlphaAdapter } from '../types';
 import { Alpha } from '../alpha';
 import { AbortController } from '@aws-sdk/abort-controller';
@@ -32,7 +33,11 @@ const lambdaInvocationAdapter: AlphaAdapter = async (config) => {
     });
   }
 
-  const lambda = new LambdaClass(lambdaOptions);
+  // Wrap the client with X-Ray (safely, no-op when untraced) so that every
+  // `lambda://` invoke emits a subsegment naming the downstream service. This
+  // also covers the `config.Lambda` injection escape hatch, so all internal
+  // service -> service traffic is traced through this single chokepoint.
+  const lambda = captureLambdaClient(new LambdaClass(lambdaOptions));
   if (config.baseURL && !isAbsoluteURL(config.url as string)) {
     config.url = `${config.baseURL}${config.url}`;
   }
