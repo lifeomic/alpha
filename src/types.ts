@@ -17,7 +17,7 @@ export type SignAwsV4Config =
   & Omit<SignatureV4Constructor, SignatureV4Optionals>
   & Partial<Pick<SignatureV4Constructor, SignatureV4Optionals>>;
 
-export interface AlphaOptions<D = any> extends AxiosRequestConfig<D> {
+export interface AlphaOptions<D = any, P = any> extends AxiosRequestConfig<D, P> {
   retry?: RetryOptions | boolean;
   lambda?: Handler;
   context?: Context;
