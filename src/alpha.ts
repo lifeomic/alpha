@@ -61,7 +61,7 @@ export class Alpha extends Axios {
     interceptors.forEach((adapter) => adapter(this));
   }
 
-  async request <T = any, R = AxiosResponse<T>>(config: AlphaOptions): Promise<R> {
+  async request <T = any, R = AxiosResponse<T>, D = any, P = any>(config: AlphaOptions<D, P>): Promise<R> {
     const maxRedirects = config.maxRedirects ?? 5;
     // Need to override the default redirect logic to allow different adapters
     // to interact.
@@ -98,25 +98,25 @@ export class Alpha extends Axios {
     return response as R;
   }
 
-  get<T = any, R = AlphaResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
-    return super.get<T, R, D>(url, config);
+  get<T = any, R = AlphaResponse<T>, D = any, P = any>(url: string, config?: AlphaOptions<D, P>): Promise<R> {
+    return super.get<T, R, D, P>(url, config) as Promise<R>;
   }
-  delete<T = any, R = AlphaResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
-    return super.delete(url, config);
+  delete<T = any, R = AlphaResponse<T>, D = any, P = any>(url: string, config?: AlphaOptions<D, P>): Promise<R> {
+    return super.delete<T, R, D, P>(url, config) as Promise<R>;
   }
-  head<T = any, R = AlphaResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
-    return super.head(url, config);
+  head<T = any, R = AlphaResponse<T>, D = any, P = any>(url: string, config?: AlphaOptions<D, P>): Promise<R> {
+    return super.head<T, R, D, P>(url, config) as Promise<R>;
   }
-  options<T = any, R = AlphaResponse<T>, D = any>(url: string, config?: AlphaOptions<D>): Promise<R> {
-    return super.options(url, config);
+  options<T = any, R = AlphaResponse<T>, D = any, P = any>(url: string, config?: AlphaOptions<D, P>): Promise<R> {
+    return super.options<T, R, D, P>(url, config) as Promise<R>;
   }
-  post<T = any, R = AlphaResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
-    return super.post(url, data, config);
+  post<T = any, R = AlphaResponse<T>, D = any, P = any>(url: string, data?: D, config?: AlphaOptions<D, P>): Promise<R> {
+    return super.post<T, R, D, P>(url, data, config) as Promise<R>;
   }
-  put<T = any, R = AlphaResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
-    return super.put(url, data, config);
+  put<T = any, R = AlphaResponse<T>, D = any, P = any>(url: string, data?: D, config?: AlphaOptions<D, P>): Promise<R> {
+    return super.put<T, R, D, P>(url, data, config) as Promise<R>;
   }
-  patch<T = any, R = AlphaResponse<T>, D = any>(url: string, data?: D, config?: AlphaOptions<D>): Promise<R> {
-    return super.patch(url, data, config);
+  patch<T = any, R = AlphaResponse<T>, D = any, P = any>(url: string, data?: D, config?: AlphaOptions<D, P>): Promise<R> {
+    return super.patch<T, R, D, P>(url, data, config) as Promise<R>;
   }
 }
